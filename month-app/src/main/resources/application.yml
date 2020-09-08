@@ -1,0 +1,8 @@
+spring:
+  profiles:
+    active: local
+    include:
+      - domain
+
+server:
+  port: 8000
