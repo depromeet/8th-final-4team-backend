@@ -64,7 +64,7 @@ class MemberServiceTest {
 		// then
 		List<Member> members = memberRepository.findAll();
 		assertThat(members).hasSize(1);
-		assertThatMemberInfo(members.get(0), member.getEmail(), member.getName(), member.getPhotoUrl(), member.getProviderId());
+		assertThatMemberInfo(members.get(0), member.getEmail(), name, photoUrl, member.getProviderId());
 	}
 
 	private void assertThatMemberInfoResponse(MemberInfoResponse response, String email, String name, String photoUrl, String providerId) {
