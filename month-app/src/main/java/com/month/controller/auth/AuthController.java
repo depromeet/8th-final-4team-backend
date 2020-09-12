@@ -3,7 +3,7 @@ package com.month.controller.auth;
 import com.month.controller.ApiResponse;
 import com.month.service.auth.AuthService;
 import com.month.service.auth.dto.request.AuthRequest;
-import com.month.type.MemberSession;
+import com.month.type.session.MemberSession;
 import com.month.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
-import static com.month.type.SessionConstants.LOGIN_SESSION;
+import static com.month.type.session.SessionConstants.LOGIN_SESSION;
 
 @RequiredArgsConstructor
 @RestController

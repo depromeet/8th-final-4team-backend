@@ -1,7 +1,7 @@
 package com.month.config.resolver;
 
-import com.month.type.MemberSession;
-import com.month.type.SessionConstants;
+import com.month.type.session.MemberSession;
+import com.month.type.session.SessionConstants;
 import com.month.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;

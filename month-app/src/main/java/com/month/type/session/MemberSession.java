@@ -1,4 +1,4 @@
-package com.month.type;
+package com.month.type.session;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

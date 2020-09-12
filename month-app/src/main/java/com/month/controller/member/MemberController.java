@@ -5,7 +5,7 @@ import com.month.controller.ApiResponse;
 import com.month.service.member.MemberService;
 import com.month.service.member.dto.request.MemberUpdateInfoRequest;
 import com.month.service.member.dto.response.MemberInfoResponse;
-import com.month.type.MemberSession;
+import com.month.type.session.MemberSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
