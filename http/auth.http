@@ -10,4 +10,25 @@ Content-Type: application/json
   "idToken": "token"
 }
 
+> {%
+client.global.set("AUTHORIZATION", response.body["data"])
+ %}
+
+
+### 내 정보를 불러오는 API
+GET {{host}}/api/v1/member
+Authorization: Bearer {{AUTHORIZATION}}
+Content-Type: application/json
+
+
+### 회원정보 수정 API
+PUT {{host}}/api/v1/member
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "name": "호승강",
+  "photoUrl": "http://123.com"
+}
+
 ###
