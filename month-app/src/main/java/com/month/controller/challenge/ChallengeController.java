@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +27,11 @@ public class ChallengeController {
 	@GetMapping("/api/v1/challenge")
 	public ApiResponse<ChallengeInfoResponse> getChallengeInfo(@Valid ChallengeRetrieveRequest request, @LoginMember MemberSession memberSession) {
 		return ApiResponse.of(challengeService.getChallengeInfo(request, memberSession.getMemberId()));
+	}
+
+	@GetMapping("/api/v1/challenge/my")
+	public ApiResponse<List<ChallengeInfoResponse>> getMyChallengesInfo(@LoginMember MemberSession memberSession) {
+		return ApiResponse.of(challengeService.getMyChallengeInfo(memberSession.getMemberId()));
 	}
 
 }

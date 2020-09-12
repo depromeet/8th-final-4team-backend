@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,8 +123,36 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 		// when & then
 		assertThatThrownBy(() -> {
-			ChallengeInfoResponse response = challengeService.getChallengeInfo(request, memberId);
+			challengeService.getChallengeInfo(request, memberId);
 		}).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void 내가_참가하고_있는_모든_챌린지를_불러온다() {
+		// given
+		Challenge challenge1 = ChallengeCreator.create("챌린지1");
+		challenge1.addCreator(memberId);
+		Challenge challenge2 = ChallengeCreator.create("챌린지2");
+		challenge2.addParticipator(memberId);
+		challengeRepository.saveAll(Arrays.asList(challenge1, challenge2));
+
+		// when
+		List<ChallengeInfoResponse> responses = challengeService.getMyChallengeInfo(memberId);
+
+		// then
+		assertThat(responses).hasSize(2);
+		assertThat(responses.get(0).getName()).isEqualTo("챌린지1");
+		assertThat(responses.get(1).getName()).isEqualTo("챌린지2");
+	}
+
+	@Test
+	void 어떤_챌린지에도_참가하고_있지_않을때_나의_챌린지를_불러오면_빌_리스트가_반환된다() {
+		// when
+		List<ChallengeInfoResponse> responses = challengeService.getMyChallengeInfo(memberId);
+
+		// then
+		assertThat(responses).isEmpty();
+		assertThat(responses).isNotNull();
 	}
 
 	private void assertThatChallengeInfoResponse(ChallengeInfoResponse response, String name, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, CertifyType certifyType) {

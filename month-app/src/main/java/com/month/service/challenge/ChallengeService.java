@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class ChallengeService {
@@ -27,6 +30,14 @@ public class ChallengeService {
 		Challenge challenge = ChallengeServiceUtils.findChallengeByUuid(challengeRepository, request.getUuid());
 		challenge.validateMemberInChallenge(memberId);
 		return ChallengeInfoResponse.of(challenge);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChallengeInfoResponse> getMyChallengeInfo(Long memberId) {
+		List<Challenge> challenges = challengeRepository.findChallengesByMemberId(memberId);
+		return challenges.stream()
+				.map(ChallengeInfoResponse::of)
+				.collect(Collectors.toList());
 	}
 
 }

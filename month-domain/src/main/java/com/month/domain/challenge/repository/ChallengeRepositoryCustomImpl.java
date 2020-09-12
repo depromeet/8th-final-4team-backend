@@ -4,7 +4,10 @@ import com.month.domain.challenge.Challenge;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import static com.month.domain.challenge.QChallenge.challenge;
+import static com.month.domain.challenge.QChallengeMemberMapper.challengeMemberMapper;
 
 @RequiredArgsConstructor
 public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom {
@@ -17,6 +20,15 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 				.where(
 						challenge.uuid.uuid.eq(uuid)
 				).fetchOne();
+	}
+
+	@Override
+	public List<Challenge> findChallengesByMemberId(Long memberId) {
+		return queryFactory.selectFrom(challenge).distinct()
+				.innerJoin(challenge.memberMappers, challengeMemberMapper)
+				.where(
+						challengeMemberMapper.memberId.eq(memberId)
+				).fetch();
 	}
 
 }
