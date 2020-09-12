@@ -2,6 +2,7 @@ package com.month.config.resolver;
 
 import com.month.type.MemberSession;
 import com.month.type.SessionConstants;
+import com.month.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -36,21 +37,12 @@ public class LoginMemberSessionResolver implements HandlerMethodArgumentResolver
 	}
 
 	private Session extractSessionFromHeader(String header) {
-		validateAvailableHeader(header);
+		HeaderUtils.validateAvailableHeader(header);
 		Session session = sessionRepository.getSession(header.split(BEARER_TOKEN)[1]);
 		if (session == null) {
 			throw new IllegalArgumentException(String.format("잘못된 세션입니다 (%s)", header));
 		}
 		return session;
-	}
-
-	private void validateAvailableHeader(String header) {
-		if (header == null) {
-			throw new IllegalArgumentException("세션이 없습니다");
-		}
-		if (!header.startsWith(BEARER_TOKEN)) {
-			throw new IllegalArgumentException(String.format("잘못된 세션입니다 (%s)", header));
-		}
 	}
 
 }

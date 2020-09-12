@@ -14,11 +14,15 @@ Content-Type: application/json
 client.global.set("AUTHORIZATION", response.body["data"])
  %}
 
+### 로그아웃 API
+POST {{host}}/api/v1/logout
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
 
 ### 내 정보를 불러오는 API
 GET {{host}}/api/v1/member
 Authorization: Bearer {{AUTHORIZATION}}
-Content-Type: application/json
 
 
 ### 회원정보 수정 API
