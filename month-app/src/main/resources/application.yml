@@ -3,6 +3,8 @@ spring:
     active: local
     include:
       - domain
+  datasource:
+    data: classpath:schema/schema-session.sql
 
 server:
   port: 8000

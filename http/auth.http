@@ -1,0 +1,13 @@
+### Auth API
+POST {{host}}/api/v1/auth
+Content-Type: application/json
+
+{
+  "name": "강승호",
+  "email": "will.seungho@gmail.com",
+  "photoUrl": "http://profile.com",
+  "providerId": "google.com",
+  "idToken": "token"
+}
+
+###
