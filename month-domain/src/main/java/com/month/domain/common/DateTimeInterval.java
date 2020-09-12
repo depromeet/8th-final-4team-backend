@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -30,6 +31,20 @@ public class DateTimeInterval {
 		if (startDateTime.isAfter(endDateTime)) {
 			throw new IllegalArgumentException(String.format("종료시간 (%s)이 시작시간 (%s) 이전일 수 업습니다.", startDateTime, endDateTime));
 		}
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DateTimeInterval that = (DateTimeInterval) o;
+		return Objects.equals(startDateTime, that.startDateTime) &&
+				Objects.equals(endDateTime, that.endDateTime);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(startDateTime, endDateTime);
 	}
 
 }

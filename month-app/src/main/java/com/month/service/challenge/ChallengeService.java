@@ -1,7 +1,9 @@
 package com.month.service.challenge;
 
+import com.month.config.resolver.LoginMember;
 import com.month.domain.challenge.Challenge;
 import com.month.domain.challenge.ChallengeRepository;
+import com.month.service.challenge.dto.request.ChallengeCreateInvitationKeyRequest;
 import com.month.service.challenge.dto.request.ChallengeCreateRequest;
 import com.month.service.challenge.dto.request.ChallengeRetrieveRequest;
 import com.month.service.challenge.dto.response.ChallengeInfoResponse;
@@ -38,6 +40,13 @@ public class ChallengeService {
 		return challenges.stream()
 				.map(ChallengeInfoResponse::of)
 				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public String createInvitationKey(ChallengeCreateInvitationKeyRequest request, Long memberId) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByUuid(challengeRepository, request.getChallengeUuid());
+		challenge.createNewInvitationKey(memberId);
+		return challenge.getInvitationKey();
 	}
 
 }

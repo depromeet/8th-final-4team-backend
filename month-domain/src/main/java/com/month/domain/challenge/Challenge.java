@@ -74,6 +74,14 @@ public class Challenge {
 		return this.uuid.getUuid();
 	}
 
+	public String getInvitationKey() {
+		return this.invitationKey.getInvitationKey();
+	}
+
+	public LocalDateTime getExpireDateTimeOfInvitationKey() {
+		return this.invitationKey.getExpireDateTime();
+	}
+
 	public void addCreator(Long memberId) {
 		this.memberMappers.add(ChallengeMemberMapper.creator(this, memberId));
 		this.membersCount++;
@@ -94,10 +102,21 @@ public class Challenge {
 				.anyMatch(memberMapper -> memberMapper.isParticipator(memberId));
 	}
 
+	private boolean isMemberInChallenge(Long memberId) {
+		return isCreator(memberId) || isParticipator(memberId);
+	}
+
 	public void validateMemberInChallenge(Long memberId) {
-		if (!(isCreator(memberId) || isParticipator(memberId))) {
+		if (!isMemberInChallenge(memberId)) {
 			throw new IllegalArgumentException(String.format("멤버 (%s) 는 챌린지 (%s) 에 참가하고 있지 않습니다.", memberId, this.uuid));
 		}
+	}
+
+	public void createNewInvitationKey(Long memberId) {
+		if (!isMemberInChallenge(memberId)) {
+			throw new IllegalArgumentException(String.format("챌린지 (%s) 에 참가하고 있는 멤버만이 초대키를 생성할 수 있습니다. 현재 멤버: %s", this.uuid, memberId));
+		}
+		this.invitationKey = InvitationKey.newInstance(getUuid(), memberId);
 	}
 
 }

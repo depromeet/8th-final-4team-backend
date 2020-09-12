@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.util.Objects;
 import java.util.UUID;
 
 @Getter
@@ -28,6 +29,19 @@ public class Uuid {
 
 	public static Uuid of(String uuid) {
 		return new Uuid(uuid);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Uuid uuid1 = (Uuid) o;
+		return Objects.equals(uuid, uuid1.uuid);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(uuid);
 	}
 
 }

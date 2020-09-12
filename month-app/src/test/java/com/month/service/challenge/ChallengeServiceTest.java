@@ -2,6 +2,7 @@ package com.month.service.challenge;
 
 import com.month.domain.challenge.*;
 import com.month.service.MemberSetupTest;
+import com.month.service.challenge.dto.request.ChallengeCreateInvitationKeyRequest;
 import com.month.service.challenge.dto.request.ChallengeCreateRequest;
 import com.month.service.challenge.dto.request.ChallengeRetrieveRequest;
 import com.month.service.challenge.dto.response.ChallengeInfoResponse;
@@ -153,6 +154,24 @@ class ChallengeServiceTest extends MemberSetupTest {
 		// then
 		assertThat(responses).isEmpty();
 		assertThat(responses).isNotNull();
+	}
+
+	@Test
+	void 새로운_초대키를_발급한다() {
+		// given
+		Challenge challenge = ChallengeCreator.create("챌린지");
+		challenge.addCreator(memberId);
+		challengeRepository.save(challenge);
+
+		ChallengeCreateInvitationKeyRequest request = ChallengeCreateInvitationKeyRequest.testInstance(challenge.getUuid());
+
+		// when
+		challengeService.createInvitationKey(request, memberId);
+
+		// then
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertThat(challenges.get(0).getInvitationKey()).isNotNull();
 	}
 
 	private void assertThatChallengeInfoResponse(ChallengeInfoResponse response, String name, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, CertifyType certifyType) {
