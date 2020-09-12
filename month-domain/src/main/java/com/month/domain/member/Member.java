@@ -1,13 +1,11 @@
 package com.month.domain.member;
 
 import com.month.domain.BaseTimeEntity;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Getter
 @NoArgsConstructor
@@ -18,6 +16,33 @@ public class Member extends BaseTimeEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	@Embedded
+	private Email email;
+
 	private String name;
+
+	private String photoUrl;
+
+	private String providerId;
+
+	@Column(nullable = false)
+	private String idToken;
+
+	@Builder
+	private Member(String email, String name, String photoUrl, String providerId, String idToken) {
+		this.email = Email.of(email);
+		this.name = name;
+		this.photoUrl = photoUrl;
+		this.providerId = providerId;
+		this.idToken = idToken;
+	}
+
+	public static Member newInstance(String email, String name, String photoUrl, String providerId, String idToken) {
+		return new Member(email, name, photoUrl, providerId, idToken);
+	}
+
+	public String getEmail() {
+		return this.email.getEmail();
+	}
 
 }

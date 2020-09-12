@@ -12,10 +12,11 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public Member findMemberById(Long memberId) {
+	public Member findMemberByTokenAndEmail(String idToken, String email) {
 		return queryFactory.selectFrom(member)
 				.where(
-						member.id.eq(memberId)
+						member.idToken.eq(idToken),
+						member.email.email.eq(email)
 				).fetchOne();
 	}
 
