@@ -12,4 +12,14 @@ public final class MemberCreator {
 				.build();
 	}
 
+	public static Member create(String email, String name, String photoUrl, String providerId) {
+		return Member.builder()
+				.email(email)
+				.name(name)
+				.photoUrl(photoUrl)
+				.providerId(providerId)
+				.idToken("idToken")
+				.build();
+	}
+
 }

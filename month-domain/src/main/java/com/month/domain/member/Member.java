@@ -4,6 +4,7 @@ import com.month.domain.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
 
@@ -43,6 +44,15 @@ public class Member extends BaseTimeEntity {
 
 	public String getEmail() {
 		return this.email.getEmail();
+	}
+
+	public void updateInfo(String name, String photoUrl) {
+		if (StringUtils.hasText(name)) {
+			this.name = name;
+		}
+		if (StringUtils.hasText(photoUrl)) {
+			this.photoUrl = photoUrl;
+		}
 	}
 
 }

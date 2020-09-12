@@ -1,9 +1,8 @@
-package com.month.service;
+package com.month.service.auth;
 
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
-import com.month.service.auth.AuthService;
 import com.month.service.auth.dto.request.AuthRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

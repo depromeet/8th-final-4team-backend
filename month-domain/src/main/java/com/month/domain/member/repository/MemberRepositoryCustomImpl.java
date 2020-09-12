@@ -20,4 +20,12 @@ public class MemberRepositoryCustomImpl implements MemberRepositoryCustom {
 				).fetchOne();
 	}
 
+	@Override
+	public Member findMemberId(Long memberId) {
+		return queryFactory.selectFrom(member)
+				.where(
+						member.id.eq(memberId)
+				).fetchOne();
+	}
+
 }
