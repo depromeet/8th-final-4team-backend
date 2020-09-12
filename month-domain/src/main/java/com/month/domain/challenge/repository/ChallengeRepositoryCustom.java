@@ -10,4 +10,6 @@ public interface ChallengeRepositoryCustom {
 
 	List<Challenge> findChallengesByMemberId(Long memberId);
 
+	Challenge findChallengeByInvitationKey(String invitationKey);
+
 }

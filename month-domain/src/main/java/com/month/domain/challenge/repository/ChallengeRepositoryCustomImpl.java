@@ -16,7 +16,8 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 
 	@Override
 	public Challenge findChallengeByUuid(String uuid) {
-		return queryFactory.selectFrom(challenge)
+		return queryFactory.selectFrom(challenge).distinct()
+				.innerJoin(challenge.memberMappers, challengeMemberMapper).fetchJoin()
 				.where(
 						challenge.uuid.uuid.eq(uuid)
 				).fetchOne();
@@ -25,10 +26,18 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 	@Override
 	public List<Challenge> findChallengesByMemberId(Long memberId) {
 		return queryFactory.selectFrom(challenge).distinct()
-				.innerJoin(challenge.memberMappers, challengeMemberMapper)
+				.innerJoin(challenge.memberMappers, challengeMemberMapper).fetchJoin()
 				.where(
 						challengeMemberMapper.memberId.eq(memberId)
 				).fetch();
+	}
+
+	@Override
+	public Challenge findChallengeByInvitationKey(String invitationKey) {
+		return queryFactory.selectFrom(challenge)
+				.where(
+						challenge.invitationKey.invitationKey.eq(invitationKey)
+				).fetchOne();
 	}
 
 }
