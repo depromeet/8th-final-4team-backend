@@ -28,4 +28,10 @@ public class AuthController {
 		return ApiResponse.of(httpSession.getId());
 	}
 
+	@PostMapping("/api/v1/logout")
+	public ApiResponse<String> handleLogout() {
+		httpSession.removeAttribute(LOGIN_SESSION);
+		return ApiResponse.OK;
+	}
+	
 }
