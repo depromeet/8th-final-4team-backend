@@ -6,6 +6,7 @@ import com.month.service.member.MemberService;
 import com.month.service.member.dto.request.MemberUpdateInfoRequest;
 import com.month.service.member.dto.response.MemberInfoResponse;
 import com.month.type.session.MemberSession;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -20,11 +21,13 @@ public class MemberController {
 
 	private final MemberService memberService;
 
+	@ApiOperation("나의 회원 정보를 불러오는 API")
 	@GetMapping("/api/v1/member")
 	public ApiResponse<MemberInfoResponse> getMemberInfo(@LoginMember MemberSession memberSession) {
 		return ApiResponse.of(memberService.getMemberInfo(memberSession.getMemberId()));
 	}
 
+	@ApiOperation("나의 회원 정보를 수정하는 API")
 	@PutMapping("/api/v1/member")
 	public ApiResponse<MemberInfoResponse> updateMemberInfo(@Valid @RequestBody MemberUpdateInfoRequest request, @LoginMember MemberSession memberSession) {
 		return ApiResponse.of(memberService.updateMemberInfo(request, memberSession.getMemberId()));

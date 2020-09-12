@@ -5,6 +5,7 @@ import com.month.service.auth.AuthService;
 import com.month.service.auth.dto.request.AuthRequest;
 import com.month.type.session.MemberSession;
 import com.month.utils.HeaderUtils;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.session.SessionRepository;
@@ -27,6 +28,7 @@ public class AuthController {
 
 	private final SessionRepository sessionRepository;
 
+	@ApiOperation("회원가입 or 로그인을 진행하는 API")
 	@PostMapping("/api/v1/auth")
 	public ApiResponse<String> handleAuthentication(@Valid @RequestBody AuthRequest request) {
 		Long memberId = authService.handleAuthentication(request);
@@ -34,6 +36,7 @@ public class AuthController {
 		return ApiResponse.of(httpSession.getId());
 	}
 
+	@ApiOperation("로그아웃을 진행하는 API")
 	@PostMapping("/api/v1/logout")
 	public ApiResponse<String> handleLogout(@RequestHeader HttpHeaders httpHeaders) {
 		String header = httpHeaders.getFirst(HttpHeaders.AUTHORIZATION);
@@ -41,6 +44,5 @@ public class AuthController {
 		sessionRepository.delete(header.split(HeaderUtils.BEARER_TOKEN)[1]);
 		return ApiResponse.OK;
 	}
-
 
 }
