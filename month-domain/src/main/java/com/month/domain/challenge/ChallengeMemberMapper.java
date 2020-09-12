@@ -1,5 +1,6 @@
 package com.month.domain.challenge;
 
+import com.month.domain.BaseTimeEntity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class ChallengeMemberMapper {
+public class ChallengeMemberMapper extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +20,7 @@ public class ChallengeMemberMapper {
 	@JoinColumn(name = "challenge_id")
 	private Challenge challenge;
 
+	@Column(nullable = false)
 	private Long memberId;
 
 	@Enumerated(EnumType.STRING)

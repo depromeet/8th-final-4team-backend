@@ -1,5 +1,6 @@
 package com.month.domain.challenge;
 
+import com.month.domain.BaseTimeEntity;
 import com.month.domain.common.DateTimeInterval;
 import com.month.domain.common.Uuid;
 import lombok.AccessLevel;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Challenge {
+public class Challenge extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,6 +26,7 @@ public class Challenge {
 	@Embedded
 	private Uuid uuid;
 
+	@Column(nullable = false)
 	private String name;
 
 	private String description;
@@ -46,10 +48,10 @@ public class Challenge {
 	@Builder
 	private Challenge(String name, String description, LocalDateTime startDateTime, LocalDateTime endDateTime, CertifyType certifyType) {
 		this.uuid = Uuid.newInstance();
-		this.membersCount = 0;
-		this.dateTimeInterval = DateTimeInterval.of(startDateTime, endDateTime);
 		this.name = name;
 		this.description = description;
+		this.membersCount = 0;
+		this.dateTimeInterval = DateTimeInterval.of(startDateTime, endDateTime);
 		this.certifyType = certifyType;
 	}
 

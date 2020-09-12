@@ -31,7 +31,7 @@ public class InvitationKey {
 	}
 
 	private static String createInvitationKey(String challengeUuid, Long memberId) {
-		return createIdentification() + DELIMITER + challengeUuid + DELIMITER + memberId;
+		return challengeUuid + DELIMITER + createIdentification() + DELIMITER + memberId;
 	}
 
 	private static LocalDateTime calculateExpiresDateTime() {

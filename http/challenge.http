@@ -44,4 +44,9 @@ Authorization: Bearer {{AUTHORIZATION}}
   "invitationKey": "{{CHALLENGE_INVITATION_KEY}}"
 }
 
+### 초대키로 챌린지의 간단한 정보를 불러오는 API
+GET {{host}}/api/v1/challenge/invite?invitationKey={{CHALLENGE_INVITATION_KEY}}
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
 ###
