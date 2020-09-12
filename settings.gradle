@@ -1,5 +1,4 @@
 rootProject.name = 'month'
 include 'month-domain'
 include 'month-app'
-include 'month-common'
 

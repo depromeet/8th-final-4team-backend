@@ -1,0 +1,16 @@
+package com.month.service.challenge;
+
+import com.month.domain.challenge.Challenge;
+import com.month.domain.challenge.ChallengeRepository;
+
+final class ChallengeServiceUtils {
+
+	static Challenge findChallengeByUuid(ChallengeRepository challengeRepository, String uuid) {
+		Challenge challenge = challengeRepository.findChallengeByUuid(uuid);
+		if (challenge == null) {
+			throw new IllegalArgumentException(String.format("해당 uuid (%s) 를 가진 챌린지는 존재하지 않습니다.", uuid));
+		}
+		return challenge;
+	}
+
+}

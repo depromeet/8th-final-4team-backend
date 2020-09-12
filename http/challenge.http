@@ -1,0 +1,22 @@
+### 챌린지 생성 API
+POST {{host}}/api/v1/challenge
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "name": "운동하는 챌린지",
+  "description" : "매일 운동하는 챌린지입니다.",
+  "startDateTime": "2020-09-01T10:00:00",
+  "endDateTime":  "2020-10-01T00:00:00",
+  "certifyType": "PICTURE"
+}
+
+> {%
+client.global.set("CHALLENGE_UUID", response.body["data"]["challengeUuid"])
+ %}
+
+### 챌린지 정보 불러오기 API
+GET {{host}}/api/v1/challenge?uuid={{CHALLENGE_UUID}}
+Authorization: Bearer {{AUTHORIZATION}}
+
+###
