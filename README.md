@@ -5,19 +5,25 @@
 * month-app : 어플리케이션 계층
 * month-domain : 도메인 계층 (Domain, Repository, Domain Service)
 
+## 로컬에서 테스트 하는 방법.
 
-### RUN Server (로컬 테스트용)
 ```
-sudo chmod +x ./gradlew
-
-# build
-./gradlew clean build +x
-
-# compose-up
-docker-compose up -d --build
+$ git clone https://github.com/depromeet/8th-final-4team-backend
 ```
 
-### 컨테이너 확인
+```
+$ cd 8th-final-4team-backend
+
+$ sudo chmod +x ./gradlew
+
+$ ./gradlew clean build +x
+```
+
+```
+$ docker-compose up -d --build
+```
+
+## Docker-compose 서비스 확인
 ```
 $ docker-compose ps
 
@@ -27,7 +33,7 @@ $ docker-compose ps
 
 ```
 
-### 컨테이너 삭제
+## Docker-compose 서비스 종료 및 삭제
 ```
 $ docker-compose down
 ```
