@@ -2,7 +2,7 @@ name: Deploy Dev Server
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ develop]
 env:
   PROJECT_NAME: month-app
   BUCKET_NAME: depromeet-final-bucket
@@ -35,8 +35,14 @@ jobs:
       - name: Copy *.jar into deploy/
         run: cp month-app/build/libs/*.jar deploy/
 
+      - name: Copy Dockerfile into deploy/
+        run: cp Dockerfile deploy/
+
+      - name: Copy docker-compose.yml into deploy/
+        run: cp docker-compose.yml deploy/
+
       - name: Copy run.sh into deploy/
-        run: cp run.sh deploy/
+        run: cp ./scripts/run.sh deploy/
 
       - name: Zip deploy/
         run: zip -r -j deploy deploy/*
