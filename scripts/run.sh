@@ -16,4 +16,4 @@ else
 fi
 
 echo "Run Server"
-docker-compose -p ${DOCKER_APP_NAME} -f docker-compose.yml up -d
+docker-compose -p ${DOCKER_APP_NAME} -f docker-compose.yml up -d --build

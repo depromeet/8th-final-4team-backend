@@ -2,6 +2,6 @@ version: "3"
 services:
   dev:
     build: .
-    command: java -jar month-app.jar --spring.profiles.active=local
+    command: java -jar month-app/build/libs/month-app.jar --spring.profiles.active=local
     ports:
       - 8000:8000
