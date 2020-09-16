@@ -5,15 +5,22 @@ DOCKER_APP_NAME=month-app
 
 cd $DIRECTORY
 
-EXIST_SERVER=$(docker-compose -p ${DOCKER_APP_NAME} -f docker-compose.yml ps  | grep Up)
+EXIST_BLUE=$(docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml ps  | grep Up)
 
-if [ -z "$EXIST_SERVER" ]; then
-    echo "Server is not running"
+if [ -z "$EXIST_BLUE" ]; then
+    echo "Blue Up"
+    docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml up -d --build
+
+    sleep 30
+
+    echo "Green Down"
+    docker-compose -p ${DOCKER_APP_NAME}-green -f docker-compose.green.yml down
 else
-    echo "Kill the running Server"
-    docker-compose -p ${DOCKER_APP_NAME} -f docker-compose.yml down
-    sleep 10
-fi
+    echo "Green Up"
+    docker-compose -p ${DOCKER_APP_NAME}-green -f docker-compose.green.yml up -d --build
 
-echo "Run Server"
-docker-compose -p ${DOCKER_APP_NAME} -f docker-compose.yml up -d --build
+    sleep 30
+
+    echo "Blue Down"
+    docker-compose -p ${DOCKER_APP_NAME}-blue -f docker-compose.blue.yml down
+fi

@@ -41,8 +41,8 @@ jobs:
       - name: Copy Dockerfile into deploy/
         run: cp Dockerfile deploy/
 
-      - name: Copy docker-compose.yml into deploy/
-        run: cp docker-compose.yml deploy/
+      - name: Copy docker-compose.*.yml into deploy/
+        run: cp docker-compose.*.yml deploy/
 
       - name: Copy run.sh into deploy/
         run: cp ./scripts/run.sh deploy/scripts/
