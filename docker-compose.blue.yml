@@ -1,0 +1,9 @@
+# 배포 Docker-compose (블루)
+
+version: "3"
+services:
+  dev:
+    build: .
+    command: java -jar month-app/build/libs/month-app.jar --spring.profiles.active=local
+    ports:
+      - 8001:8000
