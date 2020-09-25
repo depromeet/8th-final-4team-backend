@@ -1,0 +1,21 @@
+### 프로필 사진 업로드
+POST {{host}}/api/v1/upload?type=PROFILE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.png"
+
+< ./file/test.png
+--WebAppBoundary--
+
+### 챌린지 인증 사진을 업로드
+POST {{host}}/api/v1/upload?type=CHALLENGE
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="test.png"
+
+< ./file/test.png
+--WebAppBoundary--
+
+###
