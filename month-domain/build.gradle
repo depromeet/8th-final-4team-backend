@@ -17,8 +17,6 @@ buildscript {
 apply plugin: "com.ewerk.gradle.plugins.querydsl"
 
 dependencies {
-    implementation project(':month-common')
-
     api group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: '2.2.8.RELEASE'
     runtimeOnly 'com.h2database:h2'
 

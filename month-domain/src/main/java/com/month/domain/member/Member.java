@@ -24,22 +24,24 @@ public class Member extends BaseTimeEntity {
 
 	private String photoUrl;
 
-	private String providerId;
-
 	@Column(nullable = false)
-	private String idToken;
+	private String uid;
 
 	@Builder
-	private Member(String email, String name, String photoUrl, String providerId, String idToken) {
+	private Member(String email, String name, String photoUrl, String uid) {
 		this.email = Email.of(email);
 		this.name = name;
 		this.photoUrl = photoUrl;
-		this.providerId = providerId;
-		this.idToken = idToken;
+		this.uid = uid;
 	}
 
-	public static Member newInstance(String email, String name, String photoUrl, String providerId, String idToken) {
-		return new Member(email, name, photoUrl, providerId, idToken);
+	public static Member newInstance(String email, String name, String photoUrl, String uid) {
+		return Member.builder()
+				.email(email)
+				.name(name)
+				.photoUrl(photoUrl)
+				.uid(uid)
+				.build();
 	}
 
 	public String getEmail() {
