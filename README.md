@@ -4,7 +4,7 @@
 ### 프로젝트 구조
 * month-app : 어플리케이션 계층
 * month-external: 외부 API 연동 계층
-* month-domain : 도메인 계층 (Domain, Repository, Domain Service)
+* month-domain : 도메인 계층 (Domain, Repository, Domain Service) 
 
 ### firebase-admin.json
 ```

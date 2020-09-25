@@ -1,0 +1,25 @@
+spring:
+  profiles: local
+cloud:
+  aws:
+    s3:
+      bucket: depromeet-final-upload-test
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      instanceProfile: true
+---
+spring:
+  profiles: prod
+cloud:
+  aws:
+    s3:
+      bucket: depromeet-final-upload-prod
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+    credentials:
+      instanceProfile: true
