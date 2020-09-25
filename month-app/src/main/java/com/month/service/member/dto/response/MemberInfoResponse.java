@@ -9,16 +9,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class MemberInfoResponse {
 
+	private final Long id;
+
 	private final String email;
 
 	private final String name;
 
 	private final String photoUrl;
 
-	private final String providerId;
-
 	public static MemberInfoResponse of(Member member) {
-		return new MemberInfoResponse(member.getEmail(), member.getName(), member.getPhotoUrl(), member.getProviderId());
+		return new MemberInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getPhotoUrl());
 	}
 
 }

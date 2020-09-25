@@ -33,7 +33,7 @@ class MemberServiceTest {
 
 	@BeforeEach
 	void setUpMember() {
-		member = MemberCreator.create("will.seungho@gmail.com", "강승호", "photoUrl", "providerId");
+		member = MemberCreator.create("will.seungho@gmail.com", "강승호", "photoUrl", "uid");
 	}
 
 	@Test
@@ -45,7 +45,7 @@ class MemberServiceTest {
 		MemberInfoResponse response = memberService.getMemberInfo(member.getId());
 
 		// then
-		assertThatMemberInfoResponse(response, member.getEmail(), member.getName(), member.getPhotoUrl(), member.getProviderId());
+		assertThatMemberInfoResponse(response, member.getId(), member.getEmail(), member.getName(), member.getPhotoUrl());
 	}
 
 	@Test
@@ -64,21 +64,21 @@ class MemberServiceTest {
 		// then
 		List<Member> members = memberRepository.findAll();
 		assertThat(members).hasSize(1);
-		assertThatMemberInfo(members.get(0), member.getEmail(), name, photoUrl, member.getProviderId());
+		assertThatMemberInfo(members.get(0), member.getEmail(), name, photoUrl, member.getUid());
 	}
 
-	private void assertThatMemberInfoResponse(MemberInfoResponse response, String email, String name, String photoUrl, String providerId) {
+	private void assertThatMemberInfoResponse(MemberInfoResponse response, Long id, String email, String name, String photoUrl) {
+		assertThat(response.getId()).isEqualTo(id);
 		assertThat(response.getEmail()).isEqualTo(email);
 		assertThat(response.getName()).isEqualTo(name);
 		assertThat(response.getPhotoUrl()).isEqualTo(photoUrl);
-		assertThat(response.getProviderId()).isEqualTo(providerId);
 	}
 
-	private void assertThatMemberInfo(Member member, String email, String name, String photoUrl, String providerId) {
+	private void assertThatMemberInfo(Member member, String email, String name, String photoUrl, String uid) {
 		assertThat(member.getEmail()).isEqualTo(email);
 		assertThat(member.getName()).isEqualTo(name);
 		assertThat(member.getPhotoUrl()).isEqualTo(photoUrl);
-		assertThat(member.getProviderId()).isEqualTo(providerId);
+		assertThat(member.getUid()).isEqualTo(uid);
 	}
 
 }
