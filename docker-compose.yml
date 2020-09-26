@@ -3,7 +3,6 @@
 version: "3"
 services:
   dev:
-    build: .
     image: 751264546625.dkr.ecr.ap-northeast-2.amazonaws.com/depromeet-final-ecr:latest
     ports:
       - 8000:8000
