@@ -2,7 +2,8 @@ name: Deploy Dev Server
 
 on:
   push:
-    branches: [ develop ]
+    branches:
+      - develop
 env:
   PROJECT_NAME: month-app
   BUCKET_NAME: depromeet-final-bucket
@@ -29,29 +30,11 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew clean build
-
       - name: Make deploy/month-app/build/libs/
-        run: mkdir -p deploy/month-app/build/libs/
-
-      - name: Make deploy/scripts
-        run: mkdir -p deploy/scripts/
+        run: mkdir -p deploy/
 
       - name: Copy appspec.yml into deploy/
-        run: cp appspec.yml deploy/
-
-      - name: Copy *.jar into deploy/
-        run: cp month-app/build/libs/*.jar deploy/month-app/build/libs/
-
-      - name: Copy Dockerfile into deploy/
-        run: cp Dockerfile deploy/
-
-      - name: Copy docker-compose.*.yml into deploy/
-        run: cp docker-compose.*.yml deploy/
-
-      - name: Copy run.sh into deploy/
-        run: cp ./scripts/run.sh deploy/scripts/
+        run: cp appspec.yml docker-compose.*yml ./scripts/run.sh deploy/
 
       - name: Zip deploy/
         run: zip -r deploy.zip deploy/
@@ -71,7 +54,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: depromeet-final-ecr
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG

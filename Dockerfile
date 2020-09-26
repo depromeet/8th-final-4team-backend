@@ -1,4 +1,8 @@
 FROM openjdk:8-jdk
 
-COPY . /month-app
-WORKDIR /month-app
+WORKDIR /month
+COPY . /month
+
+CMD ./gradlew clean build
+
+ENTRYPOINT ["java", "-jar", "month-app/build/libs/month-app.jar"]
