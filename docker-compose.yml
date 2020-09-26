@@ -1,9 +1,8 @@
-# 로컬 테스트용 Docker-compose
-
 version: "3"
 services:
   dev:
     build: .
-    command: java -jar month-app/build/libs/month-app.jar --spring.profiles.active=local
+    environment:
+      - "SPRING_PROFILES_ACTIVE=local"
     ports:
       - 8000:8000

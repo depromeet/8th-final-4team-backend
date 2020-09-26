@@ -1,9 +1,8 @@
-# 배포 Docker-compose (그린)
-
 version: "3"
 services:
   dev:
-    build: .
-    command: java -jar month-app/build/libs/month-app.jar --spring.profiles.active=local
+    image: ${IMAGE}:${TAG}
+    environment:
+      - "SPRING_PROFILES_ACTIVE=local"
     ports:
       - 8002:8000
