@@ -4,6 +4,6 @@ version: "3"
 services:
   dev:
     build: .
-    command: java -jar month-app/build/libs/month-app.jar --spring.profiles.active=local
+    image: 751264546625.dkr.ecr.ap-northeast-2.amazonaws.com/depromeet-final-ecr:latest
     ports:
       - 8001:8000
