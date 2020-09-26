@@ -2,7 +2,7 @@ name: Deploy Dev Server
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ feature/ecr ]
 env:
   PROJECT_NAME: month-app
   BUCKET_NAME: depromeet-final-bucket
