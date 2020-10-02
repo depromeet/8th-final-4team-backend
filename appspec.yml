@@ -6,5 +6,5 @@ files:
 hooks:
   ApplicationStart:
     - location: /run.sh
-      runas: root
+      runas: ubuntu
       timeout: 60
