@@ -20,7 +20,6 @@ public class SwaggerConfig {
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2)
-				.host("15.165.162.59")
 				.directModelSubstitute(LocalDateTime.class, String.class)
 				.directModelSubstitute(LocalDate.class, String.class)
 				.directModelSubstitute(LocalTime.class, String.class)
