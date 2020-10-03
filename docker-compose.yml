@@ -1,9 +1,7 @@
-# 로컬 테스트용 Docker-compose
-
 version: "3"
 services:
   dev:
-    image: ${IMAGE}:${TAG}
+    build: .
     environment:
       - "SPRING_PROFILES_ACTIVE=local"
     ports:

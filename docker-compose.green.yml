@@ -1,5 +1,3 @@
-# 배포 Docker-compose (그린)
-
 version: "3"
 services:
   dev:
