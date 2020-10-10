@@ -5,18 +5,25 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @NoArgsConstructor
 public class CreateChallengePlanRequest {
 
+	@NotBlank
 	private String name;
 
 	private String description;
 
+	@NotBlank
 	private String color;
 
+	@NotNull
 	private int period;
 
+	@NotNull
 	private int maxMembersCount;
 
 	public ChallengePlan toEntity() {

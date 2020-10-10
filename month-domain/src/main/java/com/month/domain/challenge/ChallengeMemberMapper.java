@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -25,9 +26,10 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "challenge_id")
+	@JoinColumn(name = "challenge_id", nullable = false)
 	private Challenge challenge;
 
+	@Column(nullable = false)
 	private Long memberId;
 
 	@Enumerated(EnumType.STRING)
