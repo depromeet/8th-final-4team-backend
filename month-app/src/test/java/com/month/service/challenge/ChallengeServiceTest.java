@@ -285,6 +285,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 	void 초대키로_챌린지에_참가한다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
+		challengePlan.addCreator(999L);
 		challengePlanRepository.save(challengePlan);
 
 		// when
@@ -293,8 +294,9 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 		// then
 		List<ChallengePlanMemberMapper> challengePlanMemberMappers = challengePlanMemberMapperRepository.findAll();
-		assertThat(challengePlanMemberMappers).hasSize(1);
-		assertChallengePlanMemberMapper(challengePlanMemberMappers.get(0), memberId, ChallengeRole.PARTICIPATOR);
+		assertThat(challengePlanMemberMappers).hasSize(2);
+		assertChallengePlanMemberMapper(challengePlanMemberMappers.get(0), 999L, ChallengeRole.CREATOR);
+		assertChallengePlanMemberMapper(challengePlanMemberMappers.get(1), memberId, ChallengeRole.PARTICIPATOR);
 	}
 
 	@Test
