@@ -80,6 +80,7 @@ public class ChallengePlan extends BaseTimeEntity {
 			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
 		}
 		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.participator(this, memberId));
+		this.currentMembersCount++;
 	}
 
 	public void validateCreator(Long memberId) {
