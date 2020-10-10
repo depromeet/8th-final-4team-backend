@@ -32,4 +32,27 @@ public class ChallengePlanMemberMapper extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	private ChallengeRole role;
+
+	private ChallengePlanMemberMapper(ChallengePlan challengePlan, Long memberId, ChallengeRole role) {
+		this.challengePlan = challengePlan;
+		this.memberId = memberId;
+		this.role = role;
+	}
+
+	static ChallengePlanMemberMapper creator(ChallengePlan challengePlan, Long memberId) {
+		return new ChallengePlanMemberMapper(challengePlan, memberId, ChallengeRole.CREATOR);
+	}
+
+	static ChallengePlanMemberMapper participator(ChallengePlan challengePlan, Long memberId) {
+		return new ChallengePlanMemberMapper(challengePlan, memberId, ChallengeRole.PARTICIPATOR);
+	}
+
+	boolean isCreator(Long memberId) {
+		return this.memberId.equals(memberId) && this.role.equals(ChallengeRole.CREATOR);
+	}
+
+	ChallengeMemberMapper convertChallengeMemberMapper(Challenge challenge) {
+		return new ChallengeMemberMapper(challenge, memberId, role);
+	}
+
 }

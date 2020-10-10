@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,6 +30,13 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 
 	private Long memberId;
 
+	@Enumerated(EnumType.STRING)
 	private ChallengeRole role;
+
+	public ChallengeMemberMapper(Challenge challenge, Long memberId, ChallengeRole role) {
+		this.challenge = challenge;
+		this.memberId = memberId;
+		this.role = role;
+	}
 
 }
