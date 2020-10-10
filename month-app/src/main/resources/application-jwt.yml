@@ -1,0 +1,4 @@
+## TODO 값 변경 후 .gitignore 처리
+jwt:
+  issuer: test
+  secret-key: test#2test

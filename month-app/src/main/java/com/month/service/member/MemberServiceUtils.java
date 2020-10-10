@@ -2,8 +2,11 @@ package com.month.service.member;
 
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-final class MemberServiceUtils {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class MemberServiceUtils {
 
 	static Member findMemberById(MemberRepository memberRepository, Long memberId) {
 		Member member = memberRepository.findMemberId(memberId);
@@ -11,6 +14,12 @@ final class MemberServiceUtils {
 			throw new IllegalArgumentException(String.format("해당 멤버 (%s) 는 존재하지 않습니다.", memberId));
 		}
 		return member;
+	}
+
+	public static void validateNotExistMember(MemberRepository memberRepository, String uid) {
+		if (memberRepository.findMemberByUid(uid) != null) {
+			throw new IllegalArgumentException(String.format("이미 존재하는 회원 (%s) 입니다.", uid));
+		}
 	}
 
 }
