@@ -1,10 +1,12 @@
 package com.month.service.auth;
 
+import com.month.domain.member.Member;
 import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
 import com.month.service.auth.dto.request.AuthRequest;
 import com.month.external.firebase.FirebaseUtils;
 import com.month.external.firebase.dto.CustomFirebaseToken;
+import com.month.service.auth.dto.request.SignUpMemberRequest;
 import com.month.service.auth.dto.response.AuthResponse;
 import com.month.type.AuthType;
 import com.month.utils.jwt.JwtTokenProvider;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.servlet.http.HttpSession;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -77,7 +81,8 @@ class AuthServiceTest {
 		AuthResponse response = authService.handleAuthentication(request);
 
 		// then
-		assertAuthResponse(response, AuthType.SIGN_UP, "token", "강승호", "picture", null);
+		assertAuthResponse(response, AuthType.SIGN_UP, "token", "강승호", "picture");
+		assertThat(response.getLoginSessionId()).isNull();
 	}
 
 	@Test
@@ -93,15 +98,43 @@ class AuthServiceTest {
 		AuthResponse response = authService.handleAuthentication(request);
 
 		// then
-		assertAuthResponse(response, AuthType.LOGIN, null, null, null, "1");
+		assertAuthResponse(response, AuthType.LOGIN, null, null, null);
+		assertThat(response.getLoginSessionId()).isNotNull();
 	}
 
-	private void assertAuthResponse(AuthResponse response, AuthType type, String token, String name, String photoUrl, String sessionId) {
+	@Test
+	void 새로운_멤버가_회원가입하는경우() {
+		// given
+		String name = "jello";
+		String photoUrl = "https://photo.jello.com";
+
+		SignUpMemberRequest request = SignUpMemberRequest.testBuilder()
+				.signUpToken("token")
+				.name(name)
+				.photoUrl(photoUrl)
+				.build();
+
+		// when
+		authService.signUpMember(request);
+
+		// then
+		List<Member> members = memberRepository.findAll();
+		assertThat(members).hasSize(1);
+		assertMemberInfo(members.get(0), "will.seungho@gmail.com", name, photoUrl, "uid");
+	}
+
+	private void assertAuthResponse(AuthResponse response, AuthType type, String signUpToken, String name, String photoUrl) {
 		assertThat(response.getType()).isEqualTo(type);
-		assertThat(response.getToken()).isEqualTo(token);
+		assertThat(response.getSignUpToken()).isEqualTo(signUpToken);
 		assertThat(response.getName()).isEqualTo(name);
 		assertThat(response.getPhotoUrl()).isEqualTo(photoUrl);
-		assertThat(response.getSessionId()).isEqualTo(sessionId);
+	}
+
+	private void assertMemberInfo(Member member, String email, String name, String photoUrl, String uid) {
+		assertThat(member.getEmail()).isEqualTo(email);
+		assertThat(member.getName()).isEqualTo(name);
+		assertThat(member.getPhotoUrl()).isEqualTo(photoUrl);
+		assertThat(member.getUid()).isEqualTo(uid);
 	}
 
 }

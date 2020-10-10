@@ -13,20 +13,20 @@ public class AuthResponse {
 
 	private final AuthType type;
 
-	private final String token;
+	private final String signUpToken;
 
 	private final String name;
 
 	private final String photoUrl;
 
-	private final String sessionId;
+	private final String loginSessionId;
 
-	public static AuthResponse signUp(String token, String name, String photoUrl) {
-		return new AuthResponse(AuthType.SIGN_UP, token, name, photoUrl, null);
+	public static AuthResponse signUp(String signUpToken, String name, String photoUrl) {
+		return new AuthResponse(AuthType.SIGN_UP, signUpToken, name, photoUrl, null);
 	}
 
-	public static AuthResponse login(String sessionId) {
-		return new AuthResponse(AuthType.LOGIN, null, null, null, sessionId);
+	public static AuthResponse login(String loginSessionId) {
+		return new AuthResponse(AuthType.LOGIN, null, null, null, loginSessionId);
 	}
 
 }

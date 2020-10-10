@@ -3,6 +3,7 @@ package com.month.controller.auth;
 import com.month.controller.ApiResponse;
 import com.month.service.auth.AuthService;
 import com.month.service.auth.dto.request.AuthRequest;
+import com.month.service.auth.dto.request.SignUpMemberRequest;
 import com.month.service.auth.dto.response.AuthResponse;
 import com.month.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
@@ -36,5 +37,9 @@ public class AuthController {
 		return ApiResponse.OK;
 	}
 
+	@PostMapping("/api/v1/member")
+	public ApiResponse<AuthResponse> handleSignUpMember(@Valid @RequestBody SignUpMemberRequest request) {
+		return ApiResponse.of(authService.signUpMember(request));
+	}
 
 }
