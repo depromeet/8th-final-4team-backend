@@ -4,6 +4,8 @@ import com.month.domain.challenge.ChallengePlan;
 
 public interface ChallengePlanRepositoryCustom {
 
-	ChallengePlan findChallengePlanById(Long challengePlanId);
+	ChallengePlan findActiveChallengePlanById(Long challengePlanId);
+
+	ChallengePlan findActiveChallengePlanByInvitationKey(String invitationKey);
 
 }

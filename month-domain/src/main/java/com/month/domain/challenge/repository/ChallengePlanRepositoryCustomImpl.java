@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import static com.month.domain.challenge.QChallengePlan.challengePlan;
-import static com.month.domain.challenge.QChallengePlanMemberMapper.challengePlanMemberMapper;
 
 @RequiredArgsConstructor
 public class ChallengePlanRepositoryCustomImpl implements ChallengePlanRepositoryCustom {
@@ -13,10 +12,20 @@ public class ChallengePlanRepositoryCustomImpl implements ChallengePlanRepositor
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public ChallengePlan findChallengePlanById(Long challengePlanId) {
+	public ChallengePlan findActiveChallengePlanById(Long challengePlanId) {
 		return queryFactory.selectFrom(challengePlan)
 				.where(
-						challengePlan.id.eq(challengePlanId)
+						challengePlan.id.eq(challengePlanId),
+						challengePlan.isActive.eq(true)
+				).fetchOne();
+	}
+
+	@Override
+	public ChallengePlan findActiveChallengePlanByInvitationKey(String invitationKey) {
+		return queryFactory.selectFrom(challengePlan)
+				.where(
+						challengePlan.invitationKey.invitationKey.eq(invitationKey),
+						challengePlan.isActive.eq(true)
 				).fetchOne();
 	}
 

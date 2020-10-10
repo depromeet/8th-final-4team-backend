@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -38,12 +39,17 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	private int currentMembersCount;
 
-	private String invitationKey; // TODO Convert To VO
+	@Embedded
+	private InvitationKey invitationKey;
 
 	@OneToMany(mappedBy = "challengePlan", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ChallengePlanMemberMapper> challengePlanMemberMapperList = new ArrayList<>();
 
 	private boolean isActive;
+
+	public String getInvitationKey() {
+		return this.invitationKey.getInvitationKey();
+	}
 
 	@Builder
 	public ChallengePlan(String name, String description, String color, int period, int maxMembersCount) {
@@ -54,6 +60,7 @@ public class ChallengePlan extends BaseTimeEntity {
 		this.maxMembersCount = maxMembersCount;
 		this.currentMembersCount = 0;
 		this.isActive = true;
+		this.invitationKey = InvitationKey.newInstance();
 	}
 
 	public static ChallengePlan newInstance(String name, String description, String color, int period, int maxMembersCount) {
@@ -61,7 +68,11 @@ public class ChallengePlan extends BaseTimeEntity {
 	}
 
 	public void addCreator(Long memberId) {
+		if (isMember(memberId)) {
+			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
+		}
 		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.creator(this, memberId));
+		this.currentMembersCount++;
 	}
 
 	public Challenge convertToChallenge() {
@@ -79,7 +90,7 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	public void validateCreator(Long memberId) {
 		if (!isCreator(memberId)) {
-			throw new IllegalArgumentException(String.format("회원 (%s) 는 생성자가 아닙니다", memberId));
+			throw new IllegalArgumentException(String.format("회원 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, id));
 		}
 	}
 
@@ -89,6 +100,28 @@ public class ChallengePlan extends BaseTimeEntity {
 	}
 
 	public void addParticipator(Long memberId) {
+		if (isMember(memberId)) {
+			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
+		}
 		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.participator(this, memberId));
 	}
+
+	public void validateIsMember(Long memberId) {
+		if (!isMember(memberId)) {
+			throw new IllegalArgumentException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, id));
+		}
+	}
+
+	private boolean isMember(Long memberId) {
+		return this.challengePlanMemberMapperList.stream()
+				.anyMatch(challengePlanMemberMapper -> challengePlanMemberMapper.isMember(memberId));
+	}
+
+	public void refreshInvitationKey(Long memberId) {
+		if (!isCreator(memberId)) {
+			throw new IllegalArgumentException(String.format("멤버 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, this.id));
+		}
+		this.invitationKey = InvitationKey.newInstance();
+	}
+
 }

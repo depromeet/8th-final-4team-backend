@@ -18,6 +18,7 @@ import javax.persistence.OneToMany;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,7 +36,7 @@ public class Challenge extends BaseTimeEntity {
 
 	private String description;
 
-	private String color;
+	private String color; // TODO enum vs #686868 프론트쪽과 협의 필요
 
 	@Embedded
 	private DateTimeInterval dateTimeInterval;
@@ -44,6 +45,18 @@ public class Challenge extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ChallengeMemberMapper> challengeMemberMappers = new ArrayList<>();
+
+	public String getUuid() {
+		return this.uuid.getUuid();
+	}
+
+	public LocalDateTime getStartDateTime() {
+		return this.dateTimeInterval.getStartDateTime();
+	}
+
+	public LocalDateTime getEndDateTime() {
+		return this.dateTimeInterval.getEndDateTime();
+	}
 
 	@Builder
 	public Challenge(String name, String description, String color, LocalDateTime startDateTime, LocalDateTime endDateTime) {
@@ -67,6 +80,23 @@ public class Challenge extends BaseTimeEntity {
 
 	void addMembers(List<ChallengeMemberMapper> collect) {
 		this.challengeMemberMappers.addAll(collect);
+		this.membersCount += collect.size();
+	}
+
+	public void addCreator(Long memberId) {
+		this.challengeMemberMappers.add(ChallengeMemberMapper.creator(this, memberId));
+		this.membersCount++;
+	}
+
+	public void addParticipator(Long memberId) {
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId));
+		this.membersCount++;
+	}
+
+	public List<Long> getMemberIds() {
+		return this.challengeMemberMappers.stream()
+				.map(ChallengeMemberMapper::getMemberId)
+				.collect(Collectors.toList());
 	}
 
 }
