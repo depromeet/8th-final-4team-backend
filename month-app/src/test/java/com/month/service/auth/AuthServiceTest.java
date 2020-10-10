@@ -6,11 +6,11 @@ import com.month.domain.member.MemberRepository;
 import com.month.service.auth.dto.request.AuthRequest;
 import com.month.external.firebase.FirebaseUtils;
 import com.month.external.firebase.dto.CustomFirebaseToken;
-import com.month.service.auth.dto.request.SignUpMemberRequest;
+import com.month.service.auth.dto.request.SignUpRequest;
 import com.month.service.auth.dto.response.AuthResponse;
 import com.month.type.AuthType;
 import com.month.utils.jwt.JwtTokenProvider;
-import com.month.utils.jwt.dto.JwtToken;
+import com.month.utils.jwt.dto.SignUpToken;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,13 +58,13 @@ class AuthServiceTest {
 
 	private static class StubJwtTokenProvider implements JwtTokenProvider {
 		@Override
-		public String createToken(String idToken, String email) {
+		public String createSignUpToken(String idToken, String email) {
 			return "token";
 		}
 
 		@Override
-		public JwtToken decodeToken(String token) {
-			return JwtToken.newInstance("idToken", "email");
+		public SignUpToken decodeSignUpToken(String token) {
+			return SignUpToken.newInstance("idToken", "email");
 		}
 	}
 
@@ -108,7 +108,7 @@ class AuthServiceTest {
 		String name = "jello";
 		String photoUrl = "https://photo.jello.com";
 
-		SignUpMemberRequest request = SignUpMemberRequest.testBuilder()
+		SignUpRequest request = SignUpRequest.testBuilder()
 				.signUpToken("token")
 				.name(name)
 				.photoUrl(photoUrl)

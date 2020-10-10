@@ -5,19 +5,19 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class JwtToken {
+public class SignUpToken {
 
 	private String idToken;
 
 	private String email;
 
-	private JwtToken(String idToken, String email) {
+	private SignUpToken(String idToken, String email) {
 		this.idToken = idToken;
 		this.email = email;
 	}
 
-	public static JwtToken newInstance(String idToken, String email) {
-		return new JwtToken(idToken, email);
+	public static SignUpToken newInstance(String idToken, String email) {
+		return new SignUpToken(idToken, email);
 	}
 
 }

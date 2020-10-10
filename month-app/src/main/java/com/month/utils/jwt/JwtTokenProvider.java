@@ -1,11 +1,11 @@
 package com.month.utils.jwt;
 
-import com.month.utils.jwt.dto.JwtToken;
+import com.month.utils.jwt.dto.SignUpToken;
 
 public interface JwtTokenProvider {
 
-	String createToken(String idToken, String email);
+	String createSignUpToken(String idToken, String email);
 
-	JwtToken decodeToken(String token);
+	SignUpToken decodeSignUpToken(String token);
 
 }

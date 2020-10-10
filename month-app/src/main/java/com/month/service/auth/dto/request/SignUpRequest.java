@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
-public class SignUpMemberRequest {
+public class SignUpRequest {
 
 	@NotBlank
 	private String signUpToken;
@@ -20,7 +20,7 @@ public class SignUpMemberRequest {
 	private String photoUrl;
 
 	@Builder(builderClassName = "TestBuilder", builderMethodName = "testBuilder")
-	public SignUpMemberRequest(String signUpToken, String name, String photoUrl) {
+	public SignUpRequest(String signUpToken, String name, String photoUrl) {
 		this.signUpToken = signUpToken;
 		this.name = name;
 		this.photoUrl = photoUrl;

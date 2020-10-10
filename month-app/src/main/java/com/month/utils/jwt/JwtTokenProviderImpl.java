@@ -6,7 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.month.utils.jwt.dto.JwtToken;
+import com.month.utils.jwt.dto.SignUpToken;
 import com.month.utils.jwt.dto.component.JwtTokenProviderComponent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,11 +20,11 @@ import java.util.Map;
 @Component
 public class JwtTokenProviderImpl implements JwtTokenProvider {
 
-	private final static long expiresMilliSeconds = 60 * 60; // 1시간
+	private final static long expiresMilliSeconds = 60 * 60; // 만료시간: 60분
 
 	private final JwtTokenProviderComponent jwtTokenProviderComponent;
 
-	public String createToken(String idToken, String email) {
+	public String createSignUpToken(String idToken, String email) {
 		try {
 			final ZonedDateTime now = ZonedDateTime.now();
 			return JWT.create()
@@ -46,10 +46,10 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 		return headers;
 	}
 
-	public JwtToken decodeToken(String token) {
+	public SignUpToken decodeSignUpToken(String token) {
 		try {
 			final DecodedJWT jwt = createJwtVerifier().verify(token);
-			return JwtToken.newInstance(jwt.getClaim("idToken").asString(), jwt.getClaim("email").asString());
+			return SignUpToken.newInstance(jwt.getClaim("idToken").asString(), jwt.getClaim("email").asString());
 		} catch (JWTDecodeException exception) {
 			throw new IllegalArgumentException(String.format("토큰 Decode 에 실패하였습니다 (%s)", token));
 		}

@@ -6,11 +6,11 @@ import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.service.auth.dto.request.AuthRequest;
 import com.month.service.auth.dto.response.AuthResponse;
-import com.month.service.auth.dto.request.SignUpMemberRequest;
+import com.month.service.auth.dto.request.SignUpRequest;
 import com.month.service.member.MemberServiceUtils;
 import com.month.type.session.MemberSession;
 import com.month.utils.jwt.JwtTokenProvider;
-import com.month.utils.jwt.dto.JwtToken;
+import com.month.utils.jwt.dto.SignUpToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,7 +34,7 @@ public class AuthService {
 		Member findMember = memberRepository.findMemberByUid(firebaseToken.getUid());
 		if (findMember == null) {
 			// 1. 해당 회원 정보가 없는 경우, 회원가입 진행을 위한 토큰 및 유저 정보 반환한다.
-			String signUpToken = jwtTokenProvider.createToken(request.getIdToken(), firebaseToken.getEmail());
+			String signUpToken = jwtTokenProvider.createSignUpToken(request.getIdToken(), firebaseToken.getEmail());
 			return AuthResponse.signUp(signUpToken, firebaseToken.getName(), firebaseToken.getPhotoUrl());
 		}
 		// 2. 회원 정보가 있을 경우, 로그인을 진행한다.
@@ -43,8 +43,8 @@ public class AuthService {
 	}
 
 	@Transactional
-	public AuthResponse signUpMember(SignUpMemberRequest request) {
-		JwtToken signUpToken = jwtTokenProvider.decodeToken(request.getSignUpToken());
+	public AuthResponse signUpMember(SignUpRequest request) {
+		SignUpToken signUpToken = jwtTokenProvider.decodeSignUpToken(request.getSignUpToken());
 		CustomFirebaseToken firebaseToken = firebaseUtils.getDecodedToken(signUpToken.getIdToken());
 
 		MemberServiceUtils.validateNotExistMember(memberRepository, firebaseToken.getUid());
