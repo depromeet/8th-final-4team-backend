@@ -75,17 +75,11 @@ public class ChallengePlan extends BaseTimeEntity {
 		this.currentMembersCount++;
 	}
 
-	public Challenge convertToChallenge() {
-		final LocalDateTime now = LocalDateTime.now();
-		Challenge challenge = Challenge.newInstance(name, description, color, now, now.plusDays(period));
-		challenge.addMembers(this.challengePlanMemberMapperList.stream()
-				.map(challengePlanMemberMapper -> challengePlanMemberMapper.convertChallengeMemberMapper(challenge))
-				.collect(Collectors.toList()));
-		return challenge;
-	}
-
-	public void inactiveChallengePlan() {
-		this.isActive = false;
+	public void addParticipator(Long memberId) {
+		if (isMember(memberId)) {
+			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
+		}
+		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.participator(this, memberId));
 	}
 
 	public void validateCreator(Long memberId) {
@@ -99,13 +93,6 @@ public class ChallengePlan extends BaseTimeEntity {
 				.anyMatch(challengePlanMemberMapper -> challengePlanMemberMapper.isCreator(memberId));
 	}
 
-	public void addParticipator(Long memberId) {
-		if (isMember(memberId)) {
-			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
-		}
-		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.participator(this, memberId));
-	}
-
 	public void validateIsMember(Long memberId) {
 		if (!isMember(memberId)) {
 			throw new IllegalArgumentException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, id));
@@ -115,6 +102,19 @@ public class ChallengePlan extends BaseTimeEntity {
 	private boolean isMember(Long memberId) {
 		return this.challengePlanMemberMapperList.stream()
 				.anyMatch(challengePlanMemberMapper -> challengePlanMemberMapper.isMember(memberId));
+	}
+
+	public Challenge convertToChallenge() {
+		final LocalDateTime now = LocalDateTime.now();
+		Challenge challenge = Challenge.newInstance(name, description, color, now, now.plusDays(period));
+		challenge.addMembers(this.challengePlanMemberMapperList.stream()
+				.map(challengePlanMemberMapper -> challengePlanMemberMapper.convertChallengeMemberMapper(challenge))
+				.collect(Collectors.toList()));
+		return challenge;
+	}
+
+	public void inactiveChallengePlan() {
+		this.isActive = false;
 	}
 
 	public void refreshInvitationKey(Long memberId) {
