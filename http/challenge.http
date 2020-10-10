@@ -1,0 +1,72 @@
+### 챌린지 생성 API
+POST {{host}}/api/v1/challenge
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "name": "새로운 챌린지",
+  "description": "아직 시작하지 않은 챌린지",
+  "color": "#86868",
+  "period": 30,
+  "maxMembersCount": 4
+}
+
+> {%
+client.global.set("CHALLENGE_PLAN_ID", response.body["data"]["id"])
+ %}
+
+### 아직 시작하지 않은 나의 챌린지 계획 리스트를 조회하는 API
+GET {{host}}/api/v1/challenge/plan
+Authorization: Bearer {{AUTHORIZATION}}
+
+
+### 챌린지를 시작하는 API
+PUT {{host}}/api/v1/challenge/start
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "challengePlanId": "{{CHALLENGE_PLAN_ID}}"
+}
+
+
+### 챌린지의 초대키를 반환하는 API
+GET {{host}}/api/v1/challenge/invitation-key?challengePlanId={{CHALLENGE_PLAN_ID}}
+Authorization: Bearer {{AUTHORIZATION}}
+
+> {%
+client.global.set("INVITATION_KEY", response.body["data"])
+ %}
+
+### 챌린지의 초대키를 재발급 하는 API
+PUT {{host}}/api/v1/challenge/invitation-key
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "challengePlanId": "{{CHALLENGE_PLAN_ID}}"
+}
+
+> {%
+client.global.set("INVITATION_KEY", response.body["data"])
+ %}
+
+### 챌린지의 초대키로 챌린지의 간단한 정보를 불러오는 API
+GET {{host}}/api/v1/challenge/invitation?invitationKey={{INVITATION_KEY}}
+
+
+### 초대키로 챌린지에 참여하는 API
+PUT {{host}}/api/v1/challenge/enter
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "invitationKey": "{{INVITATION_KEY}}"
+}
+
+
+### 나의 챌린지 정보를 불러오는 API
+GET {{host}}/api/v1/challenges/my
+Authorization: Bearer {{AUTHORIZATION}}
+
+###

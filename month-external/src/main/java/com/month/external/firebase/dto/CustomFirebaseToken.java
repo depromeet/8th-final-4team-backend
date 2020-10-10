@@ -42,8 +42,8 @@ public class CustomFirebaseToken {
 				.build();
 	}
 
-	public Member toEntity() {
-		return Member.newInstance(email, name, photoUrl, uid);
+	public Member toEntity(String memberName, String memberPhotoUrl) {
+		return Member.newInstance(this.email, memberName, memberPhotoUrl, this.uid);
 	}
 
 }

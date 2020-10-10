@@ -3,7 +3,8 @@ package com.month.controller.auth;
 import com.month.controller.ApiResponse;
 import com.month.service.auth.AuthService;
 import com.month.service.auth.dto.request.AuthRequest;
-import com.month.type.session.MemberSession;
+import com.month.service.auth.dto.request.SignUpRequest;
+import com.month.service.auth.dto.response.AuthResponse;
 import com.month.utils.HeaderUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -13,25 +14,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
-
-import static com.month.type.session.SessionConstants.LOGIN_SESSION;
 
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
 
 	private final AuthService authService;
-	private final HttpSession httpSession;
 
 	private final SessionRepository sessionRepository;
 
 	@PostMapping("/api/v1/auth")
-	public ApiResponse<String> handleAuthentication(@Valid @RequestBody AuthRequest request) {
-		Long memberId = authService.handleAuthentication(request);
-		httpSession.setAttribute(LOGIN_SESSION, MemberSession.of(memberId));
-		return ApiResponse.of(httpSession.getId());
+	public ApiResponse<AuthResponse> handleAuthentication(@Valid @RequestBody AuthRequest request) {
+		return ApiResponse.of(authService.handleAuthentication(request));
 	}
 
 	@PostMapping("/api/v1/logout")
@@ -42,5 +37,9 @@ public class AuthController {
 		return ApiResponse.OK;
 	}
 
+	@PostMapping("/api/v1/member")
+	public ApiResponse<AuthResponse> handleSignUpMember(@Valid @RequestBody SignUpRequest request) {
+		return ApiResponse.of(authService.signUpMember(request));
+	}
 
 }
