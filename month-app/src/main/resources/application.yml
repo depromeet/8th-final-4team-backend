@@ -5,6 +5,7 @@ spring:
       - domain
       - s3
       - aws
+      - jwt
   datasource:
     data: classpath:schema/schema-session.sql
   servlet:

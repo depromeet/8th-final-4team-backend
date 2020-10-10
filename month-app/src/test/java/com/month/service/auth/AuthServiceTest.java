@@ -1,18 +1,21 @@
 package com.month.service.auth;
 
-import com.month.domain.member.Member;
 import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
 import com.month.service.auth.dto.request.AuthRequest;
 import com.month.external.firebase.FirebaseUtils;
 import com.month.external.firebase.dto.CustomFirebaseToken;
+import com.month.service.auth.dto.response.AuthResponse;
+import com.month.type.AuthType;
+import com.month.utils.jwt.JwtTokenProvider;
+import com.month.utils.jwt.dto.JwtToken;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.List;
+import javax.servlet.http.HttpSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +24,9 @@ class AuthServiceTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
+
+	@Autowired
+	private HttpSession httpSession;
 
 	@AfterEach
 	void cleanUp() {
@@ -31,7 +37,7 @@ class AuthServiceTest {
 
 	@BeforeEach
 	void setUpMemberInfo() {
-		authService = new AuthService(memberRepository, new StubFirebaseUtils());
+		authService = new AuthService(memberRepository, new StubFirebaseUtils(), new StubJwtTokenProvider(), httpSession);
 	}
 
 	private static class StubFirebaseUtils implements FirebaseUtils {
@@ -46,24 +52,20 @@ class AuthServiceTest {
 		}
 	}
 
-	@Test
-	void 새로운_멤버가_로그인_요청한경우_먼저_회원가입이_진행된다() {
-		// given
-		AuthRequest request = AuthRequest.testBuilder()
-				.idToken("idToken")
-				.build();
+	private static class StubJwtTokenProvider implements JwtTokenProvider {
+		@Override
+		public String createToken(String idToken, String email) {
+			return "token";
+		}
 
-		// when
-		authService.handleAuthentication(request);
-
-		// then
-		List<Member> members = memberRepository.findAll();
-		assertThat(members).hasSize(1);
-		assertMemberInfo(members.get(0), "will.seungho@gmail.com", "강승호", "picture", "uid");
+		@Override
+		public JwtToken decodeToken(String token) {
+			return JwtToken.newInstance("idToken", "email");
+		}
 	}
 
 	@Test
-	void 새로운_멤버가_로그인_요청한경우_회원가입이_진행되고_로그인이_진행된다() {
+	void 기존의_멤버가_존재하지_않으면_회원가입이_진행된다() {
 		// given
 		String idToken = "idToken";
 
@@ -72,16 +74,14 @@ class AuthServiceTest {
 				.build();
 
 		// when
-		Long memberId = authService.handleAuthentication(request);
+		AuthResponse response = authService.handleAuthentication(request);
 
 		// then
-		List<Member> members = memberRepository.findAll();
-		assertThat(members).hasSize(1);
-		assertThat(memberId).isEqualTo(members.get(0).getId());
+		assertAuthResponse(response, AuthType.SIGN_UP, "token", "강승호", "picture", null);
 	}
 
 	@Test
-	void 기존의_멤버가_로그인을_요청한경우_로그인이_진행된다() {
+	void 기존의_멤버가_존재하면_로그인이_진행된다() {
 		// given
 		memberRepository.save(MemberCreator.create("will.seungho@gmail.com", "승호강", null, "uid"));
 
@@ -90,20 +90,18 @@ class AuthServiceTest {
 				.build();
 
 		// when
-		Long memberId = authService.handleAuthentication(request);
+		AuthResponse response = authService.handleAuthentication(request);
 
 		// then
-		List<Member> members = memberRepository.findAll();
-		assertThat(members).hasSize(1);
-		assertThat(memberId).isEqualTo(members.get(0).getId());
+		assertAuthResponse(response, AuthType.LOGIN, null, null, null, "1");
 	}
 
-	private void assertMemberInfo(Member member, String email, String name, String photoUrl, String uid) {
-		assertThat(member.getEmail()).isEqualTo(email);
-		assertThat(member.getName()).isEqualTo(name);
-		assertThat(member.getPhotoUrl()).isEqualTo(photoUrl);
-		assertThat(member.getPhotoUrl()).isEqualTo(photoUrl);
-		assertThat(member.getUid()).isEqualTo(uid);
+	private void assertAuthResponse(AuthResponse response, AuthType type, String token, String name, String photoUrl, String sessionId) {
+		assertThat(response.getType()).isEqualTo(type);
+		assertThat(response.getToken()).isEqualTo(token);
+		assertThat(response.getName()).isEqualTo(name);
+		assertThat(response.getPhotoUrl()).isEqualTo(photoUrl);
+		assertThat(response.getSessionId()).isEqualTo(sessionId);
 	}
 
 }
