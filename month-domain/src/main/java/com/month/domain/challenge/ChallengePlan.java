@@ -125,4 +125,10 @@ public class ChallengePlan extends BaseTimeEntity {
 		this.invitationKey = InvitationKey.newInstance();
 	}
 
+	public List<Long> getMemberIds() {
+		return this.challengePlanMemberMapperList.stream()
+				.map(ChallengePlanMemberMapper::getMemberId)
+				.collect(Collectors.toList());
+	}
+
 }

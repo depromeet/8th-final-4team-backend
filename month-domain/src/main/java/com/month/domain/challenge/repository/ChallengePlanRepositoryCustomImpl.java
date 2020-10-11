@@ -4,6 +4,8 @@ import com.month.domain.challenge.ChallengePlan;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import static com.month.domain.challenge.QChallengePlan.challengePlan;
 import static com.month.domain.challenge.QChallengePlanMemberMapper.challengePlanMemberMapper;
 
@@ -18,7 +20,7 @@ public class ChallengePlanRepositoryCustomImpl implements ChallengePlanRepositor
 				.innerJoin(challengePlan.challengePlanMemberMapperList, challengePlanMemberMapper).fetchJoin()
 				.where(
 						challengePlan.id.eq(challengePlanId),
-						challengePlan.isActive.eq(true)
+						challengePlan.isActive.isTrue()
 				).fetchOne();
 	}
 
@@ -28,8 +30,18 @@ public class ChallengePlanRepositoryCustomImpl implements ChallengePlanRepositor
 				.innerJoin(challengePlan.challengePlanMemberMapperList, challengePlanMemberMapper).fetchJoin()
 				.where(
 						challengePlan.invitationKey.invitationKey.eq(invitationKey),
-						challengePlan.isActive.eq(true)
+						challengePlan.isActive.isTrue()
 				).fetchOne();
+	}
+
+	@Override
+	public List<ChallengePlan> findActiveChallengePlanByMemberId(Long memberId) {
+		return queryFactory.selectFrom(challengePlan).distinct()
+				.innerJoin(challengePlan.challengePlanMemberMapperList, challengePlanMemberMapper).fetchJoin()
+				.where(
+						challengePlanMemberMapper.memberId.eq(memberId),
+						challengePlan.isActive.isTrue()
+				).fetch();
 	}
 
 }

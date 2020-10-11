@@ -32,7 +32,17 @@ public class ChallengeService {
 	public ChallengePlanInfoResponse createChallengePlan(CreateChallengePlanRequest request, Long memberId) {
 		ChallengePlan challengePlan = request.toEntity();
 		challengePlan.addCreator(memberId);
-		return ChallengePlanInfoResponse.of(challengePlanRepository.save(challengePlan));
+		return ChallengePlanInfoResponse.of(
+				challengePlanRepository.save(challengePlan),
+				memberRepository.findAllById(challengePlan.getMemberIds()));
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChallengePlanInfoResponse> retrieveMyChallengePlans(Long memberId) {
+		List<ChallengePlan> challengePlans = challengePlanRepository.findActiveChallengePlanByMemberId(memberId);
+		return challengePlans.stream()
+				.map(challengePlan -> ChallengePlanInfoResponse.of(challengePlan, memberRepository.findAllById(challengePlan.getMemberIds())))
+				.collect(Collectors.toList());
 	}
 
 	@Transactional

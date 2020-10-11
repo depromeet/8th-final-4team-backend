@@ -18,6 +18,7 @@ import com.month.service.challenge.dto.request.RefreshChallengeInvitationKeyRequ
 import com.month.service.challenge.dto.request.RetrieveChallengePlanInvitationKeyRequest;
 import com.month.service.challenge.dto.request.StartChallengeRequest;
 import com.month.service.challenge.dto.response.ChallengeInfoResponse;
+import com.month.service.challenge.dto.response.ChallengePlanInfoResponse;
 import com.month.service.challenge.dto.response.ChallengePlanInvitationInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -110,6 +111,33 @@ class ChallengeServiceTest extends MemberSetupTest {
 		List<ChallengePlanMemberMapper> challengePlanMemberMappers = challengePlanMemberMapperRepository.findAll();
 		assertThat(challengePlanMemberMappers).hasSize(1);
 		assertChallengePlanMemberMapper(challengePlanMemberMappers.get(0), memberId, ChallengeRole.CREATOR);
+	}
+
+	@Test
+	void 나의_챌린지_계획_리스트를_조회한다() {
+		// given
+		ChallengePlan challengePlan1 = ChallengePlanCreator.create("챌린지 계획1", "설명1", 30, 4);
+		challengePlan1.addCreator(memberId);
+
+		ChallengePlan challengePlan2 = ChallengePlanCreator.create("챌린지 계획2", "설명2", 7, 3);
+		challengePlan2.addParticipator(memberId);
+
+		challengePlanRepository.saveAll(Arrays.asList(challengePlan1, challengePlan2));
+
+		// when
+		List<ChallengePlanInfoResponse> challengePlanInfoResponses = challengeService.retrieveMyChallengePlans(memberId);
+
+		// then
+		assertThat(challengePlanInfoResponses).hasSize(2);
+		assertThatChallengePlanInfoResponse(challengePlanInfoResponses.get(0), challengePlan1.getName(), challengePlan1.getDescription(), challengePlan1.getPeriod(), challengePlan1.getMaxMembersCount());
+		assertThatChallengePlanInfoResponse(challengePlanInfoResponses.get(1), challengePlan2.getName(), challengePlan2.getDescription(), challengePlan2.getPeriod(), challengePlan2.getMaxMembersCount());
+	}
+
+	private void assertThatChallengePlanInfoResponse(ChallengePlanInfoResponse challengePlanInfoResponse, String name, String description, int period, int maxMembersCount) {
+		assertThat(challengePlanInfoResponse.getName()).isEqualTo(name);
+		assertThat(challengePlanInfoResponse.getDescription()).isEqualTo(description);
+		assertThat(challengePlanInfoResponse.getPeriod()).isEqualTo(period);
+		assertThat(challengePlanInfoResponse.getMaxMembersCount()).isEqualTo(maxMembersCount);
 	}
 
 	@Test

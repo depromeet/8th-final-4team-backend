@@ -37,6 +37,14 @@ public class ChallengeController {
 	}
 
 	/**
+	 * 예정중인 챌린지 리스트를 반환하는 API
+	 */
+	@GetMapping("/api/v1/challenge/plan")
+	public ApiResponse<List<ChallengePlanInfoResponse>> retrieveChallengePlans(@LoginMember MemberSession memberSession) {
+		return ApiResponse.of(challengeService.retrieveMyChallengePlans(memberSession.getMemberId()));
+	}
+
+	/**
 	 * 챌린지를 시작하는 API
 	 */
 	@PutMapping("/api/v1/challenge/start")
@@ -48,7 +56,7 @@ public class ChallengeController {
 	 * 챌린지의 초대키를 반환하는 API
 	 */
 	@GetMapping("/api/v1/challenge/invitation-key")
-	public ApiResponse<String> getChallengePlanInvitation(RetrieveChallengePlanInvitationKeyRequest request, @LoginMember MemberSession memberSession) {
+	public ApiResponse<String> getChallengePlanInvitation(@Valid RetrieveChallengePlanInvitationKeyRequest request, @LoginMember MemberSession memberSession) {
 		return ApiResponse.of(challengeService.getChallengePlanInvitationKey(request, memberSession.getMemberId()));
 	}
 
@@ -64,7 +72,7 @@ public class ChallengeController {
 	 * 챌린지의 초대키로 챌린지의 간단한 정보를 반환하는 API
 	 */
 	@GetMapping("/api/v1/challenge/invitation")
-	public ApiResponse<ChallengePlanInvitationInfo> getChallengePlanInfoByInvitationKey(String invitationKey) {
+	public ApiResponse<ChallengePlanInvitationInfo> getChallengePlanInfoByInvitationKey(@Valid String invitationKey) {
 		return ApiResponse.of(challengeService.getChallengeInfoByInvitationKey(invitationKey));
 	}
 
