@@ -1,10 +1,13 @@
 package com.month.service.challenge;
 
+import com.month.domain.challenge.Challenge;
+import com.month.domain.challenge.ChallengeMemberMapperRepository;
 import com.month.domain.challenge.ChallengePlan;
 import com.month.domain.challenge.ChallengePlanCreator;
 import com.month.domain.challenge.ChallengePlanMemberMapper;
 import com.month.domain.challenge.ChallengePlanMemberMapperRepository;
 import com.month.domain.challenge.ChallengePlanRepository;
+import com.month.domain.challenge.ChallengeRepository;
 import com.month.domain.challenge.ChallengeRole;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.CreateChallengePlanRequest;
@@ -34,6 +37,12 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	private ChallengePlanMemberMapperRepository challengePlanMemberMapperRepository;
 
 	@Autowired
+	private ChallengeRepository challengeRepository;
+
+	@Autowired
+	private ChallengeMemberMapperRepository challengeMemberMapperRepository;
+
+	@Autowired
 	private ChallengePlanService challengePlanService;
 
 	@AfterEach
@@ -41,6 +50,8 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		super.cleanup();
 		challengePlanMemberMapperRepository.deleteAllInBatch();
 		challengePlanRepository.deleteAllInBatch();
+		challengeMemberMapperRepository.deleteAllInBatch();
+		challengeRepository.deleteAllInBatch();
 	}
 
 	@Test
@@ -72,6 +83,34 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		assertThat(challengePlan.getDescription()).isEqualTo(description);
 		assertThat(challengePlan.getPeriod()).isEqualTo(period);
 		assertThat(challengePlan.getMaxMembersCount()).isEqualTo(maxMembersCount);
+	}
+
+	@Test
+	void 혼자하는_챌린지_계획을_생성하면_Challenge_Plan_Entity_가_비활성화되고_바로_새로운_챌린지가_생성된다() {
+		// given
+		String name = "챌린지 계획";
+		String description = "챌린지 설명";
+		int period = 7;
+		int maxMembersCount = 1;
+
+		CreateChallengePlanRequest request = CreateChallengePlanRequest.testBuilder()
+				.name(name)
+				.description(description)
+				.period(period)
+				.maxMembersCount(maxMembersCount)
+				.build();
+
+		// when
+		challengePlanService.createChallengePlan(request, memberId);
+
+		// then
+		List<ChallengePlan> challengePlans = challengePlanRepository.findAll();
+		assertThat(challengePlans).hasSize(1);
+		assertThat(challengePlans.get(0).isActive()).isFalse();
+
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertBetweenStartAndEndDateTime(challenges.get(0), period);
 	}
 
 	@Test
@@ -223,6 +262,31 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		assertThat(challengePlanMemberMappers).hasSize(2);
 		assertChallengePlanMemberMapper(challengePlanMemberMappers.get(0), 999L, ChallengeRole.CREATOR);
 		assertChallengePlanMemberMapper(challengePlanMemberMappers.get(1), memberId, ChallengeRole.PARTICIPATOR);
+	}
+
+	@Test
+	void 초대키로_챌린지에_참가로_모든_멤버가_입장하면_챌린지가_자동으로_시작된다() {
+		// given
+		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 15, 2);
+		challengePlan.addCreator(999L);
+		challengePlanRepository.save(challengePlan);
+
+		// when
+		EnterChallengeByInvitationKeyRequest request = EnterChallengeByInvitationKeyRequest.testInstance(challengePlan.getInvitationKey());
+		challengePlanService.enterChallengeByInvitationKey(request, memberId);
+
+		// then
+		List<ChallengePlan> challengePlans = challengePlanRepository.findAll();
+		assertThat(challengePlans).hasSize(1);
+		assertThat(challengePlans.get(0).isActive()).isFalse();
+
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertBetweenStartAndEndDateTime(challenges.get(0), challengePlan.getPeriod());
+	}
+
+	private void assertBetweenStartAndEndDateTime(Challenge challenge, int period) {
+		assertThat(challenge.getEndDateTime().minusDays(period)).isEqualTo(challenge.getStartDateTime());
 	}
 
 	private void assertChallengePlanMemberMapper(ChallengePlanMemberMapper challengePlanMemberMapper, Long memberId, ChallengeRole role) {

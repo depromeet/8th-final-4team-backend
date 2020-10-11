@@ -11,4 +11,12 @@ public final class ChallengePlanCreator {
 				.build();
 	}
 
+	public static ChallengePlan create(String name, int period) {
+		return ChallengePlan.builder()
+				.name(name)
+				.period(period)
+				.maxMembersCount(2)
+				.build();
+	}
+
 }

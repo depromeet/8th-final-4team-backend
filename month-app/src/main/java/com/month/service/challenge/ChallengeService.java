@@ -23,6 +23,13 @@ public class ChallengeService {
 	private final MemberRepository memberRepository;
 
 	@Transactional
+	public void autoStartChallenge(Long challengePlanId) {
+		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, challengePlanId);
+		challengePlan.inactiveChallengePlan();
+		challengeRepository.save(challengePlan.convertToChallenge());
+	}
+
+	@Transactional
 	public ChallengeInfoResponse startChallenge(StartChallengeRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, request.getChallengePlanId());
 		challengePlan.validateCreator(memberId);
