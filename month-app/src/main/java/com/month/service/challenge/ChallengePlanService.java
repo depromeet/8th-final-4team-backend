@@ -3,6 +3,7 @@ package com.month.service.challenge;
 import com.month.domain.challenge.ChallengePlan;
 import com.month.domain.challenge.ChallengePlanRepository;
 import com.month.domain.member.MemberRepository;
+import com.month.event.challenge.AllMembersEnteredEvent;
 import com.month.service.challenge.dto.request.CreateChallengePlanRequest;
 import com.month.service.challenge.dto.request.EnterChallengeByInvitationKeyRequest;
 import com.month.service.challenge.dto.request.RefreshChallengeInvitationKeyRequest;
@@ -10,6 +11,7 @@ import com.month.service.challenge.dto.request.RetrieveChallengePlanInvitationKe
 import com.month.service.challenge.dto.response.ChallengePlanInfoResponse;
 import com.month.service.challenge.dto.response.ChallengePlanInvitationInfo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,14 +24,18 @@ public class ChallengePlanService {
 
 	private final ChallengePlanRepository challengePlanRepository;
 	private final MemberRepository memberRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
 	@Transactional
 	public ChallengePlanInfoResponse createChallengePlan(CreateChallengePlanRequest request, Long memberId) {
 		ChallengePlan challengePlan = request.toEntity();
 		challengePlan.addCreator(memberId);
-		return ChallengePlanInfoResponse.of(
-				challengePlanRepository.save(challengePlan),
-				memberRepository.findAllById(challengePlan.getMemberIds()));
+		challengePlanRepository.save(challengePlan);
+
+		if (challengePlan.isFullMember()) {
+			eventPublisher.publishEvent(AllMembersEnteredEvent.of(challengePlan.getId()));
+		}
+		return ChallengePlanInfoResponse.of(challengePlan, memberRepository.findAllById(challengePlan.getMemberIds()));
 	}
 
 	@Transactional(readOnly = true)
@@ -64,7 +70,9 @@ public class ChallengePlanService {
 	public void enterChallengeByInvitationKey(EnterChallengeByInvitationKeyRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanByInvitationKey(challengePlanRepository, request.getInvitationKey());
 		challengePlan.addParticipator(memberId);
-		// TODO 인원이 모두 들어오면 시작하도록 설정
+		if (challengePlan.isFullMember()) {
+			eventPublisher.publishEvent(AllMembersEnteredEvent.of(challengePlan.getId()));
+		}
 	}
 
 }

@@ -131,4 +131,8 @@ public class ChallengePlan extends BaseTimeEntity {
 				.collect(Collectors.toList());
 	}
 
+	public boolean isFullMember() {
+		return this.maxMembersCount == this.currentMembersCount;
+	}
+
 }

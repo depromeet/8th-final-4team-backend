@@ -57,7 +57,29 @@ class ChallengeServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지를_시작하면_Challenge_Entity_가_생성된다() {
+	void 모든_멤버가_입장하면_자동으로_챌린지가_시작되면_ChallengePlan_은_비활성화되고_새로운_Challenge_가_생성된다() {
+		// given
+		String name = "챌린지 이름";
+		String description = "챌린지 설명";
+		ChallengePlan challengePlan = ChallengePlanCreator.create(name, description, 30, 4);
+		challengePlan.addCreator(memberId);
+		challengePlanRepository.save(challengePlan);
+
+		// when
+		challengeService.autoStartChallenge(challengePlan.getId());
+
+		// then
+		List<ChallengePlan> challengePlans = challengePlanRepository.findAll();
+		assertThat(challengePlans).hasSize(1);
+		assertThat(challengePlans.get(0).isActive()).isFalse();
+
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertChallenge(challenges.get(0), name, description);
+	}
+
+	@Test
+	void 챌린지를_시작하면_ChallengePlan_은_비활성화되고_새로운_Challenge_가_생성된다() {
 		// given
 		String name = "챌린지 이름";
 		String description = "챌린지 설명";
@@ -71,6 +93,10 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeService.startChallenge(request, memberId);
 
 		// then
+		List<ChallengePlan> challengePlans = challengePlanRepository.findAll();
+		assertThat(challengePlans).hasSize(1);
+		assertThat(challengePlans.get(0).isActive()).isFalse();
+
 		List<Challenge> challenges = challengeRepository.findAll();
 		assertThat(challenges).hasSize(1);
 		assertChallenge(challenges.get(0), name, description);
@@ -81,12 +107,11 @@ class ChallengeServiceTest extends MemberSetupTest {
 		assertThat(challenge.getDescription()).isEqualTo(description);
 	}
 
-	@Test
-	void 챌린지를_시작하면_현재시간부터_Period_기간동안_설정된다() {
+	@MethodSource("source_start_challenge_period_test")
+	@ParameterizedTest
+	void 챌린지를_시작하면_현재시간부터_Period_기간동안_설정된다(String name, int period) {
 		// given
-		String name = "챌린지 이름";
-		String description = "챌린지 설명";
-		ChallengePlan challengePlan = ChallengePlanCreator.create(name, description, 30, 4);
+		ChallengePlan challengePlan = ChallengePlanCreator.create(name, period);
 		challengePlan.addCreator(memberId);
 		challengePlanRepository.save(challengePlan);
 
@@ -97,7 +122,18 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 		// then
 		List<Challenge> challenges = challengeRepository.findAll();
-		assertThat(challenges.get(0).getEndDateTime().minusDays(30)).isEqualTo(challenges.get(0).getStartDateTime());
+		final LocalDateTime now = LocalDateTime.now();
+		assertThat(challenges.get(0).getStartDateTime()).isBetween(now.minusMinutes(1), now.plusMinutes(1));
+		assertThat(challenges.get(0).getEndDateTime().minusDays(period)).isEqualTo(challenges.get(0).getStartDateTime());
+	}
+
+	private static Stream<Arguments> source_start_challenge_period_test() {
+		return Stream.of(
+				Arguments.of("한달 챌린지", 50),
+				Arguments.of("한달 챌린지", 30),
+				Arguments.of("2주 챌린지", 14),
+				Arguments.of("1주 챌린지", 7)
+		);
 	}
 
 	@Test
