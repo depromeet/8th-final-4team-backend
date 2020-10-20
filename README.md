@@ -1,4 +1,4 @@
-# 하루 한달
+# Jello
 > 디프만 8기 파이널 프로젝트 4조 백엔드
 
 ### 프로젝트 구조
@@ -6,7 +6,7 @@
 * month-external: 외부 API 연동 계층
 * month-domain : 도메인 계층 (Domain, Repository, Domain Service) 
 
-### firebase-admin.json
+### 환경변수
 ```
 # month-external/src/main/resources/firebase-admin.json
 {

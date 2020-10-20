@@ -35,6 +35,7 @@ public class ChallengeService {
 		challengePlan.validateCreator(memberId);
 		challengePlan.inactiveChallengePlan();
 		Challenge newChallenge = challengeRepository.save(challengePlan.convertToChallenge());
+		// 챌린지를 시작하면, 챌린지 계획을 비활성화 시키고, 챌린지 계획 정보를 토대로 진짜 챌린지를 생성한다.
 		return ChallengeInfoResponse.of(newChallenge, memberRepository.findAllById(newChallenge.getMemberIds()));
 	}
 
