@@ -12,11 +12,15 @@ import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -78,11 +82,12 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		}).isInstanceOf(IllegalArgumentException.class);
 	}
 
-	@Test
-	void 나의_친구를_이름_오름차순으로_정렬해서_보여준다() {
+	@MethodSource("sources_retrieve_friend_list_sort_by_name_desc")
+	@ParameterizedTest
+	void 나의_친구를_이름_오름차순으로_정렬해서_보여준다(String firstName, String secondName) {
 		// given
-		Member friend1 = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
-		Member friend2 = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
+		Member friend1 = MemberCreator.create("friend1@email.com", firstName);
+		Member friend2 = MemberCreator.create("friend2@email.com", secondName);
 		memberRepository.saveAll(Arrays.asList(friend1, friend2));
 
 		friendMapperRepository.saveAll(Arrays.asList(
@@ -99,11 +104,24 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		assertThat(result.get(1).getId()).isEqualTo(friend2.getId());
 	}
 
-	@Test
-	void 나의_친구를_이름_내림차순으로_정렬해서_보여준다() {
+	// 친구 목록에 보이는 이름 오름차순 우선순위: 숫자 > 영대문자 > 영소문자 > 한글
+	private static Stream<Arguments> sources_retrieve_friend_list_sort_by_name_desc() {
+		return Stream.of(
+				Arguments.of("111", "AAA"),
+				Arguments.of("AAA", "aaa"),
+				Arguments.of("aaa", "가가가"),
+				Arguments.of("가가가", "나나나"),
+				Arguments.of("aaa", "zzz"),
+				Arguments.of("111", "222")
+		);
+	}
+
+	@MethodSource("sources_retrieve_friend_list_sort_by_name_asc")
+	@ParameterizedTest
+	void 나의_친구를_이름_내림차순으로_정렬해서_보여준다(String firstName, String secondName) {
 		// given
-		Member friend1 = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
-		Member friend2 = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
+		Member friend1 = MemberCreator.create("friend1@email.com", firstName);
+		Member friend2 = MemberCreator.create("friend2@email.com", secondName);
 		memberRepository.saveAll(Arrays.asList(friend1, friend2));
 
 		friendMapperRepository.saveAll(Arrays.asList(
@@ -120,11 +138,22 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		assertThat(result.get(1).getId()).isEqualTo(friend1.getId());
 	}
 
+	private static Stream<Arguments> sources_retrieve_friend_list_sort_by_name_asc() {
+		return Stream.of(
+				Arguments.of("111", "aaa"),
+				Arguments.of("aaa", "가가가"),
+				Arguments.of("가가가", "나나나"),
+				Arguments.of("AAA", "aaa"),
+				Arguments.of("aaa", "zzz"),
+				Arguments.of("111", "222")
+		);
+	}
+
 	@Test
 	void 나의_친구를_친구_추가한_날짜가_빠른순으로_정렬해서_보여준다() {
 		// given
-		Member second = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
-		Member first = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
+		Member second = MemberCreator.create("friend2@email.com");
+		Member first = MemberCreator.create("friend1@email.com");
 		memberRepository.saveAll(Arrays.asList(second, first));
 
 		friendMapperRepository.saveAll(Arrays.asList(
@@ -144,8 +173,8 @@ class FriendMapperServiceTest extends MemberSetupTest {
 	@Test
 	void 나의_친구를_친구_추가한_날짜가_늦은순으로_정렬해서_보여준다() {
 		// given
-		Member second = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
-		Member first = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
+		Member second = MemberCreator.create("friend2@email.com");
+		Member first = MemberCreator.create("friend1@email.com");
 		memberRepository.saveAll(Arrays.asList(second, first));
 
 		friendMapperRepository.saveAll(Arrays.asList(
