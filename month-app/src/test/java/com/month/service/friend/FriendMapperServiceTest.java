@@ -8,11 +8,13 @@ import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
 import com.month.service.MemberSetupTest;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
+import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -72,6 +74,100 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		assertThatThrownBy(() -> {
 			friendMapperService.createFriend(request, memberId);
 		}).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void 나의_친구를_이름_오름차순으로_정렬해서_보여준다() {
+		// given
+		Member friend1 = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
+		Member friend2 = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
+		memberRepository.saveAll(Arrays.asList(friend1, friend2));
+
+		friendMapperRepository.saveAll(Arrays.asList(
+				FriendMapperCreator.create(memberId, friend1.getId()),
+				FriendMapperCreator.create(memberId, friend2.getId())
+		));
+
+		// when
+		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.NAME, memberId);
+
+		// then
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getId()).isEqualTo(friend1.getId());
+		assertThat(result.get(1).getId()).isEqualTo(friend2.getId());
+	}
+
+	@Test
+	void 나의_친구를_이름_내림차순으로_정렬해서_보여준다() {
+		// given
+		Member friend1 = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
+		Member friend2 = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
+		memberRepository.saveAll(Arrays.asList(friend1, friend2));
+
+		friendMapperRepository.saveAll(Arrays.asList(
+				FriendMapperCreator.create(memberId, friend1.getId()),
+				FriendMapperCreator.create(memberId, friend2.getId())
+		));
+
+		// when
+		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.NAME_REVERSE, memberId);
+
+		// then
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getId()).isEqualTo(friend2.getId());
+		assertThat(result.get(1).getId()).isEqualTo(friend1.getId());
+	}
+
+	@Test
+	void 나의_친구를_친구_추가한_날짜가_빠른순으로_정렬해서_보여준다() {
+		// given
+		Member second = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
+		Member first = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
+		memberRepository.saveAll(Arrays.asList(second, first));
+
+		friendMapperRepository.saveAll(Arrays.asList(
+				FriendMapperCreator.create(memberId, first.getId()),
+				FriendMapperCreator.create(memberId, second.getId())
+		));
+
+		// when
+		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.CREATED, memberId);
+
+		// then
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getId()).isEqualTo(first.getId());
+		assertThat(result.get(1).getId()).isEqualTo(second.getId());
+	}
+
+	@Test
+	void 나의_친구를_친구_추가한_날짜가_늦은순으로_정렬해서_보여준다() {
+		// given
+		Member second = MemberCreator.create("friend2@email.com", "나나나", null, "uid2");
+		Member first = MemberCreator.create("friend1@email.com", "가가가", null, "uid1");
+		memberRepository.saveAll(Arrays.asList(second, first));
+
+		friendMapperRepository.saveAll(Arrays.asList(
+				FriendMapperCreator.create(memberId, first.getId()),
+				FriendMapperCreator.create(memberId, second.getId())
+		));
+
+		// when
+		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.CREATED_REVERSE, memberId);
+
+		// then
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getId()).isEqualTo(second.getId());
+		assertThat(result.get(1).getId()).isEqualTo(first.getId());
+	}
+
+	@Test
+	void 친구_추가_아무도_안되있을때_널이아닌_빈_리스트_반환한다() {
+		// when
+		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.CREATED_REVERSE, memberId);
+
+		// then
+		assertThat(result).isEmpty();
+		assertThat(result).isNotNull();
 	}
 
 }

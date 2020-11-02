@@ -26,8 +26,8 @@ public class FriendMapperController {
 	}
 
 	@GetMapping("/api/v1/member/friend/list")
-	public ApiResponse<List<FriendMemberInfoResponse>> retrieveFriendsInfoResponse(@Valid @RequestParam FriendListSortType type, @LoginMember MemberSession memberSession) {
-		return ApiResponse.of(friendMapperService.retrieveMyFriendsInfo(type, memberSession.getMemberId()));
+	public ApiResponse<List<FriendMemberInfoResponse>> retrieveFriendsInfoResponse(@Valid @RequestParam FriendListSortType sortBy, @LoginMember MemberSession memberSession) {
+		return ApiResponse.of(friendMapperService.retrieveMyFriendsInfo(sortBy, memberSession.getMemberId()));
 	}
 
 	// TODO 친구를 즐겨찾기 ON/OFF 하는 기능

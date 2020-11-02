@@ -5,19 +5,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 
 @Getter
 @RequiredArgsConstructor
 public enum FriendListSortType {
 
 	NAME("NAME", Comparator.comparing(FriendMemberInfoResponse::getName)),
-	EMAIL("EMAIL", Comparator.comparing(FriendMemberInfoResponse::getEmail));
+	NAME_REVERSE("NAME_REVERSE", Comparator.comparing(FriendMemberInfoResponse::getName).reversed()),
+	CREATED("CREATED", Comparator.comparing(FriendMemberInfoResponse::getCreatedDateTime)),
+	CREATED_REVERSE("CREATED_REVERSE", Comparator.comparing(FriendMemberInfoResponse::getCreatedDateTime).reversed());
 
 	private final String field;
 	private final Comparator<FriendMemberInfoResponse> comparator;
-
-	private static Map<String, FriendListSortType> cachingFriendListSortType = new HashMap<>();
 
 }

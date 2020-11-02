@@ -28,27 +28,20 @@ public class FriendMapperService {
 		FriendMapperServiceUtils.validateNonFriendMapper(friendMapperRepository, memberId, targetMember.getId());
 
 		friendMapperRepository.save(FriendMapper.newInstance(memberId, targetMember.getId()));
-
-		sendNotificationToTargetMember(targetMember.getId(), memberId);
-	}
-
-	private void sendNotificationToTargetMember(Long memberId, Long targetMemberId) {
-		if (friendMapperRepository.findFriendMapper(memberId, targetMemberId) == null) {
-			// TODO 상대방이 나를 친구 추가 하지 않았을 경우에만, 노티피케이션이 가야한다.
-		}
+		// TODO 상대방이 나를 친구 추가 하지 않았을 경우에, Notification 가는 기능?
 	}
 
 	@Transactional(readOnly = true)
-	public List<FriendMemberInfoResponse> retrieveMyFriendsInfo(FriendListSortType sortType, Long memberId) {
+	public List<FriendMemberInfoResponse> retrieveMyFriendsInfo(FriendListSortType sortBy, Long memberId) {
 		List<FriendMapper> friendMappers = friendMapperRepository.findAllByMemberId(memberId);
-		Map<Long, Boolean> friendMapperMaps = friendMappers.stream()
-				.collect(Collectors.toMap(FriendMapper::getTargetMemberId, FriendMapper::isFavorite));
+		Map<Long, FriendMapper> friendMapperMaps = friendMappers.stream()
+				.collect(Collectors.toMap(FriendMapper::getTargetMemberId, friendMapper -> friendMapper));
 
 		List<Member> friends = memberRepository.findAllById(getFriendIds(friendMappers));
 
 		return friends.stream()
 				.map(friend -> FriendMemberInfoResponse.of(friend, friendMapperMaps.get(friend.getId())))
-				.sorted(sortType.getComparator())
+				.sorted(sortBy.getComparator())
 				.collect(Collectors.toList());
 	}
 
