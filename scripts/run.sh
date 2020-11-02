@@ -1,9 +1,6 @@
 #!/bin/bash
 
-DIRECTORY=/home/ubuntu/build
 DOCKER_APP_NAME=month-app
-
-cd $DIRECTORY
 
 aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 751264546625.dkr.ecr.ap-northeast-2.amazonaws.com
 

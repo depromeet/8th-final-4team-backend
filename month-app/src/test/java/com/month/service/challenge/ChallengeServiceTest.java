@@ -57,7 +57,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 모든_멤버가_입장하면_자동으로_챌린지가_시작되면_ChallengePlan_은_비활성화되고_새로운_Challenge_가_생성된다() {
+	void 모든_멤버가_초대를_받아_자동으로_챌린지가_시작되면_챌린지_계획은_비활성화되고_챌린지가_시작된() {
 		// given
 		String name = "챌린지 이름";
 		String description = "챌린지 설명";
@@ -79,7 +79,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지를_시작하면_ChallengePlan_은_비활성화되고_새로운_Challenge_가_생성된다() {
+	void 챌린지를_강제_시작하면_챌린지_계획은_비활성화되고_챌린지가_시작된다() {
 		// given
 		String name = "챌린지 이름";
 		String description = "챌린지 설명";
@@ -122,7 +122,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 		// then
 		List<Challenge> challenges = challengeRepository.findAll();
-		final LocalDateTime now = LocalDateTime.now();
+		final LocalDateTime now = LocalDateTime.now(); // TODO 개선 필요. (모킹해야함)
 		assertThat(challenges.get(0).getStartDateTime()).isBetween(now.minusMinutes(1), now.plusMinutes(1));
 		assertThat(challenges.get(0).getEndDateTime().minusDays(period)).isEqualTo(challenges.get(0).getStartDateTime());
 	}
@@ -137,7 +137,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지를_시작하면_기존의_챌린지_계획에_있던_멤버들이_복사된다() {
+	void 챌린지를_시작하면_기존의_챌린지_계획에_있던_멤버들이_모두_복사된다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
 		challengePlan.addCreator(memberId);
@@ -160,7 +160,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지를_시작할때_생성자가_아니면_시작하지_못한다() {
+	void 챌린지를_강제_시작할때_생성자가_아니면_시작하지_못한다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
 		challengePlan.addParticipator(memberId);
@@ -193,7 +193,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 	@ParameterizedTest
 	@MethodSource("source_load_active_challenges_ongoing")
-	void 현재_진행중인_챌린지를_불러오는_기능_진행중인_경우(String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+	void 현재_진행중인_챌린지를_불러오는_기능_진행중인_경우_진행중인_챌린지에_포함된다(String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		// given
 		Challenge challenge = ChallengeCreator.create(name, startDateTime, endDateTime);
 		challenge.addCreator(memberId);
@@ -216,7 +216,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 	@ParameterizedTest
 	@MethodSource("source_load_active_challenges_finish")
-	void 현재_진행중인_챌린지를_불러오는_기능_이미_끝난경우(String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+	void 현재_진행중인_챌린지를_불러오는_기능_이미_끝난경우_진행중인_챌린지에_포함되지_않는다(String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		// given
 		Challenge challenge = ChallengeCreator.create(name, startDateTime, endDateTime);
 		challenge.addCreator(memberId);
@@ -238,7 +238,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 	@ParameterizedTest
 	@MethodSource("source_load_active_challenges")
-	void 현재_진행중인_챌린지를_불러오는_기능_아직_시작하지_않은_경우(String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+	void 현재_진행중인_챌린지를_불러오는_기능_아직_시작하지_않은_경우_진행중인_챌린지에_포함되지_않는다(String name, LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		// given
 		Challenge challenge = ChallengeCreator.create(name, startDateTime, endDateTime);
 		challenge.addCreator(memberId);

@@ -55,7 +55,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지_계획을_생성하면_Challenge_Plan_Entity_가_생성된다() {
+	void 새로운_챌린지_계획을_생성한다() {
 		// given
 		String name = "챌린지 계획";
 		String description = "챌린지 설명";
@@ -86,7 +86,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 혼자하는_챌린지_계획을_생성하면_Challenge_Plan_Entity_가_비활성화되고_바로_새로운_챌린지가_생성된다() {
+	void 혼자하는_챌린지_계획을_생성하면_즉시_챌린지가_시작된() {
 		// given
 		String name = "챌린지 계획";
 		String description = "챌린지 설명";
@@ -160,7 +160,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지의_초대키를_반환한다() {
+	void 친구_초대를_위한_챌린지_계획의_초대키를_반환한다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
 		challengePlan.addParticipator(memberId);
@@ -176,7 +176,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 챌린지의_초대키를_재발급한다() {
+	void 챌린지_계획의_초대키를_재발급한다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
 		challengePlan.addCreator(memberId);
@@ -198,7 +198,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 생성자만이_챌린지의_초대키를_재발급할수_있다() {
+	void 챌린지_계획의_생성자만이_챌린지의_초대키를_재발급할수_있다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
 		challengePlan.addParticipator(memberId);
@@ -213,7 +213,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 초대키로_챌린지의_간단한_정보를_반환한다() {
+	void 챌린지_계획의_초대키로_챌린지의_간단한_정보를_반환한다() {
 		// given
 		String name = "챌린지 계획";
 		String description = "챌린지 설명";
@@ -239,7 +239,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 해당하는_초대키가_없을때_초대키_정보를_불러오면_에러발생한다() {
+	void 잘못된_초대키_일경우_에러_발() {
 		// when & then
 		assertThatThrownBy(() -> {
 			challengePlanService.getChallengeInfoByInvitationKey("example");
@@ -247,7 +247,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 초대키로_챌린지에_참가한다() {
+	void 초대받은_대키로_챌린지_계획에_참가한다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 30, 4);
 		challengePlan.addCreator(999L);
@@ -265,7 +265,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 초대키로_챌린지에_참가로_모든_멤버가_입장하면_챌린지가_자동으로_시작된다() {
+	void 모든_멤버가_초대를_받아_입장하면_챌린지가_자동으로_시작된다() {
 		// given
 		ChallengePlan challengePlan = ChallengePlanCreator.create("챌린지 이름", "챌린지 설명", 15, 2);
 		challengePlan.addCreator(999L);

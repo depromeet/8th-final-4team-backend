@@ -69,7 +69,7 @@ class AuthServiceTest {
 	}
 
 	@Test
-	void 기존의_멤버가_존재하지_않으면_회원가입이_진행된다() {
+	void 로그인_요청시_회원가입한_멤버가_존재하지_않으면_회원가입을_위한_정보가_반환된() {
 		// given
 		String idToken = "idToken";
 
@@ -86,7 +86,7 @@ class AuthServiceTest {
 	}
 
 	@Test
-	void 기존의_멤버가_존재하면_로그인이_진행된다() {
+	void 회원가입한_멤버가_존재하면_로그인이_진행된다() {
 		// given
 		memberRepository.save(MemberCreator.create("will.seungho@gmail.com", "승호강", null, "uid"));
 
@@ -103,7 +103,7 @@ class AuthServiceTest {
 	}
 
 	@Test
-	void 새로운_멤버가_회원가입하는경우() {
+	void 회원가입을_요청하는_경우_새로운_멤버가_생성된() {
 		// given
 		String name = "jello";
 		String photoUrl = "https://photo.jello.com";
