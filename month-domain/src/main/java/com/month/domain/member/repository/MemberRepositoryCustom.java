@@ -8,4 +8,6 @@ public interface MemberRepositoryCustom {
 
 	Member findMemberByUid(String uid);
 
+	Member findMemberByEmail(String email);
+
 }
