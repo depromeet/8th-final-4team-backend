@@ -26,17 +26,22 @@ public class FriendMapper extends BaseTimeEntity {
 	private boolean isFavorite;
 
 	@Builder
-	public FriendMapper(Long memberId, Long targetMemberId) {
+	public FriendMapper(Long memberId, Long targetMemberId, boolean isFavorite) {
 		this.memberId = memberId;
 		this.targetMemberId = targetMemberId;
-		this.isFavorite = false;
+		this.isFavorite = isFavorite;
 	}
 
 	public static FriendMapper newInstance(Long memberId, Long targetMemberId) {
 		return FriendMapper.builder()
 				.memberId(memberId)
 				.targetMemberId(targetMemberId)
+				.isFavorite(false)
 				.build();
+	}
+
+	public void updateFavorite(boolean isFavorite) {
+		this.isFavorite = isFavorite;
 	}
 
 }

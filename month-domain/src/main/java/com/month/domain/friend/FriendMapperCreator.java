@@ -10,6 +10,15 @@ public class FriendMapperCreator {
 		return FriendMapper.builder()
 				.memberId(memberId)
 				.targetMemberId(targetMemberId)
+				.isFavorite(false)
+				.build();
+	}
+
+	public static FriendMapper create(Long memberId, Long targetMemberId, boolean isFavorite) {
+		return FriendMapper.builder()
+				.memberId(memberId)
+				.targetMemberId(targetMemberId)
+				.isFavorite(isFavorite)
 				.build();
 	}
 

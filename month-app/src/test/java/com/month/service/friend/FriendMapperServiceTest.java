@@ -8,6 +8,7 @@ import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
 import com.month.service.MemberSetupTest;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
+import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 친구요청을_하면_나의_친구목록에_추가된다() {
+	void 친구요청을_하면_나의_친구목록에_추가되고_기본적으로_즐겨찾기_되지_않은_상태가_된다() {
 		// given
 		String email = "friend@email.com";
 		Member friend = memberRepository.save(MemberCreator.create(email));
@@ -52,12 +53,13 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		// then
 		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
 		assertThat(friendMappers).hasSize(1);
-		assertFriendMapper(friendMappers.get(0), memberId, friend.getId());
+		assertFriendMapper(friendMappers.get(0), memberId, friend.getId(), false);
 	}
 
-	private void assertFriendMapper(FriendMapper friendMapper, Long memberId, Long targetMemberId) {
+	private void assertFriendMapper(FriendMapper friendMapper, Long memberId, Long targetMemberId, boolean isFavorite) {
 		assertThat(friendMapper.getMemberId()).isEqualTo(memberId);
 		assertThat(friendMapper.getTargetMemberId()).isEqualTo(targetMemberId);
+		assertThat(friendMapper.isFavorite()).isEqualTo(isFavorite);
 	}
 
 	@Test
@@ -168,6 +170,76 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		// then
 		assertThat(result).isEmpty();
 		assertThat(result).isNotNull();
+	}
+
+	@Test
+	void 등록된_친구를_즐겨찾기한다() {
+		// given
+		boolean isFavorite = true;
+		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
+
+		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId()));
+
+		UpdateFriendFavoriteRequest request = UpdateFriendFavoriteRequest.testBuilder()
+				.friendMemberId(friend.getId())
+				.isFavorite(isFavorite)
+				.build();
+
+		// when
+		friendMapperService.updateFriendFavorite(request, memberId);
+
+		// then
+		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
+		assertThat(friendMappers).hasSize(1);
+		assertFriendMapper(friendMappers.get(0), memberId, friend.getId(), isFavorite);
+	}
+
+	@Test
+	void 즐겨찾기_되어있는_친구를_즐겨찾기_해제한다() {
+		// given
+		boolean isFavorite = false;
+		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
+
+		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
+
+		UpdateFriendFavoriteRequest request = UpdateFriendFavoriteRequest.testBuilder()
+				.friendMemberId(friend.getId())
+				.isFavorite(isFavorite)
+				.build();
+
+		// when
+		friendMapperService.updateFriendFavorite(request, memberId);
+
+		// then
+		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
+		assertThat(friendMappers).hasSize(1);
+		assertFriendMapper(friendMappers.get(0), memberId, friend.getId(), isFavorite);
+	}
+
+	@Test
+	void 친구등록된_친구를_친구목록에서_삭제한다() {
+		// given
+		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
+
+		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
+
+		// when
+		friendMapperService.deleteFriendMapper(friend.getId(), memberId);
+
+		// then
+		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
+		assertThat(friendMappers).isEmpty();
+	}
+
+	@Test
+	void 친구등록되지_않은_친구를_친구목록에서_삭제하면_에러발생() {
+		// given
+		Member notFriend = memberRepository.save(MemberCreator.create("friend@email.com"));
+
+		// when & then
+		assertThatThrownBy(() -> {
+			friendMapperService.deleteFriendMapper(notFriend.getId(), memberId);
+		});
 	}
 
 }

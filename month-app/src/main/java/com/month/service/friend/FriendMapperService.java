@@ -5,6 +5,7 @@ import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.domain.friend.FriendMapperRepository;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
+import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import com.month.service.member.MemberServiceUtils;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,18 @@ public class FriendMapperService {
 		return friendMappers.stream()
 				.map(FriendMapper::getTargetMemberId)
 				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public void updateFriendFavorite(UpdateFriendFavoriteRequest request, Long memberId) {
+		FriendMapper friendMapper = FriendMapperServiceUtils.findFriendMapper(friendMapperRepository, memberId, request.getFriendMemberId());
+		friendMapper.updateFavorite(request.isFavorite());
+	}
+
+	@Transactional
+	public void deleteFriendMapper(Long friendMemberId, Long memberId) {
+		FriendMapper friendMapper = FriendMapperServiceUtils.findFriendMapper(friendMapperRepository, memberId, friendMemberId);
+		friendMapperRepository.delete(friendMapper);
 	}
 
 }
