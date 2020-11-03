@@ -11,6 +11,14 @@ public final class MemberCreator {
 				.build();
 	}
 
+	public static Member create(String email, String name) {
+		return Member.builder()
+				.email(email)
+				.name(name)
+				.uid("uid")
+				.build();
+	}
+
 	public static Member create(String email) {
 		return Member.builder()
 				.email(email)

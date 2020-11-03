@@ -16,6 +16,14 @@ public class MemberServiceUtils {
 		return member;
 	}
 
+	public static Member findMemberByEmail(MemberRepository memberRepository, String email) {
+		Member member = memberRepository.findMemberByEmail(email);
+		if (member == null) {
+			throw new IllegalArgumentException(String.format("해당 멤버 (%s) 는 존재하지 않습니다.", email));
+		}
+		return member;
+	}
+
 	public static void validateNotExistMember(MemberRepository memberRepository, String uid) {
 		if (memberRepository.findMemberByUid(uid) != null) {
 			throw new IllegalArgumentException(String.format("이미 존재하는 회원 (%s) 입니다.", uid));
