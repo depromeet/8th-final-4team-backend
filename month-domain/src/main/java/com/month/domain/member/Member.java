@@ -57,4 +57,8 @@ public class Member extends BaseTimeEntity {
 		}
 	}
 
+	public boolean isSameMember(Long memberId) {
+		return this.id.equals(memberId);
+	}
+
 }
