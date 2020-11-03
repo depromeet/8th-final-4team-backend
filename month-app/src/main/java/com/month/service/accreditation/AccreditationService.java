@@ -28,6 +28,7 @@ public class AccreditationService {
 
     @Transactional
     public void saveAccreditation(Long memberId, AccreditationRequest request) {
+        AccreditationServiceUtils.findByChallengeUuidAndDateAndMemberId(accreditationRepository, memberId, request.getChallengeUuid());
         String url = "";
         if (request.getImage() != null)
             url = uploadService.upload(request.getImage(), UploadType.CHALLENGE.getDirectory());
@@ -42,6 +43,11 @@ public class AccreditationService {
         return accreditationList.stream()
                 .map(accreditation -> AccreditationResponse.of(accreditation, MemberServiceUtils.findMemberById(memberRepository, accreditation.getMemberId())))
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public void getAccreditationCheck(Long memberId, String challengeUuid) {
+        AccreditationServiceUtils.findByChallengeUuidAndDateAndMemberId(accreditationRepository, memberId, challengeUuid);
     }
 
 }

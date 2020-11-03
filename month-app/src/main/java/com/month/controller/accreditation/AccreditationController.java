@@ -28,7 +28,7 @@ public class AccreditationController {
                                                  @RequestPart(value = "image", required = false) MultipartFile image) {
         if (image != null) request.setImage(image);
         accreditationService.saveAccreditation(memberSession.getMemberId(), request);
-        return ApiResponse.of("챌린지 인증 완료");
+        return ApiResponse.OK;
     }
 
     @ApiOperation("날짜별 해당 챌린지의 인증 리스트를 불러오는 API")
@@ -37,6 +37,14 @@ public class AccreditationController {
                                                                          @RequestParam String challengeUuid,
                                                                          @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date) {
         return ApiResponse.of(accreditationService.getAccreditationList(memberSession.getMemberId(), challengeUuid, date));
+    }
+
+    @ApiOperation(("챌린지 인증을 할 수 있는지 확인하는 API"))
+    @GetMapping("/api/v1/accreditation/check")
+    public ApiResponse<String> getAccreditationCheck(@LoginMember MemberSession memberSession,
+                                                     @RequestParam String challengeUuid) {
+        accreditationService.getAccreditationCheck(memberSession.getMemberId(), challengeUuid);
+        return ApiResponse.OK;
     }
 
 }
