@@ -1,5 +1,7 @@
 package com.month.utils;
 
+import com.month.exception.NotAllowedException;
+import com.month.exception.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+
+import static com.month.exception.type.ExceptionDescriptionType.FILE;
 
 @Slf4j
 public final class FileUtils {
@@ -41,14 +45,14 @@ public final class FileUtils {
 	private static String getOriginalFilename(MultipartFile multipartFile) {
 		String originalFileName = multipartFile.getOriginalFilename();
 		if (originalFileName == null) {
-			throw new IllegalArgumentException("파일이 존재하지 않습니다.");
+			throw new NotFoundException("파일이 존재하지 않습니다.", FILE);
 		}
 		return originalFileName;
 	}
 
 	private static void validateImageExtension(String extension) {
 		if (!allowImgExtensions.contains(extension)) {
-			throw new IllegalArgumentException(String.format("허용되지 않은 이미지 확장자 (%s) 입니다.", extension));
+			throw new NotAllowedException(String.format("허용되지 않은 이미지 확장자 (%s) 입니다.", extension), FILE);
 		}
 	}
 
