@@ -26,8 +26,10 @@ public class FriendMapperService {
 	@Transactional
 	public void createFriend(CreateFriendMapperRequest request, Long memberId) {
 		Member targetMember = MemberServiceUtils.findMemberByEmail(memberRepository, request.getEmail());
+		if (targetMember.isSameMember(memberId)) {
+			throw new IllegalArgumentException(String.format("자기 자신 (%s)은 친구 등록 할 수 없습니다", memberId));
+		}
 		FriendMapperServiceUtils.validateNonFriendMapper(friendMapperRepository, memberId, targetMember.getId());
-
 		friendMapperRepository.save(FriendMapper.newInstance(memberId, targetMember.getId()));
 		// TODO 상대방이 나를 친구 추가 하지 않았을 경우에, Notification 가는 기능?
 	}
@@ -55,7 +57,7 @@ public class FriendMapperService {
 	@Transactional
 	public void updateFriendFavorite(UpdateFriendFavoriteRequest request, Long memberId) {
 		FriendMapper friendMapper = FriendMapperServiceUtils.findFriendMapper(friendMapperRepository, memberId, request.getFriendMemberId());
-		friendMapper.updateFavorite(request.isFavorite());
+		friendMapper.updateFavorite(request.getIsFavorite());
 	}
 
 	@Transactional
