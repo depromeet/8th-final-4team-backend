@@ -1,5 +1,6 @@
 package com.month.domain.common;
 
+import com.month.exception.ValidationException;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -21,7 +22,7 @@ class DateTimeIntervalTest {
 		// when
 		assertThatThrownBy(() -> {
 			DateTimeInterval.of(startDateTime, endDateTime);
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(ValidationException.class);
 	}
 
 	private static Stream<Arguments> sources_date_time_interval() {

@@ -6,6 +6,8 @@ import com.month.domain.friend.FriendMapperRepository;
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
+import com.month.exception.ConflictException;
+import com.month.exception.NotAllowedException;
 import com.month.service.MemberSetupTest;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
 import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
@@ -79,7 +81,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		// when & then
 		assertThatThrownBy(() -> {
 			friendMapperService.createFriend(request, memberId);
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(ConflictException.class);
 	}
 
 	@Test
@@ -93,7 +95,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		// when & then
 		assertThatThrownBy(() -> {
 			friendMapperService.createFriend(request, member.getId());
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(NotAllowedException.class);
 	}
 
 	@MethodSource("sources_retrieve_friend_list_sort_by_name_desc")

@@ -1,6 +1,6 @@
 package com.month.domain.member;
 
-import com.month.exception.NotAllowedException;
+import com.month.exception.ValidationException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +29,7 @@ public class Email {
 
 	private void verifyEmailFormat(String email) {
 		if (!EMAIL_REGEX.matcher(email).matches()) {
-			throw new NotAllowedException(String.format("(%s)은 이메일 포맷에 맞지 않습니다", email), EMAIL);
+			throw new ValidationException(String.format("(%s)은 이메일 포맷에 맞지 않습니다", email), EMAIL);
 		}
 	}
 

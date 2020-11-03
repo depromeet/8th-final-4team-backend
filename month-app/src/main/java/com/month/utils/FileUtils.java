@@ -1,7 +1,6 @@
 package com.month.utils;
 
-import com.month.exception.NotAllowedException;
-import com.month.exception.NotFoundException;
+import com.month.exception.ValidationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,14 +44,14 @@ public final class FileUtils {
 	private static String getOriginalFilename(MultipartFile multipartFile) {
 		String originalFileName = multipartFile.getOriginalFilename();
 		if (originalFileName == null) {
-			throw new NotFoundException("파일이 존재하지 않습니다.", FILE);
+			throw new ValidationException("파일이 존재하지 않습니다.", FILE);
 		}
 		return originalFileName;
 	}
 
 	private static void validateImageExtension(String extension) {
 		if (!allowImgExtensions.contains(extension)) {
-			throw new NotAllowedException(String.format("허용되지 않은 이미지 확장자 (%s) 입니다.", extension), FILE);
+			throw new ValidationException(String.format("허용되지 않은 이미지 확장자 (%s) 입니다.", extension), FILE);
 		}
 	}
 
@@ -82,7 +81,7 @@ public final class FileUtils {
 			}
 			return convertFile;
 		}
-		throw new IOException("새로운 파일을 생성하지 못했습니다.");
+		throw new IllegalArgumentException("새로운 파일을 생성하지 못했습니다.");
 	}
 
 	/**
