@@ -25,8 +25,8 @@ public class AccreditationController {
     @PostMapping("/api/v1/accreditation/save")
     public ApiResponse<String> saveAccreditation(@LoginMember MemberSession memberSession,
                                                  AccreditationRequest request,
-                                                 @RequestPart(value = "image", required = false) MultipartFile image) {
-        if (image != null) request.setImage(image);
+                                                 @RequestPart(value = "image") MultipartFile image) {
+        request.setImage(image);
         accreditationService.saveAccreditation(memberSession.getMemberId(), request);
         return ApiResponse.OK;
     }

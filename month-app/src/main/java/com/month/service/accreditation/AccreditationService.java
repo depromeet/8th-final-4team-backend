@@ -29,10 +29,8 @@ public class AccreditationService {
     @Transactional
     public void saveAccreditation(Long memberId, AccreditationRequest request) {
         AccreditationServiceUtils.findByChallengeUuidAndDateAndMemberId(accreditationRepository, memberId, request.getChallengeUuid());
-        String url = "";
-        if (request.getImage() != null)
-            url = uploadService.upload(request.getImage(), UploadType.CHALLENGE.getDirectory());
 
+        String url = uploadService.upload(request.getImage(), UploadType.CHALLENGE.getDirectory());
         Accreditation accreditation = new Accreditation(request.getMemo(), url, memberId, request.getChallengeUuid());
         accreditationRepository.save(accreditation);
     }
