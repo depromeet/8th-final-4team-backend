@@ -5,6 +5,7 @@ import com.month.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -70,6 +71,14 @@ public class ExceptionControllerAdvice {
 		return new ApiResponse<>(VALIDATION_EXCEPTION.getCode(),
 				translator.toLocale(VALIDATION_EXCEPTION.getMessage(), translator.toLocale(e.getDescription().getMessage())),
 				e.getData());
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiResponse<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+		log.error(e.getMessage(), e);
+		return new ApiResponse<>(REQUEST_VALIDATION_EXCEPTION.getCode(),
+				String.format("[%s]: %s", e.getBindingResult().getAllErrors().get(0).getObjectName(), e.getBindingResult().getAllErrors().get(0).getDefaultMessage()), null);
 	}
 
 }
