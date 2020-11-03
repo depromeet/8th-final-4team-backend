@@ -82,6 +82,20 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		}).isInstanceOf(IllegalArgumentException.class);
 	}
 
+	@Test
+	void 자기_자신을_친구등록_하려는_경우_에러_발생() {
+		// given
+		String email = "member@email.com";
+		Member member = memberRepository.save(MemberCreator.create(email));
+
+		CreateFriendMapperRequest request = CreateFriendMapperRequest.testInstance(email);
+
+		// when & then
+		assertThatThrownBy(() -> {
+			friendMapperService.createFriend(request, member.getId());
+		}).isInstanceOf(IllegalArgumentException.class);
+	}
+
 	@MethodSource("sources_retrieve_friend_list_sort_by_name_desc")
 	@ParameterizedTest
 	void 나의_친구를_이름_오름차순으로_정렬해서_보여준다(String firstName, String secondName) {
