@@ -3,10 +3,7 @@ package com.month.controller.challenge;
 import com.month.config.resolver.LoginMember;
 import com.month.controller.ApiResponse;
 import com.month.service.challenge.ChallengePlanService;
-import com.month.service.challenge.dto.request.CreateChallengePlanRequest;
-import com.month.service.challenge.dto.request.EnterChallengeByInvitationKeyRequest;
-import com.month.service.challenge.dto.request.RefreshChallengeInvitationKeyRequest;
-import com.month.service.challenge.dto.request.RetrieveChallengePlanInvitationKeyRequest;
+import com.month.service.challenge.dto.request.*;
 import com.month.service.challenge.dto.response.ChallengePlanInfoResponse;
 import com.month.service.challenge.dto.response.ChallengePlanInvitationInfo;
 import com.month.type.session.MemberSession;
@@ -53,8 +50,8 @@ public class ChallengePlanController {
 
 	@ApiOperation("챌린지의 초대키로 계획중인 챌린지의 간단한 정보를 반환하는 API")
 	@GetMapping("/api/v1/challenge/invitation")
-	public ApiResponse<ChallengePlanInvitationInfo> getChallengePlanInfoByInvitationKey(@Valid String invitationKey) {
-		return ApiResponse.of(challengePlanService.getChallengeInfoByInvitationKey(invitationKey));
+	public ApiResponse<ChallengePlanInvitationInfo> getChallengePlanInfoByInvitationKey(@Valid RetrieveChallengePlanByInvitationKeyRequest request) {
+		return ApiResponse.of(challengePlanService.getChallengeInfoByInvitationKey(request.getInvitationKey()));
 	}
 
 	@ApiOperation("초대키로 계획중인 챌린지에 참여하는 API")

@@ -5,6 +5,7 @@ import com.month.exception.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -77,8 +78,18 @@ public class ExceptionControllerAdvice {
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiResponse<Object> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
 		log.error(e.getMessage(), e);
+		String field = e.getBindingResult().getFieldError() == null ? "" : e.getBindingResult().getFieldError().getField();
 		return new ApiResponse<>(REQUEST_VALIDATION_EXCEPTION.getCode(),
-				String.format("[%s]: %s", e.getBindingResult().getAllErrors().get(0).getObjectName(), e.getBindingResult().getAllErrors().get(0).getDefaultMessage()), null);
+				String.format("[%s]: %s", field, e.getBindingResult().getFieldError().getDefaultMessage()), null);
+	}
+
+	@ExceptionHandler(BindException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ApiResponse<Object> handleBindException(BindException e) {
+		log.error(e.getMessage(), e);
+		String field = e.getBindingResult().getFieldError() == null ? "" : e.getBindingResult().getFieldError().getField();
+		return new ApiResponse<>(REQUEST_VALIDATION_EXCEPTION.getCode(),
+				String.format("[%s]: %s", field, e.getBindingResult().getFieldError().getDefaultMessage()), null);
 	}
 
 }
