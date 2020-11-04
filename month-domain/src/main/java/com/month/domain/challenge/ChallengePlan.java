@@ -1,6 +1,9 @@
 package com.month.domain.challenge;
 
 import com.month.domain.BaseTimeEntity;
+import com.month.exception.ConflictException;
+import com.month.exception.NotAllowedException;
+import com.month.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -69,7 +74,7 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	public void addCreator(Long memberId) {
 		if (isMember(memberId)) {
-			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
+			throw new ConflictException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id), MEMBER_IN_CHALLENGE);
 		}
 		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.creator(this, memberId));
 		this.currentMembersCount++;
@@ -77,7 +82,7 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	public void addParticipator(Long memberId) {
 		if (isMember(memberId)) {
-			throw new IllegalArgumentException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id));
+			throw new ConflictException(String.format("멤버 (%s)는 이미 챌린지 (%s)에 참여하고 있습니다.", memberId, this.id), MEMBER_IN_CHALLENGE);
 		}
 		this.challengePlanMemberMapperList.add(ChallengePlanMemberMapper.participator(this, memberId));
 		this.currentMembersCount++;
@@ -85,7 +90,7 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	public void validateCreator(Long memberId) {
 		if (!isCreator(memberId)) {
-			throw new IllegalArgumentException(String.format("회원 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, id));
+			throw new NotAllowedException(String.format("회원 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, id), MEMBER_IN_CHALLENGE);
 		}
 	}
 
@@ -96,7 +101,7 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	public void validateIsMember(Long memberId) {
 		if (!isMember(memberId)) {
-			throw new IllegalArgumentException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, id));
+			throw new NotFoundException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, id), MEMBER_IN_CHALLENGE);
 		}
 	}
 
@@ -120,7 +125,7 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	public void refreshInvitationKey(Long memberId) {
 		if (!isCreator(memberId)) {
-			throw new IllegalArgumentException(String.format("멤버 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, this.id));
+			throw new NotAllowedException(String.format("멤버 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, this.id), MEMBER_IN_CHALLENGE);
 		}
 		this.invitationKey = InvitationKey.newInstance();
 	}

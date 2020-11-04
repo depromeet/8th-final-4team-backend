@@ -2,9 +2,12 @@ package com.month.external.firebase.dto;
 
 import com.google.firebase.auth.FirebaseToken;
 import com.month.domain.member.Member;
+import com.month.exception.ValidationException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import static com.month.exception.type.ExceptionDescriptionType.TOKEN;
 
 @Getter
 @NoArgsConstructor
@@ -29,7 +32,7 @@ public class CustomFirebaseToken {
 
 	private void validateFirebaseToken(String email, String uid) {
 		if (email == null || uid == null) {
-			throw new IllegalArgumentException(String.format("잘못된 파이어베이스 토큰 입니다. email: (%s), uid: (%s)", email, uid));
+			throw new ValidationException(String.format("잘못된 파이어베이스 토큰 입니다. email: (%s), uid: (%s)", email, uid), TOKEN);
 		}
 	}
 

@@ -1,5 +1,6 @@
 package com.month.config.resolver;
 
+import com.month.exception.InvalidSessionException;
 import com.month.type.session.MemberSession;
 import com.month.type.session.SessionConstants;
 import com.month.utils.HeaderUtils;
@@ -40,7 +41,7 @@ public class LoginMemberSessionResolver implements HandlerMethodArgumentResolver
 		HeaderUtils.validateAvailableHeader(header);
 		Session session = sessionRepository.getSession(header.split(BEARER_TOKEN)[1]);
 		if (session == null) {
-			throw new IllegalArgumentException(String.format("잘못된 세션입니다 (%s)", header));
+			throw new InvalidSessionException(String.format("잘못된 세션입니다 (%s)", header));
 		}
 		return session;
 	}

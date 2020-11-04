@@ -9,6 +9,8 @@ import com.month.domain.challenge.ChallengePlanMemberMapperRepository;
 import com.month.domain.challenge.ChallengePlanRepository;
 import com.month.domain.challenge.ChallengeRepository;
 import com.month.domain.challenge.ChallengeRole;
+import com.month.exception.NotAllowedException;
+import com.month.exception.NotFoundException;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.CreateChallengePlanRequest;
 import com.month.service.challenge.dto.request.EnterChallengeByInvitationKeyRequest;
@@ -209,7 +211,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		// when & then
 		assertThatThrownBy(() -> {
 			challengePlanService.refreshChallengeInvitationKey(request, memberId);
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(NotAllowedException.class);
 	}
 
 	@Test
@@ -239,11 +241,11 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 잘못된_초대키_일경우_에러_발() {
+	void 잘못된_초대키_일경우_에러_발생() {
 		// when & then
 		assertThatThrownBy(() -> {
 			challengePlanService.getChallengeInfoByInvitationKey("example");
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(NotFoundException.class);
 	}
 
 	@Test

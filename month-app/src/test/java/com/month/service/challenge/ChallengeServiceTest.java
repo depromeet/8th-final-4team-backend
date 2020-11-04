@@ -10,6 +10,7 @@ import com.month.domain.challenge.ChallengePlanMemberMapperRepository;
 import com.month.domain.challenge.ChallengePlanRepository;
 import com.month.domain.challenge.ChallengeRepository;
 import com.month.domain.challenge.ChallengeRole;
+import com.month.exception.NotAllowedException;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.StartChallengeRequest;
 import com.month.service.challenge.dto.response.ChallengeInfoResponse;
@@ -171,7 +172,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		// when & then
 		assertThatThrownBy(() -> {
 			challengeService.startChallenge(request, memberId);
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(NotAllowedException.class);
 	}
 
 	@Test

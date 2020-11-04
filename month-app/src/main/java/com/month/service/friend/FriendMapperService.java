@@ -4,6 +4,7 @@ import com.month.domain.friend.FriendMapper;
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.domain.friend.FriendMapperRepository;
+import com.month.exception.NotAllowedException;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
 import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
@@ -16,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.month.exception.type.ExceptionDescriptionType.REGISTER_FRIEND;
+
 @RequiredArgsConstructor
 @Service
 public class FriendMapperService {
@@ -27,7 +30,7 @@ public class FriendMapperService {
 	public void createFriend(CreateFriendMapperRequest request, Long memberId) {
 		Member targetMember = MemberServiceUtils.findMemberByEmail(memberRepository, request.getEmail());
 		if (targetMember.isSameMember(memberId)) {
-			throw new IllegalArgumentException(String.format("자기 자신 (%s)은 친구 등록 할 수 없습니다", memberId));
+			throw new NotAllowedException(String.format("자기 자신 (%s)은 친구 등록 할 수 없습니다", memberId), REGISTER_FRIEND);
 		}
 		FriendMapperServiceUtils.validateNonFriendMapper(friendMapperRepository, memberId, targetMember.getId());
 		friendMapperRepository.save(FriendMapper.newInstance(memberId, targetMember.getId()));
