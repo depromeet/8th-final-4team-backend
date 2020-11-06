@@ -1,8 +1,15 @@
-FROM openjdk:8-jdk
+# Stage: Build
+FROM openjdk:8-jdk AS BUILD
 
-WORKDIR /month
-COPY . /month
+WORKDIR /app
+
+COPY . /app
 
 RUN ./gradlew clean build
 
-ENTRYPOINT ["java", "-jar", "month-app/build/libs/month-app.jar"]
+# Stage: Deploy
+FROM openjdk:8-jre
+
+COPY --from=BUILD /app/month-app/build/libs/month-app.jar /app.jar
+
+ENTRYPOINT ["java", "-jar", "/app.jar"]
