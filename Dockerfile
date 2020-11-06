@@ -1,15 +1,19 @@
-# Stage: Build
+# Stage 1
 FROM openjdk:8-jdk-alpine AS BUILD
 
-WORKDIR /app
+ENV APP_HOME=/usr/app
 
-COPY . /app
+WORKDIR $APP_HOME
+
+COPY . $APP_HOME
 
 RUN ./gradlew clean build
 
-# Stage: Deploy
+# Stage 2
 FROM openjdk:8-jre-alpine
 
-COPY --from=BUILD /app/month-app/build/libs/month-app.jar /app.jar
+ENV APP_HOME=/usr/app
+
+COPY --from=BUILD  $APP_HOME/month-app/build/libs/month-app.jar /app.jar
 
 ENTRYPOINT ["java", "-jar", "/app.jar"]
