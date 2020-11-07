@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - develop
-      - feature/deploy
 env:
   PROJECT_NAME: month-app
 
 jobs:
   build:
-    name: build
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: checkout@v2
@@ -24,7 +23,15 @@ jobs:
           json: ${{ secrets.FIREBASE_ADMIN_JSON }}
           dir: 'month-external/src/main/resources/'
 
-      - name: Make deploy/month-app/build/libs/
+      - name: Create secret properties
+        env:
+          JWT_ISSUER: ${{secrets.JWT_ISSUER}}
+          JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+          MONTH_APP_RESOURCE: month-app/src/main/resources
+        run: |
+          echo -e "jwt.issuer=$JWT_ISSUER\njwt.secret-key=$JWT_SECRET_KEY" > $MONTH_APP_RESOURCE/application-jwt.properties
+
+      - name: Create deploy folder
         run: |
           mkdir -p deploy/
           cp docker-compose.blue.yml docker-compose.green.yml ./scripts/run.sh deploy/
@@ -53,7 +60,7 @@ jobs:
 
           echo -e "IMAGE=$ECR_REGISTRY/$ECR_REPOSITORY\nTAG=$IMAGE_TAG" > deploy/.env
 
-      - name: zip deploy.zip
+      - name: Zip deploy.zip
         run: zip -r deploy.zip deploy
 
       - name: Upload deploy.zip
@@ -63,7 +70,7 @@ jobs:
           path: deploy.zip
 
   deploy:
-    name: deploy
+    name: Deploy
     needs:
       - build
     runs-on: jello-server
@@ -73,7 +80,7 @@ jobs:
         with:
           name: deploy.zip
 
-      - name: run server
+      - name: Run server
         run: |
           unzip -o ./deploy.zip
           cd deploy/
