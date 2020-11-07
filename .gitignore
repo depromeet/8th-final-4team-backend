@@ -46,4 +46,4 @@ application-aws.yml
 tmp/
 
 ### JWT ###
-#application-jwt.yml
+application-jwt.yml
