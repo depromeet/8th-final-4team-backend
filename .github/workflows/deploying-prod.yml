@@ -1,0 +1,71 @@
+name: Deploy Dev Server
+
+on:
+  push:
+    branches:
+      - master
+      - feature/ecs-fargate
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout@v2
+        uses: actions/checkout@v2
+
+      - name: create firebase.admin.json
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "firebase-admin.json"
+          json: ${{ secrets.FIREBASE_ADMIN_JSON }}
+          dir: 'month-external/src/main/resources/'
+
+      - name: Create secret properties
+        env:
+          JWT_ISSUER: ${{secrets.JWT_ISSUER}}
+          JWT_SECRET_KEY: ${{secrets.JWT_SECRET_KEY}}
+          MONTH_APP_RESOURCE: month-app/src/main/resources
+        run: |
+          echo -e "jwt.issuer=$JWT_ISSUER\njwt.secret-key=$JWT_SECRET_KEY" > $MONTH_APP_RESOURCE/application-jwt.properties
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-docker-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: depromeet-final-ecr
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Render Amazon ECS task definition
+        id: render-web-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: task-definition.json
+          container-name: JelloApiServerContainer
+          image: ${{ steps.build-docker-image.outputs.image }}
+
+      - name: Deploy to Amazon ECS service
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.render-web-container.outputs.task-definition }}
+          service: JeloApiServerService
+          cluster: JelloApiServerCluster
+          wait-for-service-stability: true

@@ -16,4 +16,6 @@ ENV APP_HOME=/usr/app
 
 COPY --from=BUILD  $APP_HOME/month-app/build/libs/month-app.jar /app.jar
 
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+EXPOSE 8000
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
