@@ -39,7 +39,7 @@ jobs:
       - name: Get version
         id: docker-image-version
         run: |
-          VERSION=`cat ./version.txt`-${{ github.run_number }}
+          VERSION=`cat ./version.txt`-${{ github.run_id }}
 
           echo "::set-output name=version::$VERSION"
 
