@@ -119,6 +119,20 @@ public class Challenge extends BaseTimeEntity {
 		this.membersCount++;
 	}
 
+	private boolean isCreator(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isCreator(memberId));
+	}
+
+	private boolean isParticipator(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isParticipator(memberId));
+	}
+
+	public boolean isMemberInChallenge(Long memberId) {
+		return isCreator(memberId) || isParticipator(memberId);
+	}
+
 	public List<Long> getMemberIds() {
 		return this.challengeMemberMappers.stream()
 				.map(ChallengeMemberMapper::getMemberId)

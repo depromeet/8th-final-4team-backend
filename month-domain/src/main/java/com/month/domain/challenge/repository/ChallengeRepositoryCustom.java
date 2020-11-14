@@ -10,4 +10,6 @@ public interface ChallengeRepositoryCustom {
 
 	List<Challenge> findChallengesByMemberId(Long memberId);
 
+	List<Challenge> findNoFetchChallengesByMemberId(Long memberId);
+
 }

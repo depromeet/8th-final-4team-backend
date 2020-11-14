@@ -1,5 +1,8 @@
 package com.month.service.friend;
 
+import com.month.domain.challenge.Challenge;
+import com.month.domain.challenge.ChallengeCreator;
+import com.month.domain.challenge.ChallengeRepository;
 import com.month.domain.friend.FriendMapper;
 import com.month.domain.friend.FriendMapperCreator;
 import com.month.domain.friend.FriendMapperRepository;
@@ -10,7 +13,9 @@ import com.month.exception.ConflictException;
 import com.month.exception.NotAllowedException;
 import com.month.service.MemberSetupTest;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
+import com.month.service.friend.dto.request.RetrieveFriendDetailRequest;
 import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
+import com.month.service.friend.dto.response.FriendMemberDetailInfoResponse;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +25,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
@@ -39,10 +45,14 @@ class FriendMapperServiceTest extends MemberSetupTest {
 	@Autowired
 	private MemberRepository memberRepository;
 
+	@Autowired
+	private ChallengeRepository challengeRepository;
+
 	@AfterEach
 	void cleanUp() {
 		friendMapperRepository.deleteAll();
 		memberRepository.deleteAll();
+		challengeRepository.deleteAll();
 	}
 
 	@Test
@@ -285,6 +295,44 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		assertThatThrownBy(() -> {
 			friendMapperService.deleteFriendMapper(notFriend.getId(), memberId);
 		});
+	}
+
+	@Test
+	void 친구의_상세정보_조회하기() {
+		Member friend = memberRepository.save(MemberCreator.create("friend@email.com", "친구", "프로필URL", "uuid"));
+		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
+
+		RetrieveFriendDetailRequest request = RetrieveFriendDetailRequest.testInstance(friend.getId());
+
+		// when
+		FriendMemberDetailInfoResponse response = friendMapperService.retrieveFriendDetailInfo(request, memberId);
+
+		// then
+		assertThat(response.getId()).isEqualTo(friend.getId());
+		assertThat(response.getEmail()).isEqualTo(friend.getEmail());
+		assertThat(response.getName()).isEqualTo(friend.getName());
+		assertThat(response.getPhotoUrl()).isEqualTo(friend.getPhotoUrl());
+	}
+
+	@Test
+	void 친구의_상세정보_조회시_친구와_함께한_챌린지의_수를_확인할_수있다() {
+		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
+		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
+
+		Challenge challenge = ChallengeCreator.create("친구와 함께한 챌린지",
+				LocalDateTime.of(2020, 10, 1, 0, 0),
+				LocalDateTime.of(2020, 10, 8, 0, 0));
+		challenge.addCreator(memberId);
+		challenge.addParticipator(friend.getId());
+		challengeRepository.save(challenge);
+
+		RetrieveFriendDetailRequest request = RetrieveFriendDetailRequest.testInstance(friend.getId());
+
+		// when
+		FriendMemberDetailInfoResponse response = friendMapperService.retrieveFriendDetailInfo(request, memberId);
+
+		// then
+		assertThat(response.getTotalChallengesCountWithFriend()).isEqualTo(1);
 	}
 
 }
