@@ -3,13 +3,16 @@ package com.month.service.friend.dto.request;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotNull;
+
 @Getter
 @NoArgsConstructor
 public class RetrieveFriendDetailRequest {
 
+	@NotNull
 	private Long friendId;
 
-	public RetrieveFriendDetailRequest(Long friendId) {
+	private RetrieveFriendDetailRequest(Long friendId) {
 		this.friendId = friendId;
 	}
 
