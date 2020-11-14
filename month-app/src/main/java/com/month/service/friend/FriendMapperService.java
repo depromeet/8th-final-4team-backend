@@ -1,6 +1,7 @@
 package com.month.service.friend;
 
 import com.month.domain.friend.FriendMapper;
+import com.month.domain.friend.FriendMapperCollection;
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.domain.friend.FriendMapperRepository;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.month.exception.type.ExceptionDescriptionType.REGISTER_FRIEND;
@@ -39,21 +39,11 @@ public class FriendMapperService {
 
 	@Transactional(readOnly = true)
 	public List<FriendMemberInfoResponse> retrieveMyFriendsInfo(FriendListSortType sortBy, Long memberId) {
-		List<FriendMapper> friendMappers = friendMapperRepository.findAllByMemberId(memberId);
-		Map<Long, FriendMapper> friendMapperMaps = friendMappers.stream()
-				.collect(Collectors.toMap(FriendMapper::getTargetMemberId, friendMapper -> friendMapper));
-
-		List<Member> friends = memberRepository.findAllById(getFriendIds(friendMappers));
-
+		FriendMapperCollection collection = FriendMapperCollection.of(friendMapperRepository.findAllByMemberId(memberId));
+		List<Member> friends = memberRepository.findAllById(collection.getFriendsIds());
 		return friends.stream()
-				.map(friend -> FriendMemberInfoResponse.of(friend, friendMapperMaps.get(friend.getId())))
+				.map(friend -> FriendMemberInfoResponse.of(friend, collection.getFriendMapperByFriendId(friend.getId())))
 				.sorted(sortBy.getComparator())
-				.collect(Collectors.toList());
-	}
-
-	private List<Long> getFriendIds(List<FriendMapper> friendMappers) {
-		return friendMappers.stream()
-				.map(FriendMapper::getTargetMemberId)
 				.collect(Collectors.toList());
 	}
 
