@@ -26,4 +26,13 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 				).fetch();
 	}
 
+	@Override
+	public List<Challenge> findChallengesByMemberId(Long memberId) {
+		return queryFactory.selectFrom(challenge).distinct()
+				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
+				.where(
+						challengeMemberMapper.memberId.eq(memberId)
+				).fetch();
+	}
+
 }

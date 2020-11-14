@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FriendMapperCollection {
 
-	private List<FriendMapper> friendMapperList = new ArrayList<>();
+	private final List<FriendMapper> friendMapperList = new ArrayList<>();
 
-	private Map<Long, FriendMapper> friendMapperMap = new HashMap<>();
+	private final Map<Long, FriendMapper> friendMapperMap = new HashMap<>();
 
 	private FriendMapperCollection(List<FriendMapper> friendMapperList) {
 		this.friendMapperList.addAll(friendMapperList);

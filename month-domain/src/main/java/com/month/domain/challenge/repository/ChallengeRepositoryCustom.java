@@ -8,4 +8,6 @@ public interface ChallengeRepositoryCustom {
 
 	List<Challenge> findActiveChallengesByMemberId(Long memberId);
 
+	List<Challenge> findChallengesByMemberId(Long memberId);
+
 }

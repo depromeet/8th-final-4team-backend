@@ -4,6 +4,7 @@ import com.month.config.resolver.LoginMember;
 import com.month.controller.ApiResponse;
 import com.month.service.member.MemberService;
 import com.month.service.member.dto.request.MemberUpdateInfoRequest;
+import com.month.service.member.dto.response.MemberDetailInfoResponse;
 import com.month.service.member.dto.response.MemberInfoResponse;
 import com.month.type.session.MemberSession;
 import io.swagger.annotations.ApiImplicitParam;
@@ -25,7 +26,7 @@ public class MemberController {
 	@ApiOperation("자신의 회원 정보를 불러오는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@GetMapping("/api/v1/member")
-	public ApiResponse<MemberInfoResponse> getMemberInfo(@LoginMember MemberSession memberSession) {
+	public ApiResponse<MemberDetailInfoResponse> getMemberInfo(@LoginMember MemberSession memberSession) {
 		return ApiResponse.of(memberService.getMemberInfo(memberSession.getMemberId()));
 	}
 
