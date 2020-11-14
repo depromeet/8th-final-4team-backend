@@ -3,10 +3,8 @@ package com.month.controller.friend;
 import com.month.config.resolver.LoginMember;
 import com.month.controller.ApiResponse;
 import com.month.service.friend.FriendMapperService;
-import com.month.service.friend.dto.request.CreateFriendMapperRequest;
-import com.month.service.friend.dto.request.DeleteFriendMapperRequest;
-import com.month.service.friend.dto.request.RetrieveFriendsInfoRequest;
-import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
+import com.month.service.friend.dto.request.*;
+import com.month.service.friend.dto.response.FriendMemberDetailInfoResponse;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import com.month.type.session.MemberSession;
 import io.swagger.annotations.ApiImplicitParam;
@@ -54,6 +52,11 @@ public class FriendMapperController {
 		return ApiResponse.OK;
 	}
 
-	// TODO 친구의 정보를 불러오는 API + (함께한 목표 정보들도 포함) - 아직 미정이라 차후 구현
+	@ApiOperation("친구의 상세정보를 조회하는 API")
+	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
+	@GetMapping("/api/v1/member/friend")
+	public ApiResponse<FriendMemberDetailInfoResponse> retrieveFriendDetailInfo(@Valid RetrieveFriendDetailRequest request, @LoginMember MemberSession memberSession) {
+		return ApiResponse.of(friendMapperService.retrieveFriendDetailInfo(request, memberSession.getMemberId()));
+	}
 
 }

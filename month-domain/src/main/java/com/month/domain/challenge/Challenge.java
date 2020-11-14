@@ -15,7 +15,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,6 +60,30 @@ public class Challenge extends BaseTimeEntity {
 		return this.dateTimeInterval.getEndDateTime();
 	}
 
+	int calculateProgressDays() {
+		final LocalDateTime now = LocalDateTime.now();
+		// 이미 끝난 챌린지의 경우에는 startDateTime ~ endDateTime
+		if (isFinishChallenge(now)) {
+			Period period = Period.between(getStartDate(), getEndDate());
+			return period.getDays();
+		}
+		// 현재 진행중인 챌린지의 경우에는 startDateTime ~ now
+		Period period = Period.between(getStartDate(), now.toLocalDate());
+		return period.getDays();
+	}
+
+	boolean isFinishChallenge(LocalDateTime datetime) {
+		return this.getEndDateTime().isBefore(datetime);
+	}
+
+	private LocalDate getStartDate() {
+		return getStartDateTime().toLocalDate();
+	}
+
+	private LocalDate getEndDate() {
+		return getEndDateTime().toLocalDate();
+	}
+
 	@Builder
 	public Challenge(String name, String description, String color, LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		this.uuid = Uuid.newInstance();
@@ -91,6 +117,20 @@ public class Challenge extends BaseTimeEntity {
 	public void addParticipator(Long memberId) {
 		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId));
 		this.membersCount++;
+	}
+
+	private boolean isCreator(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isCreator(memberId));
+	}
+
+	private boolean isParticipator(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isParticipator(memberId));
+	}
+
+	public boolean isMemberInChallenge(Long memberId) {
+		return isCreator(memberId) || isParticipator(memberId);
 	}
 
 	public List<Long> getMemberIds() {

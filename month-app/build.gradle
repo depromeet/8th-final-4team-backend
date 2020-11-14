@@ -1,5 +1,6 @@
 dependencies {
     implementation project(':month-domain')
+    implementation project(':month-domainservice')
     implementation project(':month-external')
     implementation project(':month-common')
 

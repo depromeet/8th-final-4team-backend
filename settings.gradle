@@ -3,4 +3,5 @@ include 'month-domain'
 include 'month-app'
 include 'month-external'
 include 'month-common'
+include 'month-domainservice'
 

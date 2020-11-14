@@ -49,4 +49,12 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.PARTICIPATOR);
 	}
 
+	boolean isCreator(Long memberId) {
+		return this.memberId.equals(memberId) && this.role.equals(ChallengeRole.CREATOR);
+	}
+
+	boolean isParticipator(Long memberId) {
+		return this.memberId.equals(memberId) && this.role.equals(ChallengeRole.PARTICIPATOR);
+	}
+
 }
