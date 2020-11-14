@@ -53,4 +53,16 @@ class EmailTest {
 		}).isInstanceOf(ValidationException.class);
 	}
 
+	@Test
+	void 애플_비공개_이메일도_통과한다() {
+		// given
+		String email = "apple@privaterelay.appleid.com";
+
+		// when
+		Email result = Email.of(email);
+
+		// then
+		assertThat(result.getEmail()).isEqualTo(email);
+	}
+
 }

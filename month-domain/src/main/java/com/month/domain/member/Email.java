@@ -17,7 +17,7 @@ import static com.month.exception.type.ExceptionDescriptionType.EMAIL;
 @Embeddable
 public class Email {
 
-	private final static Pattern EMAIL_REGEX = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9,-]+\\.[a-zA-Z]{2,6}$");
+	private final static Pattern EMAIL_REGEX = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.,-]+\\.[a-zA-Z]{2,6}$");
 
 	@Column(nullable = false)
 	private String email;

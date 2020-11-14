@@ -16,7 +16,6 @@ public class SignUpRequest {
 	@NotBlank
 	private String name;
 
-	@NotBlank
 	private String photoUrl;
 
 	@Builder(builderClassName = "TestBuilder", builderMethodName = "testBuilder")
