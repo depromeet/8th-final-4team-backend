@@ -5,8 +5,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
@@ -20,10 +21,11 @@ public class CreateChallengePlanRequest {
 	@NotBlank
 	private String color;
 
-	@NotNull
+	@Min(value = 1)
 	private int period;
 
-	@NotNull
+	@Min(value = 1)
+	@Max(value = 4)
 	private int maxMembersCount;
 
 	public ChallengePlan toEntity() {

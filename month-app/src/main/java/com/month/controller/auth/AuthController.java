@@ -6,6 +6,7 @@ import com.month.service.auth.dto.request.AuthRequest;
 import com.month.service.auth.dto.request.SignUpRequest;
 import com.month.service.auth.dto.response.AuthResponse;
 import com.month.utils.HeaderUtils;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +33,7 @@ public class AuthController {
 	}
 
 	@ApiOperation("로그아웃 API")
+	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@PostMapping("/api/v1/logout")
 	public ApiResponse<String> handleLogout(@RequestHeader HttpHeaders httpHeaders) {
 		String header = httpHeaders.getFirst(HttpHeaders.AUTHORIZATION);

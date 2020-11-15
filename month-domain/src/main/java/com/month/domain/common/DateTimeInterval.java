@@ -1,11 +1,14 @@
 package com.month.domain.common;
 
+import com.month.exception.ValidationException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 import java.time.LocalDateTime;
+
+import static com.month.exception.type.ExceptionDescriptionType.DATE_TIME;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,7 +31,7 @@ public class DateTimeInterval {
 
 	private static void validateDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime) {
 		if (startDateTime.isAfter(endDateTime)) {
-			throw new IllegalArgumentException(String.format("시작 날짜 (%s)가 종료 날짜 (%s) 보다 이후 일 수 없습니다", startDateTime, endDateTime));
+			throw new ValidationException(String.format("시작 날짜 (%s)가 종료 날짜 (%s) 보다 이후 일 수 없습니다", startDateTime, endDateTime), DATE_TIME);
 		}
 	}
 

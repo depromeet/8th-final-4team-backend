@@ -1,5 +1,6 @@
 package com.month.domain.member;
 
+import com.month.exception.ValidationException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,12 +10,14 @@ import javax.persistence.Embeddable;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import static com.month.exception.type.ExceptionDescriptionType.EMAIL;
+
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
 public class Email {
 
-	private final static Pattern EMAIL_REGEX = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9,-]+\\.[a-zA-Z]{2,6}$");
+	private final static Pattern EMAIL_REGEX = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.,-]+\\.[a-zA-Z]{2,6}$");
 
 	@Column(nullable = false)
 	private String email;
@@ -26,7 +29,7 @@ public class Email {
 
 	private void verifyEmailFormat(String email) {
 		if (!EMAIL_REGEX.matcher(email).matches()) {
-			throw new IllegalArgumentException(String.format("(%s)은 이메일 포맷에 맞지 않습니다", email));
+			throw new ValidationException(String.format("(%s)은 이메일 포맷에 맞지 않습니다", email), EMAIL);
 		}
 	}
 

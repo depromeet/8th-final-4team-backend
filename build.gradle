@@ -1,7 +1,9 @@
 def javaProjects = [
         project(':month-app'),
+        project(':month-external'),
+        project(':month-domainservice'),
         project(':month-domain'),
-        project(':month-external')
+        project(':month-common')
 ]
 
 buildscript {

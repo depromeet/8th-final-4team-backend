@@ -1,11 +1,16 @@
 package com.month.service.friend;
 
 import com.month.domain.friend.FriendMapper;
+import com.month.domain.friend.FriendMapperCollection;
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.domain.friend.FriendMapperRepository;
+import com.month.domainservice.AchievementRateDomainService;
+import com.month.exception.NotAllowedException;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
+import com.month.service.friend.dto.request.RetrieveFriendDetailRequest;
 import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
+import com.month.service.friend.dto.response.FriendMemberDetailInfoResponse;
 import com.month.service.friend.dto.response.FriendMemberInfoResponse;
 import com.month.service.member.MemberServiceUtils;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.month.exception.type.ExceptionDescriptionType.REGISTER_FRIEND;
 
 @RequiredArgsConstructor
 @Service
@@ -22,12 +28,13 @@ public class FriendMapperService {
 
 	private final MemberRepository memberRepository;
 	private final FriendMapperRepository friendMapperRepository;
+	private final AchievementRateDomainService achievementRateDomainService;
 
 	@Transactional
 	public void createFriend(CreateFriendMapperRequest request, Long memberId) {
 		Member targetMember = MemberServiceUtils.findMemberByEmail(memberRepository, request.getEmail());
 		if (targetMember.isSameMember(memberId)) {
-			throw new IllegalArgumentException(String.format("자기 자신 (%s)은 친구 등록 할 수 없습니다", memberId));
+			throw new NotAllowedException(String.format("자기 자신 (%s)은 친구 등록 할 수 없습니다", memberId), REGISTER_FRIEND);
 		}
 		FriendMapperServiceUtils.validateNonFriendMapper(friendMapperRepository, memberId, targetMember.getId());
 		friendMapperRepository.save(FriendMapper.newInstance(memberId, targetMember.getId()));
@@ -36,21 +43,11 @@ public class FriendMapperService {
 
 	@Transactional(readOnly = true)
 	public List<FriendMemberInfoResponse> retrieveMyFriendsInfo(FriendListSortType sortBy, Long memberId) {
-		List<FriendMapper> friendMappers = friendMapperRepository.findAllByMemberId(memberId);
-		Map<Long, FriendMapper> friendMapperMaps = friendMappers.stream()
-				.collect(Collectors.toMap(FriendMapper::getTargetMemberId, friendMapper -> friendMapper));
-
-		List<Member> friends = memberRepository.findAllById(getFriendIds(friendMappers));
-
+		FriendMapperCollection collection = FriendMapperCollection.of(friendMapperRepository.findAllByMemberId(memberId));
+		List<Member> friends = memberRepository.findAllById(collection.getFriendsIds());
 		return friends.stream()
-				.map(friend -> FriendMemberInfoResponse.of(friend, friendMapperMaps.get(friend.getId())))
+				.map(friend -> FriendMemberInfoResponse.of(friend, collection.getFriendMapperByFriendId(friend.getId())))
 				.sorted(sortBy.getComparator())
-				.collect(Collectors.toList());
-	}
-
-	private List<Long> getFriendIds(List<FriendMapper> friendMappers) {
-		return friendMappers.stream()
-				.map(FriendMapper::getTargetMemberId)
 				.collect(Collectors.toList());
 	}
 
@@ -64,6 +61,15 @@ public class FriendMapperService {
 	public void deleteFriendMapper(Long friendMemberId, Long memberId) {
 		FriendMapper friendMapper = FriendMapperServiceUtils.findFriendMapper(friendMapperRepository, memberId, friendMemberId);
 		friendMapperRepository.delete(friendMapper);
+	}
+
+	@Transactional(readOnly = true)
+	public FriendMemberDetailInfoResponse retrieveFriendDetailInfo(RetrieveFriendDetailRequest request, Long memberId) {
+		Member friend = MemberServiceUtils.findMemberById(memberRepository, request.getFriendId());
+		return FriendMemberDetailInfoResponse.of(friend,
+				FriendMapperServiceUtils.findFriendMapper(friendMapperRepository, memberId, friend.getId()),
+				achievementRateDomainService.getChallengesCountWithFriend(memberId, friend.getId()),
+				achievementRateDomainService.getMemberAchievementRate(friend.getId()).getAchieveChallengeRate());
 	}
 
 }
