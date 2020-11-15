@@ -4,6 +4,7 @@ import com.month.config.resolver.LoginMember;
 import com.month.controller.ApiResponse;
 import com.month.service.accreditation.AccreditationService;
 import com.month.service.accreditation.dto.request.AccreditationRequest;
+import com.month.service.accreditation.dto.response.AccreditationAnalysisResponse;
 import com.month.service.accreditation.dto.response.AccreditationResponse;
 import com.month.type.session.MemberSession;
 import io.swagger.annotations.ApiOperation;
@@ -39,12 +40,19 @@ public class AccreditationController {
         return ApiResponse.of(accreditationService.getAccreditationList(memberSession.getMemberId(), challengeUuid, date));
     }
 
-    @ApiOperation(("챌린지 인증을 할 수 있는지 확인하는 API"))
+    @ApiOperation("챌린지 인증을 할 수 있는지 확인하는 API")
     @GetMapping("/api/v1/accreditation/check")
     public ApiResponse<String> getAccreditationCheck(@LoginMember MemberSession memberSession,
                                                      @RequestParam String challengeUuid) {
         accreditationService.getAccreditationCheck(memberSession.getMemberId(), challengeUuid);
         return ApiResponse.OK;
+    }
+
+    @ApiOperation("챌린지 분석을 보여주는 API")
+    @GetMapping("/api/v1/accreditation/analysis")
+    public ApiResponse<AccreditationAnalysisResponse> getAccreditationAnalysis(@LoginMember MemberSession memberSession,
+                                                                               @RequestParam String challengeUuid) {
+        return ApiResponse.of(accreditationService.getAccreditationAnalysis(memberSession.getMemberId(), challengeUuid));
     }
 
 }
