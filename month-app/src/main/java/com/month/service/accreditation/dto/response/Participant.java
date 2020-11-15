@@ -15,22 +15,22 @@ public class Participant {
 
     private String photoUrl;
 
-    private int percent;
+    private int achievePeriod;
 
-    private int day;
+    private int totalPeriod;
 
-    public static Participant of(Member member, Long day, int myday) {
+    public static Participant of(Member member, Long total, int achieve) {
         Participant participant = new Participant();
         participant.name = member.getName();
         participant.photoUrl = member.getPhotoUrl();
-        participant.percent = 100 * myday / day.intValue();
-        participant.day = myday;
+        participant.achievePeriod = achieve;
+        participant.totalPeriod = total.intValue();
         return participant;
     }
 
     public static Participant maxParticipant(List<Participant> participantList) {
         Participant participant = participantList.stream()
-                .max(Comparator.comparing(Participant::getDay))
+                .max(Comparator.comparing(Participant::getAchievePeriod))
                 .get();
         return participant;
     }

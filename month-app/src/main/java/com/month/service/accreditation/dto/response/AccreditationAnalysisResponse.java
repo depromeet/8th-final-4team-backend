@@ -19,34 +19,33 @@ public class AccreditationAnalysisResponse {
 
     private LocalDateTime challengeEndDateTime;
 
-    private String firstMember;
+    private String firstMemberName;
 
-    private int fisrtMemberDifferenceDay;
+    private int firstMemberDifferenceDay;
 
     private List<Participant> participants;
 
-    private int personalPercent;
+    private int personalAchievePercent;
 
-    private int personalDay;
+    private int personalAchievePeriod;
 
-    private int personalTotalDay;
+    private int personalTotalPeriod;
 
-    private int personalContinuityDay;
+    private int personalContinuityPeriod;
 
-    public static AccreditationAnalysisResponse of(Challenge challenge, List<Participant> participants, String firstMember, int differenceDay
-            , Participant my, int personalTotalDay, int continuityDay) {
+    public static AccreditationAnalysisResponse of(Challenge challenge, List<Participant> participants, Participant firstMember, Participant my, int totalPeriod, int continuityDay) {
         AccreditationAnalysisResponse accreditationAnalysisResponse = new AccreditationAnalysisResponse();
         accreditationAnalysisResponse.challengeName = challenge.getName();
         accreditationAnalysisResponse.challengeDescription = challenge.getDescription();
         accreditationAnalysisResponse.challengeStartDateTime = challenge.getStartDateTime();
         accreditationAnalysisResponse.challengeEndDateTime = challenge.getEndDateTime();
         accreditationAnalysisResponse.participants = participants;
-        accreditationAnalysisResponse.firstMember = firstMember;
-        accreditationAnalysisResponse.fisrtMemberDifferenceDay = differenceDay;
-        accreditationAnalysisResponse.personalPercent = my.getPercent();
-        accreditationAnalysisResponse.personalDay = my.getDay();
-        accreditationAnalysisResponse.personalTotalDay = personalTotalDay;
-        accreditationAnalysisResponse.personalContinuityDay = continuityDay;
+        accreditationAnalysisResponse.firstMemberName = firstMember.getName();
+        accreditationAnalysisResponse.firstMemberDifferenceDay = firstMember.getAchievePeriod() - my.getAchievePeriod();
+        accreditationAnalysisResponse.personalAchievePercent = 100 * my.getAchievePeriod() / totalPeriod;
+        accreditationAnalysisResponse.personalAchievePeriod = my.getAchievePeriod();
+        accreditationAnalysisResponse.personalTotalPeriod = totalPeriod;
+        accreditationAnalysisResponse.personalContinuityPeriod = continuityDay;
         return accreditationAnalysisResponse;
     }
 }

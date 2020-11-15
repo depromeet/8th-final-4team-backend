@@ -60,19 +60,17 @@ public class AccreditationService {
 
     @Transactional(readOnly = true)
     public AccreditationAnalysisResponse getAccreditationAnalysis(Long memberId, String challengeUuid) {
-        Uuid uuid = new Uuid(challengeUuid);
-        Challenge challenge = challengeRepository.findByUuid(uuid);
-        Long day = ChronoUnit.DAYS.between(challenge.getStartDateTime(), challenge.getEndDateTime());
+        Challenge challenge = challengeRepository.findByUuid(new Uuid(challengeUuid));
+        Long totalPeriod = ChronoUnit.DAYS.between(challenge.getStartDateTime(), challenge.getEndDateTime());
 
         List<Participant> participantList = challenge.getMemberIds().stream()
-                .map(members -> Participant.of(MemberServiceUtils.findMemberById(memberRepository, members), day, accreditationRepository.findAllByChallengeUuidAndMemberId(challengeUuid, members).size()))
+                .map(members -> Participant.of(MemberServiceUtils.findMemberById(memberRepository, members), totalPeriod, accreditationRepository.findAllByChallengeUuidAndMemberId(challengeUuid, members).size()))
                 .collect(Collectors.toList());
 
         Participant firstParticipant = Participant.maxParticipant(participantList);
-        Participant MyParticipant = Participant.of(MemberServiceUtils.findMemberById(memberRepository, memberId), day, accreditationRepository.findAllByChallengeUuidAndMemberId(challengeUuid, memberId).size());
-        int differenceDay = firstParticipant.getDay() - MyParticipant.getDay();
+        Participant MyParticipant = Participant.of(MemberServiceUtils.findMemberById(memberRepository, memberId), totalPeriod, accreditationRepository.findAllByChallengeUuidAndMemberId(challengeUuid, memberId).size());
 
-        return AccreditationAnalysisResponse.of(challenge, participantList, firstParticipant.getName(), differenceDay, MyParticipant, day.intValue(), continuityDay(memberId, challengeUuid));
+        return AccreditationAnalysisResponse.of(challenge, participantList, firstParticipant, MyParticipant, totalPeriod.intValue(), continuityDay(memberId, challengeUuid));
     }
 
     private int continuityDay(Long memberId, String challengeUuid) {
