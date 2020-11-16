@@ -6,7 +6,6 @@ import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.domain.friend.FriendMapperRepository;
 import com.month.domainservice.AchievementRateDomainService;
-import com.month.exception.NotAllowedException;
 import com.month.service.friend.dto.request.CreateFriendMapperRequest;
 import com.month.service.friend.dto.request.RetrieveFriendDetailRequest;
 import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
@@ -20,8 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.month.exception.type.ExceptionDescriptionType.REGISTER_FRIEND;
-
 @RequiredArgsConstructor
 @Service
 public class FriendMapperService {
@@ -33,12 +30,8 @@ public class FriendMapperService {
 	@Transactional
 	public void createFriend(CreateFriendMapperRequest request, Long memberId) {
 		Member targetMember = MemberServiceUtils.findMemberByEmail(memberRepository, request.getEmail());
-		if (targetMember.isSameMember(memberId)) {
-			throw new NotAllowedException(String.format("자기 자신 (%s)은 친구 등록 할 수 없습니다", memberId), REGISTER_FRIEND);
-		}
 		FriendMapperServiceUtils.validateNonFriendMapper(friendMapperRepository, memberId, targetMember.getId());
 		friendMapperRepository.save(FriendMapper.newInstance(memberId, targetMember.getId()));
-		// TODO 상대방이 나를 친구 추가 하지 않았을 경우에, Notification 가는 기능?
 	}
 
 	@Transactional(readOnly = true)
