@@ -7,17 +7,17 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
-public class RetrieveFriendDetailRequest {
+public class RetrieveFriendInfoRequest {
 
 	@NotNull
 	private Long friendId;
 
-	private RetrieveFriendDetailRequest(Long friendId) {
+	private RetrieveFriendInfoRequest(Long friendId) {
 		this.friendId = friendId;
 	}
 
-	public static RetrieveFriendDetailRequest testInstance(Long friendId) {
-		return new RetrieveFriendDetailRequest(friendId);
+	public static RetrieveFriendInfoRequest testInstance(Long friendId) {
+		return new RetrieveFriendInfoRequest(friendId);
 	}
 
 }

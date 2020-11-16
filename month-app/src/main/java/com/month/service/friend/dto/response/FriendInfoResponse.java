@@ -10,7 +10,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class FriendMemberDetailInfoResponse {
+public class FriendInfoResponse {
 
 	private final Long id;
 
@@ -26,9 +26,9 @@ public class FriendMemberDetailInfoResponse {
 
 	private final double achieveChallengeRate;
 
-	public static FriendMemberDetailInfoResponse of(Member member, FriendMapper friendMapper,
-													int totalChallengesCountWithFriend, double achieveChallengeRate) {
-		return new FriendMemberDetailInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getPhotoUrl(),
+	public static FriendInfoResponse of(Member member, FriendMapper friendMapper,
+										int totalChallengesCountWithFriend, double achieveChallengeRate) {
+		return new FriendInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getPhotoUrl(),
 				friendMapper.isFavorite(), totalChallengesCountWithFriend, achieveChallengeRate);
 	}
 

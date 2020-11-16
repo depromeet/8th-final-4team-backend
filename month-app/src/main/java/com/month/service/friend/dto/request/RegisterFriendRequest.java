@@ -7,17 +7,17 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @NoArgsConstructor
-public class CreateFriendMapperRequest {
+public class RegisterFriendRequest {
 
 	@NotBlank
 	private String email;
 
-	private CreateFriendMapperRequest(String email) {
+	private RegisterFriendRequest(String email) {
 		this.email = email;
 	}
 
-	public static CreateFriendMapperRequest testInstance(String email) {
-		return new CreateFriendMapperRequest(email);
+	public static RegisterFriendRequest testInstance(String email) {
+		return new RegisterFriendRequest(email);
 	}
 
 }

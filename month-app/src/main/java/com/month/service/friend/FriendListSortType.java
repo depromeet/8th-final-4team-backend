@@ -1,6 +1,6 @@
 package com.month.service.friend;
 
-import com.month.service.friend.dto.response.FriendMemberInfoResponse;
+import com.month.service.friend.dto.response.FriendSimpleInfoResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,12 +10,12 @@ import java.util.Comparator;
 @RequiredArgsConstructor
 public enum FriendListSortType {
 
-	NAME("NAME", Comparator.comparing(FriendMemberInfoResponse::getName)),
-	NAME_REVERSE("NAME_REVERSE", Comparator.comparing(FriendMemberInfoResponse::getName).reversed()),
-	CREATED("CREATED", Comparator.comparing(FriendMemberInfoResponse::getCreatedDateTime)),
-	CREATED_REVERSE("CREATED_REVERSE", Comparator.comparing(FriendMemberInfoResponse::getCreatedDateTime).reversed());
+	NAME("NAME", Comparator.comparing(FriendSimpleInfoResponse::getName)),
+	NAME_REVERSE("NAME_REVERSE", Comparator.comparing(FriendSimpleInfoResponse::getName).reversed()),
+	CREATED("CREATED", Comparator.comparing(FriendSimpleInfoResponse::getCreatedDateTime)),
+	CREATED_REVERSE("CREATED_REVERSE", Comparator.comparing(FriendSimpleInfoResponse::getCreatedDateTime).reversed());
 
 	private final String field;
-	private final Comparator<FriendMemberInfoResponse> comparator;
+	private final Comparator<FriendSimpleInfoResponse> comparator;
 
 }
