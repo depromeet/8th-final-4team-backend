@@ -28,13 +28,8 @@ public class ChallengePlanService {
 
 	@Transactional
 	public ChallengePlanInfoResponse createChallengePlan(CreateChallengePlanRequest request, Long memberId) {
-		ChallengePlan challengePlan = request.toEntity();
-		challengePlan.addCreator(memberId);
-		challengePlanRepository.save(challengePlan);
-
-		if (challengePlan.isFullMember()) {
-			eventPublisher.publishEvent(AllMembersEnteredEvent.of(challengePlan.getId()));
-		}
+		ChallengePlan challengePlan = challengePlanRepository.save(request.toEntity(memberId));
+		checkIsFullMember(challengePlan);
 		return ChallengePlanInfoResponse.of(challengePlan, memberRepository.findAllById(challengePlan.getMemberIds()));
 	}
 
@@ -49,15 +44,14 @@ public class ChallengePlanService {
 	@Transactional(readOnly = true)
 	public String getChallengePlanInvitationKey(RetrieveChallengePlanInvitationKeyRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, request.getChallengePlanId());
-		challengePlan.validateIsMember(memberId);
-		return challengePlan.getInvitationKey();
+		return challengePlan.issueInvitationKey(memberId);
 	}
 
 	@Transactional
 	public String refreshChallengeInvitationKey(RefreshChallengeInvitationKeyRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, request.getChallengePlanId());
 		challengePlan.refreshInvitationKey(memberId);
-		return challengePlan.getInvitationKey();
+		return challengePlan.issueInvitationKey(memberId);
 	}
 
 	@Transactional(readOnly = true)
@@ -70,6 +64,10 @@ public class ChallengePlanService {
 	public void enterChallengeByInvitationKey(EnterChallengeByInvitationKeyRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanByInvitationKey(challengePlanRepository, request.getInvitationKey());
 		challengePlan.addParticipator(memberId);
+		checkIsFullMember(challengePlan);
+	}
+
+	private void checkIsFullMember(ChallengePlan challengePlan) {
 		if (challengePlan.isFullMember()) {
 			eventPublisher.publishEvent(AllMembersEnteredEvent.of(challengePlan.getId()));
 		}

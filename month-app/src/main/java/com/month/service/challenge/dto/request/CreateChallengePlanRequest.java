@@ -28,8 +28,10 @@ public class CreateChallengePlanRequest {
 	@Max(value = 4)
 	private int maxMembersCount;
 
-	public ChallengePlan toEntity() {
-		return ChallengePlan.newInstance(name, description, color, period, maxMembersCount);
+	public ChallengePlan toEntity(Long memberId) {
+		ChallengePlan challengePlan = ChallengePlan.newInstance(name, description, color, period, maxMembersCount);
+		challengePlan.addCreator(memberId);
+		return challengePlan;
 	}
 
 	@Builder(builderClassName = "TestBuilder", builderMethodName = "testBuilder")
