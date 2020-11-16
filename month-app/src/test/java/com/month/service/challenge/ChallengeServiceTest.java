@@ -185,7 +185,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeRepository.saveAll(Arrays.asList(challenge1, challenge2));
 
 		// when
-		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengeList(memberId);
+		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengesList(memberId);
 
 		// then
 		assertThat(challengeInfoResponses).hasSize(2);
@@ -201,7 +201,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeRepository.save(challenge);
 
 		// when
-		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengeList(memberId);
+		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengesList(memberId);
 
 		// then
 		assertThat(challengeInfoResponses).hasSize(1);
@@ -224,7 +224,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeRepository.save(challenge);
 
 		// when
-		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengeList(memberId);
+		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengesList(memberId);
 
 		// then
 		assertThat(challengeInfoResponses).isEmpty();
@@ -246,7 +246,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeRepository.save(challenge);
 
 		// when
-		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengeList(memberId);
+		List<ChallengeInfoResponse> challengeInfoResponses = challengeService.retrieveMyChallengesList(memberId);
 
 		// then
 		assertThat(challengeInfoResponses).isEmpty();

@@ -25,7 +25,7 @@ public class ChallengePlanController {
 
 	private final ChallengePlanService challengePlanService;
 
-	@ApiOperation("새로운 계획중인 챌린지를 생성하는 APi")
+	@ApiOperation("새로운 계획중인 챌린지를 생성하는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@PostMapping("/api/v1/challenge")
 	public ApiResponse<ChallengePlanInfoResponse> createChallengePlan(@Valid @RequestBody CreateChallengePlanRequest request, @LoginMember MemberSession memberSession) {
@@ -49,8 +49,8 @@ public class ChallengePlanController {
 	@ApiOperation("계획중인 챌린지의 초대키를 재발급 하는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@PutMapping("/api/v1/challenge/invitation-key")
-	public ApiResponse<String> refreshChallengeInvitationKey(@Valid @RequestBody RefreshChallengeInvitationKeyRequest request, @LoginMember MemberSession memberSession) {
-		return ApiResponse.of(challengePlanService.refreshChallengeInvitationKey(request, memberSession.getMemberId()));
+	public ApiResponse<String> reIssueChallengeInvitationKey(@Valid @RequestBody RefreshChallengeInvitationKeyRequest request, @LoginMember MemberSession memberSession) {
+		return ApiResponse.of(challengePlanService.reIssueChallengeInvitationKey(request, memberSession.getMemberId()));
 	}
 
 	@ApiOperation("챌린지의 초대키로 계획중인 챌린지의 간단한 정보를 반환하는 API")

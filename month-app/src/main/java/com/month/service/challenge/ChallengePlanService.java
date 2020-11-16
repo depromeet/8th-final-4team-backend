@@ -48,7 +48,7 @@ public class ChallengePlanService {
 	}
 
 	@Transactional
-	public String refreshChallengeInvitationKey(RefreshChallengeInvitationKeyRequest request, Long memberId) {
+	public String reIssueChallengeInvitationKey(RefreshChallengeInvitationKeyRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, request.getChallengePlanId());
 		challengePlan.refreshInvitationKey(memberId);
 		return challengePlan.issueInvitationKey(memberId);

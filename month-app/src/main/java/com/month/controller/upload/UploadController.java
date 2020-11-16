@@ -18,7 +18,7 @@ public class UploadController {
 
 	@ApiOperation("파일 업로드를 위한 API")
 	@PostMapping("/api/v1/upload")
-	public ApiResponse<String> upload(@RequestParam MultipartFile file, @RequestParam UploadType type) {
+	public ApiResponse<String> uploadImageFile(@RequestParam MultipartFile file, @RequestParam UploadType type) {
 		return ApiResponse.of(uploadService.upload(file, type.getDirectory()));
 	}
 

@@ -189,7 +189,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		RefreshChallengeInvitationKeyRequest request = RefreshChallengeInvitationKeyRequest.testInstance(challengePlan.getId());
 
 		// when
-		String afterInvitationKey = challengePlanService.refreshChallengeInvitationKey(request, memberId);
+		String afterInvitationKey = challengePlanService.reIssueChallengeInvitationKey(request, memberId);
 
 		// then
 		assertThat(beforeInvitationKey).isNotEqualTo(afterInvitationKey);
@@ -206,7 +206,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 
 		// when & then
 		assertThatThrownBy(() -> {
-			challengePlanService.refreshChallengeInvitationKey(request, memberId);
+			challengePlanService.reIssueChallengeInvitationKey(request, memberId);
 		}).isInstanceOf(NotAllowedException.class);
 	}
 

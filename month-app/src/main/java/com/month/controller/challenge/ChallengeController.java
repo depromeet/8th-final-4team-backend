@@ -33,8 +33,8 @@ public class ChallengeController {
 	@ApiOperation("내가 참여하고 있는 챌린지의 리스트를 불러오는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@GetMapping("/api/v1/challenges/my")
-	public ApiResponse<List<ChallengeInfoResponse>> retrieveMyChallenges(@LoginMember MemberSession memberSession) {
-		return ApiResponse.of(challengeService.retrieveMyChallengeList(memberSession.getMemberId()));
+	public ApiResponse<List<ChallengeInfoResponse>> retrieveMyChallengesList(@LoginMember MemberSession memberSession) {
+		return ApiResponse.of(challengeService.retrieveMyChallengesList(memberSession.getMemberId()));
 	}
 
 }

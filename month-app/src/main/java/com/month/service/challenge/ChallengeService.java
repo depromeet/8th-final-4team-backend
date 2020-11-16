@@ -36,7 +36,7 @@ public class ChallengeService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChallengeInfoResponse> retrieveMyChallengeList(Long memberId) {
+	public List<ChallengeInfoResponse> retrieveMyChallengesList(Long memberId) {
 		List<Challenge> challenges = challengeRepository.findActiveChallengesByMemberId(memberId);
 		return challenges.stream()
 				.map(challenge -> ChallengeInfoResponse.of(challenge, memberRepository.findAllById(challenge.getMemberIds())))
