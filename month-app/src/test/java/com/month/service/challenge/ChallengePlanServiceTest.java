@@ -184,19 +184,15 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		challengePlan.addCreator(memberId);
 		challengePlanRepository.save(challengePlan);
 
-		String beforeInvitationKey = challengePlan.getInvitationKey();
+		String beforeInvitationKey = challengePlan.issueInvitationKey(memberId);
 
 		RefreshChallengeInvitationKeyRequest request = RefreshChallengeInvitationKeyRequest.testInstance(challengePlan.getId());
 
 		// when
-		challengePlanService.refreshChallengeInvitationKey(request, memberId);
+		String afterInvitationKey = challengePlanService.reIssueChallengeInvitationKey(request, memberId);
 
 		// then
-		List<ChallengePlan> challengePlans = challengePlanRepository.findAll();
-		assertThat(challengePlans).hasSize(1);
-
-		assertThat(challengePlans.get(0).getInvitationKey()).isNotEmpty();
-		assertThat(challengePlans.get(0).getInvitationKey()).isNotEqualTo(beforeInvitationKey);
+		assertThat(beforeInvitationKey).isNotEqualTo(afterInvitationKey);
 	}
 
 	@Test
@@ -210,7 +206,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 
 		// when & then
 		assertThatThrownBy(() -> {
-			challengePlanService.refreshChallengeInvitationKey(request, memberId);
+			challengePlanService.reIssueChallengeInvitationKey(request, memberId);
 		}).isInstanceOf(NotAllowedException.class);
 	}
 
@@ -227,7 +223,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		challengePlanRepository.save(challengePlan);
 
 		// when
-		ChallengePlanInvitationInfo response = challengePlanService.getChallengeInfoByInvitationKey(challengePlan.getInvitationKey());
+		ChallengePlanInvitationInfo response = challengePlanService.getChallengeInfoByInvitationKey(challengePlan.issueInvitationKey(memberId));
 
 		// then
 		assertChallengePlanInvitationInfo(response, name, description, period, maxMembersCount);
@@ -256,7 +252,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		challengePlanRepository.save(challengePlan);
 
 		// when
-		EnterChallengeByInvitationKeyRequest request = EnterChallengeByInvitationKeyRequest.testInstance(challengePlan.getInvitationKey());
+		EnterChallengeByInvitationKeyRequest request = EnterChallengeByInvitationKeyRequest.testInstance(challengePlan.issueInvitationKey(999L));
 		challengePlanService.enterChallengeByInvitationKey(request, memberId);
 
 		// then
@@ -274,7 +270,7 @@ class ChallengePlanServiceTest extends MemberSetupTest {
 		challengePlanRepository.save(challengePlan);
 
 		// when
-		EnterChallengeByInvitationKeyRequest request = EnterChallengeByInvitationKeyRequest.testInstance(challengePlan.getInvitationKey());
+		EnterChallengeByInvitationKeyRequest request = EnterChallengeByInvitationKeyRequest.testInstance(challengePlan.issueInvitationKey(999L));
 		challengePlanService.enterChallengeByInvitationKey(request, memberId);
 
 		// then

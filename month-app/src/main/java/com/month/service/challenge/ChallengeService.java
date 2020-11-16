@@ -25,22 +25,18 @@ public class ChallengeService {
 	@Transactional
 	public void autoStartChallenge(Long challengePlanId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, challengePlanId);
-		challengePlan.inactiveChallengePlan();
-		challengeRepository.save(challengePlan.convertToChallenge());
+		challengeRepository.save(challengePlan.startChallenge());
 	}
 
 	@Transactional
 	public ChallengeInfoResponse startChallenge(StartChallengeRequest request, Long memberId) {
 		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, request.getChallengePlanId());
-		challengePlan.validateCreator(memberId);
-		challengePlan.inactiveChallengePlan();
-		Challenge newChallenge = challengeRepository.save(challengePlan.convertToChallenge());
-		// 챌린지를 시작하면, 챌린지 계획을 비활성화 시키고, 챌린지 계획 정보를 토대로 진짜 챌린지를 생성한다.
+		Challenge newChallenge = challengeRepository.save(challengePlan.startChallengeByForce(memberId));
 		return ChallengeInfoResponse.of(newChallenge, memberRepository.findAllById(newChallenge.getMemberIds()));
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChallengeInfoResponse> retrieveMyChallengeList(Long memberId) {
+	public List<ChallengeInfoResponse> retrieveMyChallengesList(Long memberId) {
 		List<Challenge> challenges = challengeRepository.findActiveChallengesByMemberId(memberId);
 		return challenges.stream()
 				.map(challenge -> ChallengeInfoResponse.of(challenge, memberRepository.findAllById(challenge.getMemberIds())))

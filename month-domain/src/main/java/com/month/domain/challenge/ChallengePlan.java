@@ -52,10 +52,6 @@ public class ChallengePlan extends BaseTimeEntity {
 
 	private boolean isActive;
 
-	public String getInvitationKey() {
-		return this.invitationKey.getInvitationKey();
-	}
-
 	@Builder
 	public ChallengePlan(String name, String description, String color, int period, int maxMembersCount) {
 		this.name = name;
@@ -88,7 +84,7 @@ public class ChallengePlan extends BaseTimeEntity {
 		this.currentMembersCount++;
 	}
 
-	public void validateCreator(Long memberId) {
+	private void validateCreator(Long memberId) {
 		if (!isCreator(memberId)) {
 			throw new NotAllowedException(String.format("회원 (%s) 는 챌린지 (%s) 의 생성자가 아닙니다", memberId, id), MEMBER_IN_CHALLENGE);
 		}
@@ -99,7 +95,7 @@ public class ChallengePlan extends BaseTimeEntity {
 				.anyMatch(challengePlanMemberMapper -> challengePlanMemberMapper.isCreator(memberId));
 	}
 
-	public void validateIsMember(Long memberId) {
+	private void validateIsMember(Long memberId) {
 		if (!isMember(memberId)) {
 			throw new NotFoundException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, id), MEMBER_IN_CHALLENGE);
 		}
@@ -110,7 +106,13 @@ public class ChallengePlan extends BaseTimeEntity {
 				.anyMatch(challengePlanMemberMapper -> challengePlanMemberMapper.isMember(memberId));
 	}
 
-	public Challenge convertToChallenge() {
+	public Challenge startChallengeByForce(Long memberId) {
+		validateCreator(memberId);
+		return startChallenge();
+	}
+
+	public Challenge startChallenge() {
+		inactiveChallengePlan();
 		final LocalDateTime now = LocalDateTime.now();
 		Challenge challenge = Challenge.newInstance(name, description, color, now, now.plusDays(period));
 		challenge.addMembers(this.challengePlanMemberMapperList.stream()
@@ -119,8 +121,17 @@ public class ChallengePlan extends BaseTimeEntity {
 		return challenge;
 	}
 
-	public void inactiveChallengePlan() {
+	private void inactiveChallengePlan() {
 		this.isActive = false;
+	}
+
+	String getInvitationKey() {
+		return this.invitationKey.getInvitationKey();
+	}
+
+	public String issueInvitationKey(Long memberId) {
+		validateIsMember(memberId);
+		return getInvitationKey();
 	}
 
 	public void refreshInvitationKey(Long memberId) {
