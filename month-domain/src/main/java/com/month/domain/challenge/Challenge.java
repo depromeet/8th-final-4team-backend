@@ -119,7 +119,7 @@ public class Challenge extends BaseTimeEntity {
 		}
 	}
 
-	private void addPendingParticipator(Long memberId) {
+	public void addPendingParticipator(Long memberId) {
 		this.challengeMemberMappers.add(ChallengeMemberMapper.pendingParticipator(this, memberId));
 	}
 

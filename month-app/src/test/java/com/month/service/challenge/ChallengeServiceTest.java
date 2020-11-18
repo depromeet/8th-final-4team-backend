@@ -166,4 +166,37 @@ class ChallengeServiceTest extends MemberSetupTest {
 		assertThat(response.getMembersCount()).isEqualTo(membersCount);
 	}
 
+	@Test
+	void 나의_초대받은_챌린지_리스트를_불러온다() {
+		// given
+		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 1, 7, 0, 0));
+		challenge.addPendingParticipator(memberId);
+		challengeRepository.save(challenge);
+
+		// when
+		List<ChallengeResponse> challengeResponses = challengeService.retrieveInvitedChallengeList(memberId);
+
+		// then
+		assertThat(challengeResponses).hasSize(1);
+		assertThat(challengeResponses.get(0).getUuid()).isEqualTo(challenge.getUuid());
+	}
+
+	@Test
+	void 나의_초대받은_챌린지_리스트를_불러올때_수락했거나_거절한경우는_조회되지_않는다() {
+		// given
+		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 1, 7, 0, 0));
+		challenge.addCreator(memberId);
+		challengeRepository.save(challenge);
+
+		// when
+		List<ChallengeResponse> challengeResponses = challengeService.retrieveInvitedChallengeList(memberId);
+
+		// then
+		assertThat(challengeResponses).isEmpty();
+	}
+
 }

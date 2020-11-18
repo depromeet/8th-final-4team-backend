@@ -1,10 +1,10 @@
 package com.month.domain.challenge.repository;
 
 import com.month.domain.challenge.Challenge;
+import com.month.domain.challenge.ChallengeMemberStatus;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.month.domain.challenge.QChallenge.challenge;
@@ -23,17 +23,6 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 						challengeMemberMapper.memberId.eq(memberId)
 				).fetch();
 	}
-
-	@Override
-	public List<Challenge> findStartedChallengesByMemberId(Long memberId) {
-		return queryFactory.selectFrom(challenge).distinct()
-				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
-				.where(
-						challengeMemberMapper.memberId.eq(memberId),
-						challenge.dateTimeInterval.startDateTime.before(LocalDateTime.now())
-				).fetch();
-	}
-
 
 	/**
 	 * Challenge A  -  ChallengeMemberMapper1 (나) -> 페치 조인시 애만 조회 되는 상황
@@ -68,6 +57,16 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 				.where(
 						challenge.invitationKey.invitationKey.eq(invitationKey)
 				).fetchOne();
+	}
+
+	@Override
+	public List<Challenge> findPendingChallengeByMemberId(Long memberId) {
+		return queryFactory.selectFrom(challenge).distinct()
+				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
+				.where(
+						challengeMemberMapper.memberId.eq(memberId),
+						challengeMemberMapper.status.eq(ChallengeMemberStatus.PENDING)
+				).fetch();
 	}
 
 }

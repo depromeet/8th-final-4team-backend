@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -50,6 +51,13 @@ public class ChallengeController {
 	@GetMapping("/api/v1/challenge/invite")
 	public ApiResponse<ChallengeResponse> getChallengeInfoByInvitationKey(@Valid GetChallengeInfoByInvitationKeyRequest request) {
 		return ApiResponse.of(challengeService.getChallengeInfoByInvitationKey(request));
+	}
+
+	@ApiOperation("내가 초대받은 챌린지의 리스트를 조회하는 API")
+	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
+	@GetMapping("/api/v1/challenge/invite/list")
+	public ApiResponse<List<ChallengeResponse>> retrieveInvitedChallengeList(@LoginMember MemberSession memberSession) {
+		return ApiResponse.of(challengeService.retrieveInvitedChallengeList(memberSession.getMemberId()));
 	}
 
 }
