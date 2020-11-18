@@ -31,7 +31,7 @@ public class AchievementRateDomainService {
 	public int getChallengesCountWithFriend(Long memberId, Long friendId) {
 		List<Challenge> challenges = challengeRepository.findNoFetchChallengesByMemberId(memberId);
 		List<Challenge> challengesWithFriend = challenges.stream()
-//				.filter(challenge -> challenge.isMemberInChallenge(friendId))
+				.filter(challenge -> challenge.isApprovedMemberInChallenge(friendId))
 				.collect(Collectors.toList());
 		return challengesWithFriend.size();
 	}

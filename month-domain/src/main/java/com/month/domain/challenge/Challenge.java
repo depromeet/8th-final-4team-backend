@@ -129,7 +129,7 @@ public class Challenge extends BaseTimeEntity {
 		}
 	}
 
-	private boolean isApprovedMemberInChallenge(Long memberId) {
+	public boolean isApprovedMemberInChallenge(Long memberId) {
 		return challengeMemberMappers.stream()
 				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isApprovedMember(memberId));
 	}

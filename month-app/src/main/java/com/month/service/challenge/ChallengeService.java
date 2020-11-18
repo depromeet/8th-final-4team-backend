@@ -47,4 +47,8 @@ public class ChallengeService {
 		return ChallengeResponse.of(challenge);
 	}
 
+	// TODO 내가 초대빋은 챌린지의 리스트 기능
+
+	// TODO 초대키를 통해 챌린지에 참가하는 기능
+
 }
