@@ -35,26 +35,18 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private ChallengeRole role;
 
-	ChallengeMemberMapper(Challenge challenge, Long memberId, ChallengeRole role) {
+	@Enumerated(EnumType.STRING)
+	private ChallengeMemberStatus status;
+
+	ChallengeMemberMapper(Challenge challenge, Long memberId, ChallengeRole role, ChallengeMemberStatus status) {
 		this.challenge = challenge;
 		this.memberId = memberId;
 		this.role = role;
+		this.status = status;
 	}
 
 	static ChallengeMemberMapper creator(Challenge challenge, Long memberId) {
-		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.CREATOR);
-	}
-
-	static ChallengeMemberMapper participator(Challenge challenge, Long memberId) {
-		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.PARTICIPATOR);
-	}
-
-	boolean isCreator(Long memberId) {
-		return this.memberId.equals(memberId) && this.role.equals(ChallengeRole.CREATOR);
-	}
-
-	boolean isParticipator(Long memberId) {
-		return this.memberId.equals(memberId) && this.role.equals(ChallengeRole.PARTICIPATOR);
+		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
 	}
 
 }

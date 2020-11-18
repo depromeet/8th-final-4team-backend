@@ -77,53 +77,53 @@ class MemberServiceTest {
 		);
 	}
 
-	@Test
-	void 내가_도전한_횟수를_가져온다() {
-		// given
-		Member member = MemberCreator.create("will.seungho@gmail.com");
-		memberRepository.save(member);
-
-		Challenge challenge1 = ChallengeCreator.create("챌린지1",
-				LocalDateTime.of(2020, 10, 14, 0, 0),
-				LocalDateTime.of(2020, 11, 14, 0, 0));
-		challenge1.addCreator(member.getId());
-
-		Challenge challenge2 = ChallengeCreator.create("챌린지2",
-				LocalDateTime.of(2020, 10, 14, 0, 0),
-				LocalDateTime.of(2020, 11, 14, 0, 0));
-		challenge2.addParticipator(member.getId());
-
-		challengeRepository.saveAll(Arrays.asList(challenge1, challenge2));
-
-		// when
-		MemberDetailInfoResponse response = memberService.getMemberInfo(member.getId());
-
-		// then
-		assertThat(response.getTotalChallengesCount()).isEqualTo(2);
-	}
-
-	@Test
-	void 나의_정보를_반환할때_나의_달성_퍼센트를_계산해서_같이_반환한다() {
-		// given
-		Member member = MemberCreator.create("will.seungho@gmail.com");
-		memberRepository.save(member);
-
-		Challenge challenge = ChallengeCreator.create("챌린지1",
-				LocalDateTime.of(2019, 10, 14, 0, 0),
-				LocalDateTime.of(2019, 10, 22, 0, 0));
-		challenge.addCreator(member.getId());
-		challengeRepository.save(challenge);
-
-		Accreditation accreditation1 = AccreditationCreator.create(member.getId(), challenge.getUuid());
-		Accreditation accreditation2 = AccreditationCreator.create(member.getId(), challenge.getUuid());
-		accreditationRepository.saveAll(Arrays.asList(accreditation1, accreditation2));
-
-		// when
-		MemberDetailInfoResponse response = memberService.getMemberInfo(member.getId());
-
-		// then
-		assertThat(response.getAchieveChallengeRate()).isEqualTo(25.0);
-	}
+//	@Test
+//	void 내가_도전한_횟수를_가져온다() {
+//		// given
+//		Member member = MemberCreator.create("will.seungho@gmail.com");
+//		memberRepository.save(member);
+//
+//		Challenge challenge1 = ChallengeCreator.create("챌린지1",
+//				LocalDateTime.of(2020, 10, 14, 0, 0),
+//				LocalDateTime.of(2020, 11, 14, 0, 0));
+//		challenge1.addCreator(member.getId());
+//
+//		Challenge challenge2 = ChallengeCreator.create("챌린지2",
+//				LocalDateTime.of(2020, 10, 14, 0, 0),
+//				LocalDateTime.of(2020, 11, 14, 0, 0));
+//		challenge2.addParticipator(member.getId());
+//
+//		challengeRepository.saveAll(Arrays.asList(challenge1, challenge2));
+//
+//		// when
+//		MemberDetailInfoResponse response = memberService.getMemberInfo(member.getId());
+//
+//		// then
+//		assertThat(response.getTotalChallengesCount()).isEqualTo(2);
+//	}
+//
+//	@Test
+//	void 나의_정보를_반환할때_나의_달성_퍼센트를_계산해서_같이_반환한다() {
+//		// given
+//		Member member = MemberCreator.create("will.seungho@gmail.com");
+//		memberRepository.save(member);
+//
+//		Challenge challenge = ChallengeCreator.create("챌린지1",
+//				LocalDateTime.of(2019, 10, 14, 0, 0),
+//				LocalDateTime.of(2019, 10, 22, 0, 0));
+//		challenge.addCreator(member.getId());
+//		challengeRepository.save(challenge);
+//
+//		Accreditation accreditation1 = AccreditationCreator.create(member.getId(), challenge.getUuid());
+//		Accreditation accreditation2 = AccreditationCreator.create(member.getId(), challenge.getUuid());
+//		accreditationRepository.saveAll(Arrays.asList(accreditation1, accreditation2));
+//
+//		// when
+//		MemberDetailInfoResponse response = memberService.getMemberInfo(member.getId());
+//
+//		// then
+//		assertThat(response.getAchieveChallengeRate()).isEqualTo(25.0);
+//	}
 
 	@Test
 	void 어떤_챌린지도_하지않은경우_총_도전수_0_되고_달성률_0_가된다() {

@@ -314,25 +314,25 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		assertThat(response.getPhotoUrl()).isEqualTo(friend.getPhotoUrl());
 	}
 
-	@Test
-	void 친구의_상세정보_조회시_친구와_함께한_챌린지의_수를_확인할_수있다() {
-		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
-		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
-
-		Challenge challenge = ChallengeCreator.create("친구와 함께한 챌린지",
-				LocalDateTime.of(2020, 10, 1, 0, 0),
-				LocalDateTime.of(2020, 10, 8, 0, 0));
-		challenge.addCreator(memberId);
-		challenge.addParticipator(friend.getId());
-		challengeRepository.save(challenge);
-
-		RetrieveFriendInfoRequest request = RetrieveFriendInfoRequest.testInstance(friend.getId());
-
-		// when
-		FriendInfoResponse response = friendMapperService.retrieveFriendInfo(request, memberId);
-
-		// then
-		assertThat(response.getTotalChallengesCountWithFriend()).isEqualTo(1);
-	}
+//	@Test
+//	void 친구의_상세정보_조회시_친구와_함께한_챌린지의_수를_확인할_수있다() {
+//		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
+//		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
+//
+//		Challenge challenge = ChallengeCreator.create("친구와 함께한 챌린지",
+//				LocalDateTime.of(2020, 10, 1, 0, 0),
+//				LocalDateTime.of(2020, 10, 8, 0, 0));
+//		challenge.addCreator(memberId);
+//		challenge.addParticipator(friend.getId());
+//		challengeRepository.save(challenge);
+//
+//		RetrieveFriendInfoRequest request = RetrieveFriendInfoRequest.testInstance(friend.getId());
+//
+//		// when
+//		FriendInfoResponse response = friendMapperService.retrieveFriendInfo(request, memberId);
+//
+//		// then
+//		assertThat(response.getTotalChallengesCountWithFriend()).isEqualTo(1);
+//	}
 
 }

@@ -16,22 +16,21 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 	private final JPAQueryFactory queryFactory;
 
 	@Override
-	public List<Challenge> findActiveChallengesByMemberId(Long memberId) {
-		return queryFactory.selectFrom(challenge).distinct()
-				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
-				.where(
-						challengeMemberMapper.memberId.eq(memberId),
-						challenge.dateTimeInterval.endDateTime.after(LocalDateTime.now()),
-						challenge.dateTimeInterval.startDateTime.before(LocalDateTime.now())
-				).fetch();
-	}
-
-	@Override
 	public List<Challenge> findChallengesByMemberId(Long memberId) {
 		return queryFactory.selectFrom(challenge).distinct()
 				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
 				.where(
 						challengeMemberMapper.memberId.eq(memberId)
+				).fetch();
+	}
+
+	@Override
+	public List<Challenge> findStartedChallengesByMemberId(Long memberId) {
+		return queryFactory.selectFrom(challenge).distinct()
+				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
+				.where(
+						challengeMemberMapper.memberId.eq(memberId),
+						challenge.dateTimeInterval.startDateTime.before(LocalDateTime.now())
 				).fetch();
 	}
 
