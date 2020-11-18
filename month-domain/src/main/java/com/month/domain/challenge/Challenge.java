@@ -66,6 +66,10 @@ public class Challenge extends BaseTimeEntity {
 				.build();
 	}
 
+	private String getInvitationKey() {
+		return this.invitationKey.getInvitationKey();
+	}
+
 	public String getUuid() {
 		return this.uuid.getUuid();
 	}
@@ -113,9 +117,32 @@ public class Challenge extends BaseTimeEntity {
 		return getEndDateTime().isAfter(now) && getStartDateTime().isBefore(now);
 	}
 
-	public boolean isTodo() {
+	boolean isTodo() {
 		final LocalDateTime now = LocalDateTime.now();
 		return getStartDateTime().isAfter(now);
+	}
+
+	public String issueInvitationKey(Long memberId) {
+		validateApprovedMember(memberId);
+		validateTodoChallenge();
+		return getInvitationKey();
+	}
+
+	private void validateTodoChallenge() {
+		if (!isTodo()) {
+			throw new IllegalArgumentException(String.format("이미 시작한 챌린지 (%s) 에 대해서는 초대키를 반환할 수 없습니다", uuid));
+		}
+	}
+
+	private void validateApprovedMember(Long memberId) {
+		if (!isApprovedMemberInChallenge(memberId)) {
+			throw new IllegalArgumentException(String.format("해당 멤버 (%s) 는 챌린지 (%s) 에 참가하고 있지 않습니다", memberId, uuid));
+		}
+	}
+
+	private boolean isApprovedMemberInChallenge(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isApprovedMember(memberId));
 	}
 
 }

@@ -53,4 +53,21 @@ public class ChallengeRepositoryCustomImpl implements ChallengeRepositoryCustom 
 				).fetch();
 	}
 
+	@Override
+	public Challenge findChallengeByUuid(String uuid) {
+		return queryFactory.selectFrom(challenge).distinct()
+				.innerJoin(challenge.challengeMemberMappers, challengeMemberMapper).fetchJoin()
+				.where(
+						challenge.uuid.uuid.eq(uuid)
+				).fetchOne();
+	}
+
+	@Override
+	public Challenge findChallengeByInvitationKey(String invitationKey) {
+		return queryFactory.selectFrom(challenge)
+				.where(
+						challenge.invitationKey.invitationKey.eq(invitationKey)
+				).fetchOne();
+	}
+
 }

@@ -12,4 +12,8 @@ public interface ChallengeRepositoryCustom {
 
 	List<Challenge> findNoFetchChallengesByMemberId(Long memberId);
 
+	Challenge findChallengeByUuid(String uuid);
+
+	Challenge findChallengeByInvitationKey(String invitationKey);
+
 }
