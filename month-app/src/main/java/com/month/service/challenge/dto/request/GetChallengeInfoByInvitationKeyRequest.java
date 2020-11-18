@@ -12,4 +12,12 @@ public class GetChallengeInfoByInvitationKeyRequest {
 	@NotBlank
 	private String invitationKey;
 
+	private GetChallengeInfoByInvitationKeyRequest(String invitationKey) {
+		this.invitationKey = invitationKey;
+	}
+
+	public static GetChallengeInfoByInvitationKeyRequest testInstance(String invitationKey) {
+		return new GetChallengeInfoByInvitationKeyRequest(invitationKey);
+	}
+
 }
