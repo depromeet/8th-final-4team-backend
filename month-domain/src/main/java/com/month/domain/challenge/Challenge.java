@@ -82,6 +82,14 @@ public class Challenge extends BaseTimeEntity {
 		return this.dateTimeInterval.getEndDateTime();
 	}
 
+	private LocalDate getStartDate() {
+		return getStartDateTime().toLocalDate();
+	}
+
+	private LocalDate getEndDate() {
+		return getEndDateTime().toLocalDate();
+	}
+
 	int calculateProgressDays() {
 		final LocalDateTime now = LocalDateTime.now();
 		// 이미 끝난 챌린지의 경우에는 startDateTime ~ endDateTime
@@ -94,17 +102,36 @@ public class Challenge extends BaseTimeEntity {
 		return period.getDays();
 	}
 
-	private LocalDate getStartDate() {
-		return getStartDateTime().toLocalDate();
-	}
-
-	private LocalDate getEndDate() {
-		return getEndDateTime().toLocalDate();
+	public String issueInvitationKey(Long memberId) {
+		validateApprovedMember(memberId);
+		validateTodoChallenge();
+		return getInvitationKey();
 	}
 
 	public void addCreator(Long memberId) {
 		this.challengeMemberMappers.add(ChallengeMemberMapper.creator(this, memberId));
 		this.membersCount++;
+	}
+
+	public void addPendingParticipators(List<Long> memberIds) {
+		for (Long memberId : memberIds) {
+			addPendingParticipator(memberId);
+		}
+	}
+
+	private void addPendingParticipator(Long memberId) {
+		this.challengeMemberMappers.add(ChallengeMemberMapper.pendingParticipator(this, memberId));
+	}
+
+	private void validateApprovedMember(Long memberId) {
+		if (!isApprovedMemberInChallenge(memberId)) {
+			throw new IllegalArgumentException(String.format("해당 멤버 (%s) 는 챌린지 (%s) 에 참가하고 있지 않습니다", memberId, uuid));
+		}
+	}
+
+	private boolean isApprovedMemberInChallenge(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isApprovedMember(memberId));
 	}
 
 	boolean isDone() {
@@ -122,27 +149,10 @@ public class Challenge extends BaseTimeEntity {
 		return getStartDateTime().isAfter(now);
 	}
 
-	public String issueInvitationKey(Long memberId) {
-		validateApprovedMember(memberId);
-		validateTodoChallenge();
-		return getInvitationKey();
-	}
-
 	private void validateTodoChallenge() {
 		if (!isTodo()) {
 			throw new IllegalArgumentException(String.format("이미 시작한 챌린지 (%s) 에 대해서는 초대키를 반환할 수 없습니다", uuid));
 		}
-	}
-
-	private void validateApprovedMember(Long memberId) {
-		if (!isApprovedMemberInChallenge(memberId)) {
-			throw new IllegalArgumentException(String.format("해당 멤버 (%s) 는 챌린지 (%s) 에 참가하고 있지 않습니다", memberId, uuid));
-		}
-	}
-
-	private boolean isApprovedMemberInChallenge(Long memberId) {
-		return challengeMemberMappers.stream()
-				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isApprovedMember(memberId));
 	}
 
 }

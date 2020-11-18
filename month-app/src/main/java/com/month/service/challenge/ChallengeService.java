@@ -24,6 +24,7 @@ public class ChallengeService {
 	public ChallengeResponse createNewChallenge(CreateNewChallengeRequest request, Long memberId) {
 		Challenge challenge = request.toEntity();
 		challenge.addCreator(memberId);
+		challenge.addPendingParticipators(request.getFriendIds());
 		return ChallengeResponse.of(challengeRepository.save(challenge));
 	}
 

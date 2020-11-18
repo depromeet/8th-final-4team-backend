@@ -1,9 +1,6 @@
 package com.month.service.challenge;
 
-import com.month.domain.challenge.Challenge;
-import com.month.domain.challenge.ChallengeCreator;
-import com.month.domain.challenge.ChallengeRepository;
-import com.month.domain.challenge.ChallengeType;
+import com.month.domain.challenge.*;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
 import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
@@ -16,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
@@ -29,9 +27,13 @@ class ChallengeServiceTest extends MemberSetupTest {
 	@Autowired
 	private ChallengeRepository challengeRepository;
 
+	@Autowired
+	private ChallengeMemberMapperRepository challengeMemberMapperRepository;
+
 	@AfterEach
 	void cleanUp() {
-		challengeRepository.deleteAll();
+		challengeMemberMapperRepository.deleteAllInBatch();
+		challengeRepository.deleteAllInBatch();
 	}
 
 	@Test
@@ -40,8 +42,8 @@ class ChallengeServiceTest extends MemberSetupTest {
 		String name = "운동하기";
 		ChallengeType type = ChallengeType.EXERCISE;
 		String color = "#000000";
-		LocalDate startDate = LocalDate.of(2020, 11, 1);
-		LocalDate endDate = LocalDate.of(2020, 12, 1);
+		LocalDate startDate = LocalDate.of(2020, 1, 1);
+		LocalDate endDate = LocalDate.of(2030, 1, 1);
 
 		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
 				.name(name)
@@ -49,6 +51,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 				.color(color)
 				.startDate(startDate)
 				.endDate(endDate)
+				.friendIds(Collections.emptyList())
 				.build();
 
 		// when
@@ -61,8 +64,39 @@ class ChallengeServiceTest extends MemberSetupTest {
 		Challenge challenge = challenges.get(0);
 		assertThat(challenge.getName()).isEqualTo(name);
 		assertThat(challenge.getColor()).isEqualTo(color);
-		assertThat(challenge.getStartDateTime()).isEqualTo(LocalDateTime.of(2020, 11, 1, 0, 0, 0));
-		assertThat(challenge.getEndDateTime()).isEqualTo(LocalDateTime.of(2020, 12, 1, 11, 59, 59));
+		assertThat(challenge.getStartDateTime()).isEqualTo(LocalDateTime.of(2020, 1, 1, 0, 0, 0));
+		assertThat(challenge.getEndDateTime()).isEqualTo(LocalDateTime.of(2030, 1, 1, 11, 59, 59));
+	}
+
+	@Test
+	void 챌린지_생성시_초대한_친구들은_PENDING_상태가된다() {
+		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
+				.name("운동하기")
+				.type(ChallengeType.EXERCISE)
+				.color("#000000")
+				.startDate(LocalDate.of(2020, 1, 1))
+				.endDate(LocalDate.of(2030, 1, 1))
+				.friendIds(Collections.singletonList(10L))
+				.build();
+
+		// when
+		challengeService.createNewChallenge(request, memberId);
+
+		// then
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertThat(challenges.get(0).getMembersCount()).isEqualTo(1);
+
+		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
+		assertThat(challengeMemberMappers).hasSize(2);
+		assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
+		assertThatChallengeMember(challengeMemberMappers.get(1), 10L, ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.PENDING);
+	}
+
+	private void assertThatChallengeMember(ChallengeMemberMapper challengeMemberMapper, Long memberId, ChallengeRole role, ChallengeMemberStatus status) {
+		assertThat(challengeMemberMapper.getMemberId()).isEqualTo(memberId);
+		assertThat(challengeMemberMapper.getRole()).isEqualTo(role);
+		assertThat(challengeMemberMapper.getStatus()).isEqualTo(status);
 	}
 
 	@Test
