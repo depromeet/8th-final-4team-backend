@@ -18,7 +18,7 @@ public class Uuid {
 	@Column(nullable = false)
 	private String uuid;
 
-	private Uuid(String uuid) {
+	public Uuid(String uuid) {
 		this.uuid = uuid;
 	}
 

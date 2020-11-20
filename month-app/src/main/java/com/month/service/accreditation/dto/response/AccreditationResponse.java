@@ -2,14 +2,13 @@ package com.month.service.accreditation.dto.response;
 
 import com.month.domain.accreditation.Accreditation;
 import com.month.domain.member.Member;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalTime;
 
 @Getter
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class AccreditationResponse {
 
     private String memberName;
