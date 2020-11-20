@@ -4,12 +4,16 @@ import com.month.domain.challenge.*;
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
+import com.month.exception.NotAllowedException;
+import com.month.exception.NotFoundException;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
 import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
 import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
+import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
 import com.month.service.challenge.dto.response.ChallengeResponse;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +45,13 @@ class ChallengeServiceTest extends MemberSetupTest {
 		super.cleanup();
 		challengeMemberMapperRepository.deleteAllInBatch();
 		challengeRepository.deleteAllInBatch();
+	}
+
+	private Member friend;
+
+	@BeforeEach
+	void setUpFriend() {
+		friend = memberRepository.save(MemberCreator.create("friend@gmail.com"));
 	}
 
 	@Test
@@ -138,7 +149,22 @@ class ChallengeServiceTest extends MemberSetupTest {
 		// when & then
 		assertThatThrownBy(() -> {
 			challengeService.getInvitationKey(request, memberId);
-		}).isInstanceOf(IllegalArgumentException.class);
+		}).isInstanceOf(NotFoundException.class);
+	}
+
+	@Test
+	void 이미_시작한_챌린지에_대해_초대키를_발급받을_수없다() {
+		// given
+		LocalDateTime startDateTime = LocalDateTime.of(2020, 2, 1, 0, 1);
+		LocalDateTime endDateTime = LocalDateTime.of(2030, 1, 1, 0, 0);
+		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000", startDateTime, endDateTime);
+		challenge.addCreator(memberId);
+		challengeRepository.save(challenge);
+
+		// when & then
+		assertThatThrownBy(() -> {
+			challenge.issueInvitationKey(memberId);
+		}).isInstanceOf(NotAllowedException.class);
 	}
 
 	@Test
@@ -210,8 +236,6 @@ class ChallengeServiceTest extends MemberSetupTest {
 	@Test
 	void 초대_받은_멤버가_초대를_받으면_PENDING_에서_APPROVE_상태가_된다() {
 		// given
-		Member friend = memberRepository.save(MemberCreator.create("friend@gmail.com"));
-
 		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
 				LocalDateTime.of(2030, 1, 1, 0, 0),
 				LocalDateTime.of(2030, 1, 7, 0, 0));
@@ -219,10 +243,10 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challenge.addPendingParticipator(friend.getId());
 		challengeRepository.save(challenge);
 
-		String invitationKey = challenge.issueInvitationKey(memberId);
+		ParticipateChallengeRequest request = ParticipateChallengeRequest.testInstance(challenge.issueInvitationKey(memberId));
 
 		// when
-		challengeService.participateByInvitationKey(invitationKey, friend.getId());
+		challengeService.participateByInvitationKey(request, friend.getId());
 
 		// then
 		List<Challenge> challenges = challengeRepository.findAll();
@@ -238,18 +262,16 @@ class ChallengeServiceTest extends MemberSetupTest {
 	@Test
 	void 초대륿_받지_않은_사용자가_초대장을_통해_챌린지에_참여하는경우() {
 		// given
-		Member friend = memberRepository.save(MemberCreator.create("friend@gmail.com"));
-
 		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
 				LocalDateTime.of(2030, 1, 1, 0, 0),
 				LocalDateTime.of(2030, 1, 7, 0, 0));
 		challenge.addCreator(memberId);
 		challengeRepository.save(challenge);
 
-		String invitationKey = challenge.issueInvitationKey(memberId);
+		ParticipateChallengeRequest request = ParticipateChallengeRequest.testInstance(challenge.issueInvitationKey(memberId));
 
 		// when
-		challengeService.participateByInvitationKey(invitationKey, friend.getId());
+		challengeService.participateByInvitationKey(request, friend.getId());
 
 		// then
 		List<Challenge> challenges = challengeRepository.findAll();

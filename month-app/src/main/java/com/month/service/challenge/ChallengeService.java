@@ -6,6 +6,7 @@ import com.month.domain.challenge.ChallengeRetrieveCollection;
 import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
 import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
 import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
+import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
 import com.month.service.challenge.dto.response.ChallengeResponse;
 import com.month.service.challenge.dto.response.MyChallengesResponse;
 import lombok.RequiredArgsConstructor;
@@ -57,8 +58,8 @@ public class ChallengeService {
 	}
 
 	@Transactional
-	public void participateByInvitationKey(String invitationKey, Long memberId) {
-		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, invitationKey);
+	public void participateByInvitationKey(ParticipateChallengeRequest request, Long memberId) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, request.getInvitationKey());
 		challenge.participate(memberId);
 	}
 

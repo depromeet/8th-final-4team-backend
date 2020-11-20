@@ -6,6 +6,7 @@ import com.month.service.challenge.ChallengeService;
 import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
 import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
 import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
+import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
 import com.month.service.challenge.dto.response.ChallengeResponse;
 import com.month.service.challenge.dto.response.MyChallengesResponse;
 import com.month.type.session.MemberSession;
@@ -60,8 +61,8 @@ public class ChallengeController {
 	@ApiOperation("초대키로 챌린지에 참가하는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@PutMapping("/api/v1/challenge/invite")
-	public ApiResponse<String> participateByInvitationKey(@Valid @RequestBody String invitationKey, @LoginMember MemberSession memberSession) {
-		challengeService.participateByInvitationKey(invitationKey, memberSession.getMemberId());
+	public ApiResponse<String> participateByInvitationKey(@Valid @RequestBody ParticipateChallengeRequest request, @LoginMember MemberSession memberSession) {
+		challengeService.participateByInvitationKey(request, memberSession.getMemberId());
 		return ApiResponse.OK;
 	}
 

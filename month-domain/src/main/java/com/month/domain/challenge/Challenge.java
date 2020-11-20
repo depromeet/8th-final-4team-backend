@@ -3,6 +3,9 @@ package com.month.domain.challenge;
 import com.month.domain.BaseTimeEntity;
 import com.month.domain.common.DateTimeInterval;
 import com.month.domain.common.Uuid;
+import com.month.exception.ConflictException;
+import com.month.exception.NotAllowedException;
+import com.month.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +17,9 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.month.exception.type.ExceptionDescriptionType.CHALLENGE;
+import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -125,7 +131,7 @@ public class Challenge extends BaseTimeEntity {
 
 	private void validateApprovedMember(Long memberId) {
 		if (!isApprovedMemberInChallenge(memberId)) {
-			throw new IllegalArgumentException(String.format("해당 멤버 (%s) 는 챌린지 (%s) 에 참가하고 있지 않습니다", memberId, uuid));
+			throw new NotFoundException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, uuid), MEMBER_IN_CHALLENGE);
 		}
 	}
 
@@ -151,11 +157,12 @@ public class Challenge extends BaseTimeEntity {
 
 	private void validateTodoChallenge() {
 		if (!isTodo()) {
-			throw new IllegalArgumentException(String.format("이미 시작한 챌린지 (%s) 에 대해서는 초대키를 반환할 수 없습니다", uuid));
+			throw new NotAllowedException(String.format("이미 시작한 챌린지 (%s) 입니다", uuid), CHALLENGE);
 		}
 	}
 
 	public void participate(Long memberId) {
+		validateTodoChallenge();
 		validateNotParticipatedMember(memberId);
 		if (isPendingMember(memberId)) {
 			ChallengeMemberMapper challengeMemberMapper = findMember(memberId);
@@ -171,7 +178,7 @@ public class Challenge extends BaseTimeEntity {
 		return this.challengeMemberMappers.stream()
 				.filter(challengeMemberMapper -> challengeMemberMapper.isMember(memberId))
 				.findFirst()
-				.orElseThrow(() -> new IllegalArgumentException(String.format("해당 멤버 (%s) 를 찾을 수 없습니다.", memberId)));
+				.orElseThrow(() -> new NotFoundException(String.format("해당 멤버 (%s) 를 찾을 수 없습니다.", memberId), MEMBER_IN_CHALLENGE));
 	}
 
 	private boolean isPendingMember(Long memberId) {
@@ -181,7 +188,7 @@ public class Challenge extends BaseTimeEntity {
 
 	private void validateNotParticipatedMember(Long memberId) {
 		if (isApprovedMemberInChallenge(memberId)) {
-			throw new IllegalArgumentException(String.format("이미 챌린지 (%s)에 참가한 멤버 (%s) 입니다", uuid, memberId));
+			throw new ConflictException(String.format("이미 챌린지 (%s)에 참가한 멤버 (%s) 입니다", uuid, memberId), MEMBER_IN_CHALLENGE);
 		}
 	}
 
