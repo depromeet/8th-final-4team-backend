@@ -49,12 +49,24 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
 	}
 
-	static ChallengeMemberMapper pendingParticipator(Challenge challenge, Long memberId) {
-		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.PENDING);
+	static ChallengeMemberMapper participator(Challenge challenge, Long memberId, ChallengeMemberStatus status) {
+		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.PARTICIPATOR, status);
 	}
 
 	boolean isApprovedMember(Long memberId) {
 		return this.memberId.equals(memberId) && this.status.equals(ChallengeMemberStatus.APPROVED);
+	}
+
+	boolean isPendingMember(Long memberId) {
+		return this.memberId.equals(memberId) && this.status.equals(ChallengeMemberStatus.PENDING);
+	}
+
+	boolean isMember(Long memberId) {
+		return this.memberId.equals(memberId);
+	}
+
+	void approve() {
+		this.status = ChallengeMemberStatus.APPROVED;
 	}
 
 }

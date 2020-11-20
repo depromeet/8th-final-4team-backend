@@ -12,10 +12,7 @@ import com.month.type.session.MemberSession;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -58,6 +55,14 @@ public class ChallengeController {
 	@GetMapping("/api/v1/challenge/invite/list")
 	public ApiResponse<List<ChallengeResponse>> retrieveInvitedChallengeList(@LoginMember MemberSession memberSession) {
 		return ApiResponse.of(challengeService.retrieveInvitedChallengeList(memberSession.getMemberId()));
+	}
+
+	@ApiOperation("초대키로 챌린지에 참가하는 API")
+	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
+	@PutMapping("/api/v1/challenge/invite")
+	public ApiResponse<String> participateByInvitationKey(@Valid @RequestBody String invitationKey, @LoginMember MemberSession memberSession) {
+		challengeService.participateByInvitationKey(invitationKey, memberSession.getMemberId());
+		return ApiResponse.OK;
 	}
 
 }

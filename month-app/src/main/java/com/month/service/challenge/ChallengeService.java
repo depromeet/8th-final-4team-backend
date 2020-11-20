@@ -56,6 +56,10 @@ public class ChallengeService {
 				.collect(Collectors.toList());
 	}
 
-	// TODO 초대키를 통해 챌린지에 참가하는 기능
+	@Transactional
+	public void participateByInvitationKey(String invitationKey, Long memberId) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, invitationKey);
+		challenge.participate(memberId);
+	}
 
 }

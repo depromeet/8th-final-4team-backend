@@ -1,6 +1,9 @@
 package com.month.service.challenge;
 
 import com.month.domain.challenge.*;
+import com.month.domain.member.Member;
+import com.month.domain.member.MemberCreator;
+import com.month.domain.member.MemberRepository;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
 import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
@@ -30,8 +33,12 @@ class ChallengeServiceTest extends MemberSetupTest {
 	@Autowired
 	private ChallengeMemberMapperRepository challengeMemberMapperRepository;
 
+	@Autowired
+	private MemberRepository memberRepository;
+
 	@AfterEach
 	void cleanUp() {
+		super.cleanup();
 		challengeMemberMapperRepository.deleteAllInBatch();
 		challengeRepository.deleteAllInBatch();
 	}
@@ -70,6 +77,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 	@Test
 	void 챌린지_생성시_초대한_친구들은_PENDING_상태가된다() {
+		// given
 		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
 				.name("운동하기")
 				.type(ChallengeType.EXERCISE)
@@ -197,6 +205,61 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 		// then
 		assertThat(challengeResponses).isEmpty();
+	}
+
+	@Test
+	void 초대_받은_멤버가_초대를_받으면_PENDING_에서_APPROVE_상태가_된다() {
+		// given
+		Member friend = memberRepository.save(MemberCreator.create("friend@gmail.com"));
+
+		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 1, 7, 0, 0));
+		challenge.addCreator(memberId);
+		challenge.addPendingParticipator(friend.getId());
+		challengeRepository.save(challenge);
+
+		String invitationKey = challenge.issueInvitationKey(memberId);
+
+		// when
+		challengeService.participateByInvitationKey(invitationKey, friend.getId());
+
+		// then
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertThat(challenges.get(0).getMembersCount()).isEqualTo(2);
+
+		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
+		assertThat(challengeMemberMappers).hasSize(2);
+		assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
+		assertThatChallengeMember(challengeMemberMappers.get(1), friend.getId(), ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.APPROVED);
+	}
+
+	@Test
+	void 초대륿_받지_않은_사용자가_초대장을_통해_챌린지에_참여하는경우() {
+		// given
+		Member friend = memberRepository.save(MemberCreator.create("friend@gmail.com"));
+
+		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 1, 7, 0, 0));
+		challenge.addCreator(memberId);
+		challengeRepository.save(challenge);
+
+		String invitationKey = challenge.issueInvitationKey(memberId);
+
+		// when
+		challengeService.participateByInvitationKey(invitationKey, friend.getId());
+
+		// then
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertThat(challenges.get(0).getMembersCount()).isEqualTo(2);
+
+		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
+		assertThat(challengeMemberMappers).hasSize(2);
+		assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
+		assertThatChallengeMember(challengeMemberMappers.get(1), friend.getId(), ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.APPROVED);
 	}
 
 }

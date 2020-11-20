@@ -120,7 +120,7 @@ public class Challenge extends BaseTimeEntity {
 	}
 
 	public void addPendingParticipator(Long memberId) {
-		this.challengeMemberMappers.add(ChallengeMemberMapper.pendingParticipator(this, memberId));
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.PENDING));
 	}
 
 	private void validateApprovedMember(Long memberId) {
@@ -152,6 +152,36 @@ public class Challenge extends BaseTimeEntity {
 	private void validateTodoChallenge() {
 		if (!isTodo()) {
 			throw new IllegalArgumentException(String.format("이미 시작한 챌린지 (%s) 에 대해서는 초대키를 반환할 수 없습니다", uuid));
+		}
+	}
+
+	public void participate(Long memberId) {
+		validateNotParticipatedMember(memberId);
+		if (isPendingMember(memberId)) {
+			ChallengeMemberMapper challengeMemberMapper = findMember(memberId);
+			challengeMemberMapper.approve();
+			this.membersCount++;
+			return;
+		}
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.APPROVED));
+		this.membersCount++;
+	}
+
+	private ChallengeMemberMapper findMember(Long memberId) {
+		return this.challengeMemberMappers.stream()
+				.filter(challengeMemberMapper -> challengeMemberMapper.isMember(memberId))
+				.findFirst()
+				.orElseThrow(() -> new IllegalArgumentException(String.format("해당 멤버 (%s) 를 찾을 수 없습니다.", memberId)));
+	}
+
+	private boolean isPendingMember(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isPendingMember(memberId));
+	}
+
+	private void validateNotParticipatedMember(Long memberId) {
+		if (isApprovedMemberInChallenge(memberId)) {
+			throw new IllegalArgumentException(String.format("이미 챌린지 (%s)에 참가한 멤버 (%s) 입니다", uuid, memberId));
 		}
 	}
 
