@@ -91,7 +91,7 @@ class MemberServiceTest {
 		Challenge challenge2 = ChallengeCreator.create("챌린지2",
 				LocalDateTime.of(2020, 10, 14, 0, 0),
 				LocalDateTime.of(2020, 11, 14, 0, 0));
-		challenge2.addParticipator(member.getId());
+		challenge2.addApprovedParticipator(member.getId());
 
 		challengeRepository.saveAll(Arrays.asList(challenge1, challenge2));
 
@@ -100,6 +100,31 @@ class MemberServiceTest {
 
 		// then
 		assertThat(response.getTotalChallengesCount()).isEqualTo(2);
+	}
+
+	@Test
+	void 내가_도전한_횟수에_아직_시작하지_않은_챌린지_와_초대를_수락하지_않은_챌린지는_포함되지_않는다() {
+		// given
+		Member member = MemberCreator.create("will.seungho@gmail.com");
+		memberRepository.save(member);
+
+		Challenge todoChallenge = ChallengeCreator.create("챌린지1",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 2, 1, 0, 0));
+		todoChallenge.addCreator(member.getId());
+
+		Challenge pendingChallenge = ChallengeCreator.create("챌린지2",
+				LocalDateTime.of(2020, 10, 14, 0, 0),
+				LocalDateTime.of(2020, 11, 14, 0, 0));
+		pendingChallenge.addPendingParticipator(member.getId());
+
+		challengeRepository.saveAll(Arrays.asList(todoChallenge, pendingChallenge));
+
+		// when
+		MemberDetailInfoResponse response = memberService.getMemberInfo(member.getId());
+
+		// then
+		assertThat(response.getTotalChallengesCount()).isEqualTo(0);
 	}
 
 	@Test

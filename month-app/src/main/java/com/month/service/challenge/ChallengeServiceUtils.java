@@ -1,28 +1,31 @@
 package com.month.service.challenge;
 
-import com.month.domain.challenge.ChallengePlan;
-import com.month.domain.challenge.ChallengePlanRepository;
+import com.month.domain.challenge.Challenge;
+import com.month.domain.challenge.ChallengeRepository;
 import com.month.exception.NotFoundException;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import static com.month.exception.type.ExceptionDescriptionType.CHALLENGE;
 import static com.month.exception.type.ExceptionDescriptionType.INVITATION_KEY;
 
-final class ChallengeServiceUtils {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+class ChallengeServiceUtils {
 
-	static ChallengePlan findActiveChallengePlanById(ChallengePlanRepository challengePlanRepository, Long id) {
-		ChallengePlan challengePlan = challengePlanRepository.findActiveChallengePlanById(id);
-		if (challengePlan == null) {
-			throw new NotFoundException(String.format("해당 하는 (%s) 챌린지는 존재하지 않습니다", id), CHALLENGE);
+	static Challenge findChallengeByUuid(ChallengeRepository challengeRepository, String uuid) {
+		Challenge challenge = challengeRepository.findChallengeByUuid(uuid);
+		if (challenge == null) {
+			throw new NotFoundException(String.format("해당하는 UUid (%s) 를 가진 챌린지는 없습니다", uuid), CHALLENGE);
 		}
-		return challengePlan;
+		return challenge;
 	}
 
-	static ChallengePlan findActiveChallengePlanByInvitationKey(ChallengePlanRepository challengePlanRepository, String invitationKey) {
-		ChallengePlan challengePlan = challengePlanRepository.findActiveChallengePlanByInvitationKey(invitationKey);
-		if (challengePlan == null) {
-			throw new NotFoundException(String.format("해당하는 초대장 (%s) 을 가진 챌린지는 없습니다 ", invitationKey), INVITATION_KEY);
+	static Challenge findChallengeByInvitationKey(ChallengeRepository challengeRepository, String invitationKey) {
+		Challenge challenge = challengeRepository.findChallengeByInvitationKey(invitationKey);
+		if (challenge == null) {
+			throw new NotFoundException(String.format("해당하는 초대장 (%s) 를 가진 챌린지는 없습니다", invitationKey), INVITATION_KEY);
 		}
-		return challengePlan;
+		return challenge;
 	}
 
 }
