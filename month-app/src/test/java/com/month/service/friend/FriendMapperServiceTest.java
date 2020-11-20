@@ -12,11 +12,11 @@ import com.month.domain.member.MemberRepository;
 import com.month.exception.ConflictException;
 import com.month.exception.NotAllowedException;
 import com.month.service.MemberSetupTest;
-import com.month.service.friend.dto.request.CreateFriendMapperRequest;
-import com.month.service.friend.dto.request.RetrieveFriendDetailRequest;
-import com.month.service.friend.dto.request.UpdateFriendFavoriteRequest;
-import com.month.service.friend.dto.response.FriendMemberDetailInfoResponse;
-import com.month.service.friend.dto.response.FriendMemberInfoResponse;
+import com.month.service.friend.dto.request.RegisterFriendRequest;
+import com.month.service.friend.dto.request.RetrieveFriendInfoRequest;
+import com.month.service.friend.dto.request.UpdateFavoriteRequest;
+import com.month.service.friend.dto.response.FriendInfoResponse;
+import com.month.service.friend.dto.response.FriendSimpleInfoResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -61,10 +61,10 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		String email = "friend@email.com";
 		Member friend = memberRepository.save(MemberCreator.create(email));
 
-		CreateFriendMapperRequest request = CreateFriendMapperRequest.testInstance(email);
+		RegisterFriendRequest request = RegisterFriendRequest.testInstance(email);
 
 		// when
-		friendMapperService.createFriend(request, memberId);
+		friendMapperService.registerFriend(request, memberId);
 
 		// then
 		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
@@ -86,11 +86,11 @@ class FriendMapperServiceTest extends MemberSetupTest {
 
 		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId()));
 
-		CreateFriendMapperRequest request = CreateFriendMapperRequest.testInstance(email);
+		RegisterFriendRequest request = RegisterFriendRequest.testInstance(email);
 
 		// when & then
 		assertThatThrownBy(() -> {
-			friendMapperService.createFriend(request, memberId);
+			friendMapperService.registerFriend(request, memberId);
 		}).isInstanceOf(ConflictException.class);
 	}
 
@@ -100,11 +100,11 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		String email = "member@email.com";
 		Member member = memberRepository.save(MemberCreator.create(email));
 
-		CreateFriendMapperRequest request = CreateFriendMapperRequest.testInstance(email);
+		RegisterFriendRequest request = RegisterFriendRequest.testInstance(email);
 
 		// when & then
 		assertThatThrownBy(() -> {
-			friendMapperService.createFriend(request, member.getId());
+			friendMapperService.registerFriend(request, member.getId());
 		}).isInstanceOf(NotAllowedException.class);
 	}
 
@@ -122,7 +122,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.NAME, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.NAME, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -156,7 +156,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.NAME_REVERSE, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.NAME_REVERSE, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -188,7 +188,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.CREATED, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.CREATED, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -209,7 +209,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.CREATED_REVERSE, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.CREATED_REVERSE, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -220,7 +220,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 	@Test
 	void 친구_추가_아무도_안되있을때_널이아닌_빈_리스트_반환한다() {
 		// when
-		List<FriendMemberInfoResponse> result = friendMapperService.retrieveMyFriendsInfo(FriendListSortType.CREATED_REVERSE, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.CREATED_REVERSE, memberId);
 
 		// then
 		assertThat(result).isEmpty();
@@ -235,13 +235,13 @@ class FriendMapperServiceTest extends MemberSetupTest {
 
 		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId()));
 
-		UpdateFriendFavoriteRequest request = UpdateFriendFavoriteRequest.testBuilder()
+		UpdateFavoriteRequest request = UpdateFavoriteRequest.testBuilder()
 				.friendMemberId(friend.getId())
 				.isFavorite(isFavorite)
 				.build();
 
 		// when
-		friendMapperService.updateFriendFavorite(request, memberId);
+		friendMapperService.updateFavorite(request, memberId);
 
 		// then
 		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
@@ -257,13 +257,13 @@ class FriendMapperServiceTest extends MemberSetupTest {
 
 		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
 
-		UpdateFriendFavoriteRequest request = UpdateFriendFavoriteRequest.testBuilder()
+		UpdateFavoriteRequest request = UpdateFavoriteRequest.testBuilder()
 				.friendMemberId(friend.getId())
 				.isFavorite(isFavorite)
 				.build();
 
 		// when
-		friendMapperService.updateFriendFavorite(request, memberId);
+		friendMapperService.updateFavorite(request, memberId);
 
 		// then
 		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
@@ -279,7 +279,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
 
 		// when
-		friendMapperService.deleteFriendMapper(friend.getId(), memberId);
+		friendMapperService.unRegisterFriend(friend.getId(), memberId);
 
 		// then
 		List<FriendMapper> friendMappers = friendMapperRepository.findAll();
@@ -293,7 +293,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 
 		// when & then
 		assertThatThrownBy(() -> {
-			friendMapperService.deleteFriendMapper(notFriend.getId(), memberId);
+			friendMapperService.unRegisterFriend(notFriend.getId(), memberId);
 		});
 	}
 
@@ -302,10 +302,10 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		Member friend = memberRepository.save(MemberCreator.create("friend@email.com", "친구", "프로필URL", "uuid"));
 		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
 
-		RetrieveFriendDetailRequest request = RetrieveFriendDetailRequest.testInstance(friend.getId());
+		RetrieveFriendInfoRequest request = RetrieveFriendInfoRequest.testInstance(friend.getId());
 
 		// when
-		FriendMemberDetailInfoResponse response = friendMapperService.retrieveFriendDetailInfo(request, memberId);
+		FriendInfoResponse response = friendMapperService.retrieveFriendInfo(request, memberId);
 
 		// then
 		assertThat(response.getId()).isEqualTo(friend.getId());
@@ -323,16 +323,37 @@ class FriendMapperServiceTest extends MemberSetupTest {
 				LocalDateTime.of(2020, 10, 1, 0, 0),
 				LocalDateTime.of(2020, 10, 8, 0, 0));
 		challenge.addCreator(memberId);
-		challenge.addParticipator(friend.getId());
+		challenge.addApprovedParticipator(friend.getId());
 		challengeRepository.save(challenge);
 
-		RetrieveFriendDetailRequest request = RetrieveFriendDetailRequest.testInstance(friend.getId());
+		RetrieveFriendInfoRequest request = RetrieveFriendInfoRequest.testInstance(friend.getId());
 
 		// when
-		FriendMemberDetailInfoResponse response = friendMapperService.retrieveFriendDetailInfo(request, memberId);
+		FriendInfoResponse response = friendMapperService.retrieveFriendInfo(request, memberId);
 
 		// then
 		assertThat(response.getTotalChallengesCountWithFriend()).isEqualTo(1);
+	}
+
+	@Test
+	void 친구의_상세정보_조회시_친구와_함께한_챌린지의_수에_초대를_수락하지_않은_경우는_포함되지_않는다() {
+		Member friend = memberRepository.save(MemberCreator.create("friend@email.com"));
+		friendMapperRepository.save(FriendMapperCreator.create(memberId, friend.getId(), true));
+
+		Challenge challenge = ChallengeCreator.create("친구와 함께한 챌린지",
+				LocalDateTime.of(2020, 10, 1, 0, 0),
+				LocalDateTime.of(2020, 10, 8, 0, 0));
+		challenge.addCreator(memberId);
+		challenge.addPendingParticipator(friend.getId());
+		challengeRepository.save(challenge);
+
+		RetrieveFriendInfoRequest request = RetrieveFriendInfoRequest.testInstance(friend.getId());
+
+		// when
+		FriendInfoResponse response = friendMapperService.retrieveFriendInfo(request, memberId);
+
+		// then
+		assertThat(response.getTotalChallengesCountWithFriend()).isEqualTo(0);
 	}
 
 }

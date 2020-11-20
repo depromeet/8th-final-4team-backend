@@ -3,24 +3,23 @@ package com.month.domain.challenge;
 import com.month.domain.BaseTimeEntity;
 import com.month.domain.common.DateTimeInterval;
 import com.month.domain.common.Uuid;
+import com.month.exception.ConflictException;
+import com.month.exception.NotAllowedException;
+import com.month.exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static com.month.exception.type.ExceptionDescriptionType.CHALLENGE;
+import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -36,17 +35,46 @@ public class Challenge extends BaseTimeEntity {
 
 	private String name;
 
-	private String description;
+	@Enumerated(EnumType.STRING)
+	private ChallengeType type;
 
-	private String color; // TODO enum vs #686868 프론트쪽과 협의 필요
+	private String color;
 
 	@Embedded
 	private DateTimeInterval dateTimeInterval;
 
 	private int membersCount;
 
+	@Embedded
+	private InvitationKey invitationKey;
+
 	@OneToMany(mappedBy = "challenge", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<ChallengeMemberMapper> challengeMemberMappers = new ArrayList<>();
+
+	@Builder
+	public Challenge(String name, ChallengeType type, String color, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		this.uuid = Uuid.newInstance();
+		this.name = name;
+		this.type = type;
+		this.color = color;
+		this.dateTimeInterval = DateTimeInterval.of(startDateTime, endDateTime);
+		this.membersCount = 0;
+		this.invitationKey = InvitationKey.newInstance();
+	}
+
+	public static Challenge newInstance(String name, ChallengeType type, String color, LocalDateTime startDateTime, LocalDateTime endDateTime) {
+		return Challenge.builder()
+				.name(name)
+				.type(type)
+				.color(color)
+				.startDateTime(startDateTime)
+				.endDateTime(endDateTime)
+				.build();
+	}
+
+	private String getInvitationKey() {
+		return this.invitationKey.getInvitationKey();
+	}
 
 	public String getUuid() {
 		return this.uuid.getUuid();
@@ -60,22 +88,6 @@ public class Challenge extends BaseTimeEntity {
 		return this.dateTimeInterval.getEndDateTime();
 	}
 
-	int calculateProgressDays() {
-		final LocalDateTime now = LocalDateTime.now();
-		// 이미 끝난 챌린지의 경우에는 startDateTime ~ endDateTime
-		if (isFinishChallenge(now)) {
-			Period period = Period.between(getStartDate(), getEndDate());
-			return period.getDays();
-		}
-		// 현재 진행중인 챌린지의 경우에는 startDateTime ~ now
-		Period period = Period.between(getStartDate(), now.toLocalDate());
-		return period.getDays();
-	}
-
-	boolean isFinishChallenge(LocalDateTime datetime) {
-		return this.getEndDateTime().isBefore(datetime);
-	}
-
 	private LocalDate getStartDate() {
 		return getStartDateTime().toLocalDate();
 	}
@@ -84,29 +96,25 @@ public class Challenge extends BaseTimeEntity {
 		return getEndDateTime().toLocalDate();
 	}
 
-	@Builder
-	public Challenge(String name, String description, String color, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-		this.uuid = Uuid.newInstance();
-		this.name = name;
-		this.description = description;
-		this.color = color;
-		this.dateTimeInterval = DateTimeInterval.of(startDateTime, endDateTime);
-		this.membersCount = 0;
+	int calculateProgressDays() {
+		final LocalDateTime now = LocalDateTime.now();
+		// 이미 끝난 챌린지의 경우에는 startDateTime ~ endDateTime
+		if (isDone()) {
+			Period period = Period.between(getStartDate(), getEndDate());
+			return period.getDays();
+		}
+		if (isTodo()) {
+			return 0;
+		}
+		// 현재 진행중인 챌린지의 경우에는 startDateTime ~ now
+		Period period = Period.between(getStartDate(), now.toLocalDate());
+		return period.getDays();
 	}
 
-	static Challenge newInstance(String name, String description, String color, LocalDateTime startDateTime, LocalDateTime endDateTime) {
-		return Challenge.builder()
-				.name(name)
-				.description(description)
-				.color(color)
-				.startDateTime(startDateTime)
-				.endDateTime(endDateTime)
-				.build();
-	}
-
-	void addMembers(List<ChallengeMemberMapper> collect) {
-		this.challengeMemberMappers.addAll(collect);
-		this.membersCount += collect.size();
+	public String issueInvitationKey(Long memberId) {
+		validateApprovedMember(memberId);
+		validateTodoChallenge();
+		return getInvitationKey();
 	}
 
 	public void addCreator(Long memberId) {
@@ -114,29 +122,81 @@ public class Challenge extends BaseTimeEntity {
 		this.membersCount++;
 	}
 
-	public void addParticipator(Long memberId) {
-		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId));
+	public void addApprovedParticipator(Long memberId) {
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.APPROVED));
+	}
+
+	public void addPendingParticipators(List<Long> memberIds) {
+		for (Long memberId : memberIds) {
+			addPendingParticipator(memberId);
+		}
+	}
+
+	public void addPendingParticipator(Long memberId) {
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.PENDING));
+	}
+
+	private void validateApprovedMember(Long memberId) {
+		if (!isApprovedMemberInChallenge(memberId)) {
+			throw new NotFoundException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, uuid), MEMBER_IN_CHALLENGE);
+		}
+	}
+
+	public boolean isApprovedMemberInChallenge(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isApprovedMember(memberId));
+	}
+
+	boolean isDone() {
+		final LocalDateTime now = LocalDateTime.now();
+		return this.getEndDateTime().isBefore(now);
+	}
+
+	boolean isDoing() {
+		final LocalDateTime now = LocalDateTime.now();
+		return getEndDateTime().isAfter(now) && getStartDateTime().isBefore(now);
+	}
+
+	boolean isTodo() {
+		final LocalDateTime now = LocalDateTime.now();
+		return getStartDateTime().isAfter(now);
+	}
+
+	private void validateTodoChallenge() {
+		if (!isTodo()) {
+			throw new NotAllowedException(String.format("이미 시작한 챌린지 (%s) 입니다", uuid), CHALLENGE);
+		}
+	}
+
+	public void participate(Long memberId) {
+		validateTodoChallenge();
+		validateNotParticipatedMember(memberId);
+		if (isPendingMember(memberId)) {
+			ChallengeMemberMapper challengeMemberMapper = findMember(memberId);
+			challengeMemberMapper.approve();
+			this.membersCount++;
+			return;
+		}
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.APPROVED));
 		this.membersCount++;
 	}
 
-	private boolean isCreator(Long memberId) {
-		return challengeMemberMappers.stream()
-				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isCreator(memberId));
-	}
-
-	private boolean isParticipator(Long memberId) {
-		return challengeMemberMappers.stream()
-				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isParticipator(memberId));
-	}
-
-	public boolean isMemberInChallenge(Long memberId) {
-		return isCreator(memberId) || isParticipator(memberId);
-	}
-
-	public List<Long> getMemberIds() {
+	private ChallengeMemberMapper findMember(Long memberId) {
 		return this.challengeMemberMappers.stream()
-				.map(ChallengeMemberMapper::getMemberId)
-				.collect(Collectors.toList());
+				.filter(challengeMemberMapper -> challengeMemberMapper.isMember(memberId))
+				.findFirst()
+				.orElseThrow(() -> new NotFoundException(String.format("해당 멤버 (%s) 를 찾을 수 없습니다.", memberId), MEMBER_IN_CHALLENGE));
+	}
+
+	private boolean isPendingMember(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isPendingMember(memberId));
+	}
+
+	private void validateNotParticipatedMember(Long memberId) {
+		if (isApprovedMemberInChallenge(memberId)) {
+			throw new ConflictException(String.format("이미 챌린지 (%s)에 참가한 멤버 (%s) 입니다", uuid, memberId), MEMBER_IN_CHALLENGE);
+		}
 	}
 
 }

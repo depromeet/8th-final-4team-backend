@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
-public class UpdateFriendFavoriteRequest {
+public class UpdateFavoriteRequest {
 
 	@NotNull
 	private Long friendMemberId;
@@ -17,7 +17,7 @@ public class UpdateFriendFavoriteRequest {
 	private Boolean isFavorite;
 
 	@Builder(builderClassName = "TestBuilder", builderMethodName = "testBuilder")
-	public UpdateFriendFavoriteRequest(Long friendMemberId, Boolean isFavorite) {
+	public UpdateFavoriteRequest(Long friendMemberId, Boolean isFavorite) {
 		this.friendMemberId = friendMemberId;
 		this.isFavorite = isFavorite;
 	}

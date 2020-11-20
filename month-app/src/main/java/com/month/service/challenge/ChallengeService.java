@@ -1,12 +1,14 @@
 package com.month.service.challenge;
 
 import com.month.domain.challenge.Challenge;
-import com.month.domain.challenge.ChallengePlan;
-import com.month.domain.challenge.ChallengePlanRepository;
 import com.month.domain.challenge.ChallengeRepository;
-import com.month.domain.member.MemberRepository;
-import com.month.service.challenge.dto.request.StartChallengeRequest;
-import com.month.service.challenge.dto.response.ChallengeInfoResponse;
+import com.month.domain.challenge.ChallengeRetrieveCollection;
+import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
+import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
+import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
+import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
+import com.month.service.challenge.dto.response.ChallengeResponse;
+import com.month.service.challenge.dto.response.MyChallengesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,33 +20,47 @@ import java.util.stream.Collectors;
 @Service
 public class ChallengeService {
 
-	private final ChallengePlanRepository challengePlanRepository;
 	private final ChallengeRepository challengeRepository;
-	private final MemberRepository memberRepository;
 
 	@Transactional
-	public void autoStartChallenge(Long challengePlanId) {
-		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, challengePlanId);
-		challengePlan.inactiveChallengePlan();
-		challengeRepository.save(challengePlan.convertToChallenge());
-	}
-
-	@Transactional
-	public ChallengeInfoResponse startChallenge(StartChallengeRequest request, Long memberId) {
-		ChallengePlan challengePlan = ChallengeServiceUtils.findActiveChallengePlanById(challengePlanRepository, request.getChallengePlanId());
-		challengePlan.validateCreator(memberId);
-		challengePlan.inactiveChallengePlan();
-		Challenge newChallenge = challengeRepository.save(challengePlan.convertToChallenge());
-		// 챌린지를 시작하면, 챌린지 계획을 비활성화 시키고, 챌린지 계획 정보를 토대로 진짜 챌린지를 생성한다.
-		return ChallengeInfoResponse.of(newChallenge, memberRepository.findAllById(newChallenge.getMemberIds()));
+	public ChallengeResponse createNewChallenge(CreateNewChallengeRequest request, Long memberId) {
+		Challenge challenge = request.toEntity();
+		challenge.addCreator(memberId);
+		challenge.addPendingParticipators(request.getFriendIds());
+		return ChallengeResponse.of(challengeRepository.save(challenge));
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChallengeInfoResponse> retrieveMyChallengeList(Long memberId) {
-		List<Challenge> challenges = challengeRepository.findActiveChallengesByMemberId(memberId);
+	public MyChallengesResponse retrieveMyChallenges(Long memberId) {
+		List<Challenge> challengeList = challengeRepository.findChallengesByMemberId(memberId);
+		ChallengeRetrieveCollection collection = ChallengeRetrieveCollection.of(challengeList);
+		return MyChallengesResponse.of(collection.getDoneChallenges(), collection.getDoingChallenges(), collection.getTodoChallengs());
+	}
+
+	@Transactional(readOnly = true)
+	public String getInvitationKey(GetInvitationKeyRequest request, Long memberId) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByUuid(challengeRepository, request.getChallengeUuid());
+		return challenge.issueInvitationKey(memberId);
+	}
+
+	@Transactional(readOnly = true)
+	public ChallengeResponse getChallengeInfoByInvitationKey(GetChallengeInfoByInvitationKeyRequest request) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, request.getInvitationKey());
+		return ChallengeResponse.of(challenge);
+	}
+
+	@Transactional(readOnly = true)
+	public List<ChallengeResponse> retrieveInvitedChallengeList(Long memberId) {
+		List<Challenge> challenges = challengeRepository.findPendingChallengeByMemberId(memberId);
 		return challenges.stream()
-				.map(challenge -> ChallengeInfoResponse.of(challenge, memberRepository.findAllById(challenge.getMemberIds())))
+				.map(ChallengeResponse::of)
 				.collect(Collectors.toList());
+	}
+
+	@Transactional
+	public void participateByInvitationKey(ParticipateChallengeRequest request, Long memberId) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, request.getInvitationKey());
+		challenge.participate(memberId);
 	}
 
 }

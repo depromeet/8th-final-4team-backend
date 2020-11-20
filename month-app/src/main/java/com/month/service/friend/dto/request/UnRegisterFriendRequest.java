@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor
-public class DeleteFriendMapperRequest {
+public class UnRegisterFriendRequest {
 
 	@NotNull
 	private Long friendMemberId;
