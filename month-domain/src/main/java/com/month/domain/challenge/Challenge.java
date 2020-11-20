@@ -103,6 +103,9 @@ public class Challenge extends BaseTimeEntity {
 			Period period = Period.between(getStartDate(), getEndDate());
 			return period.getDays();
 		}
+		if (isTodo()) {
+			return 0;
+		}
 		// 현재 진행중인 챌린지의 경우에는 startDateTime ~ now
 		Period period = Period.between(getStartDate(), now.toLocalDate());
 		return period.getDays();
