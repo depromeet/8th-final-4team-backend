@@ -119,6 +119,10 @@ public class Challenge extends BaseTimeEntity {
 		this.membersCount++;
 	}
 
+	public void addApprovedParticipator(Long memberId) {
+		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.APPROVED));
+	}
+
 	public void addPendingParticipators(List<Long> memberIds) {
 		for (Long memberId : memberIds) {
 			addPendingParticipator(memberId);

@@ -8,7 +8,9 @@ public interface ChallengeRepositoryCustom {
 
 	List<Challenge> findChallengesByMemberId(Long memberId);
 
-	List<Challenge> findNoFetchChallengesByMemberId(Long memberId);
+	List<Challenge> findStartedChallengesByMemberId(Long memberId);
+
+	List<Challenge> findNoFetchStartedChallengesByMemberId(Long memberId);
 
 	Challenge findChallengeByUuid(String uuid);
 
