@@ -2,6 +2,7 @@ package com.month.service.challenge.dto.request;
 
 import com.month.domain.challenge.Challenge;
 import com.month.domain.challenge.ChallengeType;
+import com.month.utils.LocalDateTimeUtils;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,6 @@ import lombok.NoArgsConstructor;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -46,8 +46,9 @@ public class CreateNewChallengeRequest {
 
 	public Challenge toEntity() {
 		// TODO 이미 지난 날짜로 설정하지는 않았는지 검증하는 로직 필요.
-		return Challenge.newInstance(name, type, color, startDate.atTime(LocalTime.MIN), endDate.atTime(11, 59, 59));
-		// LocalDatTimeUtils 만들어서 MIN, MAX 고정시키기
+		return Challenge.newInstance(name, type, color,
+				LocalDateTimeUtils.convertToMinOfLocalDateTime(startDate),
+				LocalDateTimeUtils.convertToMaxOfLocalDateTime(endDate));
 	}
 
 }

@@ -83,7 +83,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		assertThat(challenge.getName()).isEqualTo(name);
 		assertThat(challenge.getColor()).isEqualTo(color);
 		assertThat(challenge.getStartDateTime()).isEqualTo(LocalDateTime.of(2020, 1, 1, 0, 0, 0));
-		assertThat(challenge.getEndDateTime()).isEqualTo(LocalDateTime.of(2030, 1, 1, 11, 59, 59));
+		assertThat(challenge.getEndDateTime()).isEqualTo(LocalDateTime.of(2030, 1, 1, 23, 59, 59));
 	}
 
 	@Test
