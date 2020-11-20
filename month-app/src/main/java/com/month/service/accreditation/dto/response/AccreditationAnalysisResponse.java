@@ -33,15 +33,15 @@ public class AccreditationAnalysisResponse {
 
     private int personalContinuityPeriod;
 
-    public static AccreditationAnalysisResponse of(Challenge challenge, List<Participant> participants, Participant firstMember, Participant my, int totalPeriod, int continuityDay) {
+    public static AccreditationAnalysisResponse of(Challenge challenge, List<Participant> participantList, Participant my, int totalPeriod, int continuityDay) {
         AccreditationAnalysisResponse accreditationAnalysisResponse = new AccreditationAnalysisResponse();
         accreditationAnalysisResponse.challengeName = challenge.getName();
         accreditationAnalysisResponse.challengeDescription = challenge.getDescription();
         accreditationAnalysisResponse.challengeStartDateTime = challenge.getStartDateTime();
         accreditationAnalysisResponse.challengeEndDateTime = challenge.getEndDateTime();
-        accreditationAnalysisResponse.participants = participants;
-        accreditationAnalysisResponse.firstMemberName = firstMember.getName();
-        accreditationAnalysisResponse.firstMemberDifferenceDay = firstMember.getAchievePeriod() - my.getAchievePeriod();
+        accreditationAnalysisResponse.participants = participantList;
+        accreditationAnalysisResponse.firstMemberName = participantList.get(0).getName();
+        accreditationAnalysisResponse.firstMemberDifferenceDay = participantList.get(0).getAchievePeriod() - my.getAchievePeriod();
         accreditationAnalysisResponse.personalAchievePercent = 100 * my.getAchievePeriod() / totalPeriod;
         accreditationAnalysisResponse.personalAchievePeriod = my.getAchievePeriod();
         accreditationAnalysisResponse.personalTotalPeriod = totalPeriod;

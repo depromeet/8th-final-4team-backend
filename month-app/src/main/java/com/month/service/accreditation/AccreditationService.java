@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -65,12 +66,11 @@ public class AccreditationService {
 
         List<Participant> participantList = challenge.getMemberIds().stream()
                 .map(members -> Participant.of(MemberServiceUtils.findMemberById(memberRepository, members), totalPeriod, accreditationRepository.findAllByChallengeUuidAndMemberId(challengeUuid, members).size()))
+                .sorted(Comparator.comparing(Participant::getAchievePeriod).reversed())
                 .collect(Collectors.toList());
 
-        Participant firstParticipant = Participant.maxParticipant(participantList);
         Participant MyParticipant = Participant.of(MemberServiceUtils.findMemberById(memberRepository, memberId), totalPeriod, accreditationRepository.findAllByChallengeUuidAndMemberId(challengeUuid, memberId).size());
-
-        return AccreditationAnalysisResponse.of(challenge, participantList, firstParticipant, MyParticipant, totalPeriod.intValue(), continuityDay(memberId, challengeUuid));
+        return AccreditationAnalysisResponse.of(challenge, participantList, MyParticipant, totalPeriod.intValue(), continuityDay(memberId, challengeUuid));
     }
 
     private int continuityDay(Long memberId, String challengeUuid) {
