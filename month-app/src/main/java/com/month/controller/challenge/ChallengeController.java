@@ -3,11 +3,9 @@ package com.month.controller.challenge;
 import com.month.config.resolver.LoginMember;
 import com.month.controller.ApiResponse;
 import com.month.service.challenge.ChallengeService;
-import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
-import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
-import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
-import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
+import com.month.service.challenge.dto.request.*;
 import com.month.service.challenge.dto.response.ChallengeResponse;
+import com.month.service.challenge.dto.response.InvitedChallengeListResponse;
 import com.month.service.challenge.dto.response.MyChallengesResponse;
 import com.month.type.session.MemberSession;
 import io.swagger.annotations.ApiImplicitParam;
@@ -46,7 +44,7 @@ public class ChallengeController {
 	}
 
 	@ApiOperation("초대키로 챌린지의 정보를 조회하는 API")
-	@GetMapping("/api/v1/challenge/invite")
+	@GetMapping("/api/v1/challenge/invite/info")
 	public ApiResponse<ChallengeResponse> getChallengeInfoByInvitationKey(@Valid GetChallengeInfoByInvitationKeyRequest request) {
 		return ApiResponse.of(challengeService.getChallengeInfoByInvitationKey(request));
 	}
@@ -54,15 +52,23 @@ public class ChallengeController {
 	@ApiOperation("내가 초대받은 챌린지의 리스트를 조회하는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
 	@GetMapping("/api/v1/challenge/invite/list")
-	public ApiResponse<List<ChallengeResponse>> retrieveInvitedChallengeList(@LoginMember MemberSession memberSession) {
+	public ApiResponse<List<InvitedChallengeListResponse>> retrieveInvitedChallengeList(@LoginMember MemberSession memberSession) {
 		return ApiResponse.of(challengeService.retrieveInvitedChallengeList(memberSession.getMemberId()));
 	}
 
 	@ApiOperation("초대키로 챌린지에 참가하는 API")
 	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
-	@PutMapping("/api/v1/challenge/invite")
+	@PutMapping("/api/v1/challenge/invite/approve")
 	public ApiResponse<String> participateByInvitationKey(@Valid @RequestBody ParticipateChallengeRequest request, @LoginMember MemberSession memberSession) {
 		challengeService.participateByInvitationKey(request, memberSession.getMemberId());
+		return ApiResponse.OK;
+	}
+
+	@ApiOperation("챌린지의 참가를 거절하는 API")
+	@ApiImplicitParam(name = "Authorization", value = "Bearer Token", required = true, paramType = "header")
+	@PutMapping("/api/v1/challenge/invite/reject")
+	public ApiResponse<String> rejectParticipate(@Valid @RequestBody RejectInviteChallengeRequest request, @LoginMember MemberSession memberSession) {
+		challengeService.rejectInvitation(request, memberSession.getMemberId());
 		return ApiResponse.OK;
 	}
 

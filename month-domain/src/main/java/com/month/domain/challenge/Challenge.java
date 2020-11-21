@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.month.exception.type.ExceptionDescriptionType.CHALLENGE;
-import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
+import static com.month.exception.type.ExceptionDescriptionType.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -120,9 +119,16 @@ public class Challenge extends BaseTimeEntity {
 	}
 
 	public String issueInvitationKey(Long memberId) {
-		validateParticipatingMember(memberId);
+		if (!isMember(memberId)) {
+			throw new NotAllowedException(String.format("회원 (%s) 는 챌린지 (%s) 초대장을 받은 적이 없습니다", memberId, uuid), MEMBER);
+		}
 		validateTodoChallenge();
 		return getInvitationKey();
+	}
+
+	private boolean isMember(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isMember(memberId));
 	}
 
 	public void addCreator(Long memberId) {
@@ -142,12 +148,6 @@ public class Challenge extends BaseTimeEntity {
 
 	public void addPendingParticipator(Long memberId) {
 		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.PENDING));
-	}
-
-	private void validateParticipatingMember(Long memberId) {
-		if (!isParticipatingMember(memberId)) {
-			throw new NotFoundException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, uuid), MEMBER_IN_CHALLENGE);
-		}
 	}
 
 	public boolean isParticipatingMember(Long memberId) {
@@ -203,6 +203,11 @@ public class Challenge extends BaseTimeEntity {
 	private boolean isInvitedMember(Long memberId) {
 		return this.challengeMemberMappers.stream()
 				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isInvitedMember(memberId));
+	}
+
+	public void rejectParticipate(Long memberId) {
+		ChallengeMemberMapper challengeMemberMapper = findMemberInChallenge(memberId);
+		challengeMemberMapper.reject();
 	}
 
 }
