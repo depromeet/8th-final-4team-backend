@@ -34,7 +34,7 @@ public class AuthService {
 		Member findMember = memberRepository.findMemberByUid(firebaseToken.getUid());
 		if (findMember == null) {
 			// 1. 해당 회원 정보가 없는 경우, 회원가입 진행을 위한 토큰 및 유저 정보 반환한다.
-			String signUpToken = jwtTokenProvider.createSignUpToken(request.getIdToken(), firebaseToken.getEmail());
+			String signUpToken = jwtTokenProvider.encodeSignUpToken(request.getIdToken(), firebaseToken.getEmail());
 			return AuthResponse.signUp(signUpToken, firebaseToken.getName(), firebaseToken.getPhotoUrl());
 		}
 		// 2. 회원 정보가 있을 경우, 로그인을 진행한다.

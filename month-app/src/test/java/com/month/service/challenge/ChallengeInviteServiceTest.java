@@ -7,26 +7,22 @@ import com.month.domain.member.MemberRepository;
 import com.month.exception.NotAllowedException;
 import com.month.exception.NotFoundException;
 import com.month.service.MemberSetupTest;
-import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
-import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
-import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
-import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
+import com.month.service.challenge.dto.request.*;
 import com.month.service.challenge.dto.response.ChallengeResponse;
+import com.month.service.challenge.dto.response.InvitedChallengeListResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
-class ChallengeServiceTest extends MemberSetupTest {
+class ChallengeInviteServiceTest extends MemberSetupTest {
 
 	@Autowired
 	private ChallengeService challengeService;
@@ -55,76 +51,30 @@ class ChallengeServiceTest extends MemberSetupTest {
 	}
 
 	@Test
-	void 새로운_챌린지를_생성한다() {
-		// given
-		String name = "운동하기";
-		ChallengeType type = ChallengeType.EXERCISE;
-		String color = "#000000";
-		LocalDate startDate = LocalDate.of(2020, 1, 1);
-		LocalDate endDate = LocalDate.of(2030, 1, 1);
-
-		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
-				.name(name)
-				.type(type)
-				.color(color)
-				.startDate(startDate)
-				.endDate(endDate)
-				.friendIds(Collections.emptyList())
-				.build();
-
-		// when
-		challengeService.createNewChallenge(request, memberId);
-
-		// then
-		List<Challenge> challenges = challengeRepository.findAll();
-		assertThat(challenges).hasSize(1);
-
-		Challenge challenge = challenges.get(0);
-		assertThat(challenge.getName()).isEqualTo(name);
-		assertThat(challenge.getColor()).isEqualTo(color);
-		assertThat(challenge.getStartDateTime()).isEqualTo(LocalDateTime.of(2020, 1, 1, 0, 0, 0));
-		assertThat(challenge.getEndDateTime()).isEqualTo(LocalDateTime.of(2030, 1, 1, 23, 59, 59));
-	}
-
-	@Test
-	void 챌린지_생성시_초대한_친구들은_PENDING_상태가된다() {
-		// given
-		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
-				.name("운동하기")
-				.type(ChallengeType.EXERCISE)
-				.color("#000000")
-				.startDate(LocalDate.of(2020, 1, 1))
-				.endDate(LocalDate.of(2030, 1, 1))
-				.friendIds(Collections.singletonList(10L))
-				.build();
-
-		// when
-		challengeService.createNewChallenge(request, memberId);
-
-		// then
-		List<Challenge> challenges = challengeRepository.findAll();
-		assertThat(challenges).hasSize(1);
-		assertThat(challenges.get(0).getMembersCount()).isEqualTo(1);
-
-		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
-		assertThat(challengeMemberMappers).hasSize(2);
-		assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
-		assertThatChallengeMember(challengeMemberMappers.get(1), 10L, ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.PENDING);
-	}
-
-	private void assertThatChallengeMember(ChallengeMemberMapper challengeMemberMapper, Long memberId, ChallengeRole role, ChallengeMemberStatus status) {
-		assertThat(challengeMemberMapper.getMemberId()).isEqualTo(memberId);
-		assertThat(challengeMemberMapper.getRole()).isEqualTo(role);
-		assertThat(challengeMemberMapper.getStatus()).isEqualTo(status);
-	}
-
-	@Test
 	void 친구를_초대하기_위해_챌린지의_초대키를_발급받는다() {
 		// given
 		Challenge challenge = ChallengeCreator.create("챌린지",
 				LocalDateTime.of(2030, 1, 1, 0, 0),
 				LocalDateTime.of(2030, 1, 7, 0, 0));
 		challenge.addCreator(memberId);
+		challengeRepository.save(challenge);
+
+		GetInvitationKeyRequest request = GetInvitationKeyRequest.testInstance(challenge.getUuid());
+
+		// when
+		String invitationKey = challengeService.getInvitationKey(request, memberId);
+
+		// then
+		assertThat(invitationKey).isNotEmpty();
+	}
+
+	@Test
+	void 초대를_받은_사용자도_초대키를_발급받을_수_있다() {
+		// given
+		Challenge challenge = ChallengeCreator.create("챌린지",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 1, 7, 0, 0));
+		challenge.addPendingParticipator(memberId);
 		challengeRepository.save(challenge);
 
 		GetInvitationKeyRequest request = GetInvitationKeyRequest.testInstance(challenge.getUuid());
@@ -157,6 +107,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		// given
 		LocalDateTime startDateTime = LocalDateTime.of(2020, 2, 1, 0, 1);
 		LocalDateTime endDateTime = LocalDateTime.of(2030, 1, 1, 0, 0);
+
 		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000", startDateTime, endDateTime);
 		challenge.addCreator(memberId);
 		challengeRepository.save(challenge);
@@ -210,10 +161,11 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeRepository.save(challenge);
 
 		// when
-		List<ChallengeResponse> challengeResponses = challengeService.retrieveInvitedChallengeList(memberId);
+		List<InvitedChallengeListResponse> challengeResponses = challengeService.retrieveInvitedChallengeList(memberId);
 
 		// then
 		assertThat(challengeResponses).hasSize(1);
+		assertThat(challengeResponses.get(0).getInvitationKey()).isEqualTo(challenge.issueInvitationKey(memberId));
 		assertThat(challengeResponses.get(0).getUuid()).isEqualTo(challenge.getUuid());
 	}
 
@@ -227,7 +179,7 @@ class ChallengeServiceTest extends MemberSetupTest {
 		challengeRepository.save(challenge);
 
 		// when
-		List<ChallengeResponse> challengeResponses = challengeService.retrieveInvitedChallengeList(memberId);
+		List<InvitedChallengeListResponse> challengeResponses = challengeService.retrieveInvitedChallengeList(memberId);
 
 		// then
 		assertThat(challengeResponses).isEmpty();
@@ -239,24 +191,22 @@ class ChallengeServiceTest extends MemberSetupTest {
 		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
 				LocalDateTime.of(2030, 1, 1, 0, 0),
 				LocalDateTime.of(2030, 1, 7, 0, 0));
-		challenge.addCreator(memberId);
-		challenge.addPendingParticipator(friend.getId());
+		challenge.addPendingParticipator(memberId);
 		challengeRepository.save(challenge);
 
 		ParticipateChallengeRequest request = ParticipateChallengeRequest.testInstance(challenge.issueInvitationKey(memberId));
 
 		// when
-		challengeService.participateByInvitationKey(request, friend.getId());
+		challengeService.participateByInvitationKey(request, memberId);
 
 		// then
 		List<Challenge> challenges = challengeRepository.findAll();
 		assertThat(challenges).hasSize(1);
-		assertThat(challenges.get(0).getMembersCount()).isEqualTo(2);
+		assertThat(challenges.get(0).getMembersCount()).isEqualTo(1);
 
 		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
-		assertThat(challengeMemberMappers).hasSize(2);
-		assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
-		assertThatChallengeMember(challengeMemberMappers.get(1), friend.getId(), ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.APPROVED);
+		assertThat(challengeMemberMappers).hasSize(1);
+		ChallengeServiceTestUtils.assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.APPROVED);
 	}
 
 	@Test
@@ -280,8 +230,32 @@ class ChallengeServiceTest extends MemberSetupTest {
 
 		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
 		assertThat(challengeMemberMappers).hasSize(2);
-		assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
-		assertThatChallengeMember(challengeMemberMappers.get(1), friend.getId(), ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.APPROVED);
+		ChallengeServiceTestUtils.assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.CREATOR, ChallengeMemberStatus.APPROVED);
+		ChallengeServiceTestUtils.assertThatChallengeMember(challengeMemberMappers.get(1), friend.getId(), ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.APPROVED);
+	}
+
+	@Test
+	void 초대_받은_사용자가_초대를_거절하면_PENDING_에서_REJECT_상태가된다() {
+		// given
+		Challenge challenge = ChallengeCreator.create("운동하기", ChallengeType.EXERCISE, "#000000",
+				LocalDateTime.of(2030, 1, 1, 0, 0),
+				LocalDateTime.of(2030, 1, 7, 0, 0));
+		challenge.addPendingParticipator(memberId);
+		challengeRepository.save(challenge);
+
+		RejectInviteChallengeRequest request = RejectInviteChallengeRequest.testInstance(challenge.issueInvitationKey(memberId));
+
+		// when
+		challengeService.rejectInvitation(request, memberId);
+
+		// then
+		List<Challenge> challenges = challengeRepository.findAll();
+		assertThat(challenges).hasSize(1);
+		assertThat(challenges.get(0).getMembersCount()).isEqualTo(0);
+
+		List<ChallengeMemberMapper> challengeMemberMappers = challengeMemberMapperRepository.findAll();
+		assertThat(challengeMemberMappers).hasSize(1);
+		ChallengeServiceTestUtils.assertThatChallengeMember(challengeMemberMappers.get(0), memberId, ChallengeRole.PARTICIPATOR, ChallengeMemberStatus.REJECT);
 	}
 
 }

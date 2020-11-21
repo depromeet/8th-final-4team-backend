@@ -35,7 +35,7 @@ public class FriendMapperService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<FriendSimpleInfoResponse> retrieveMyFriendsList(FriendListSortType sortBy, Long memberId) {
+	public List<FriendSimpleInfoResponse> retrieveMyFriendsList(FriendsSortBy sortBy, Long memberId) {
 		FriendMapperCollection collection = FriendMapperCollection.of(friendMapperRepository.findAllByMemberId(memberId));
 		List<Member> friends = memberRepository.findAllById(collection.getFriendsIds());
 		return friends.stream()

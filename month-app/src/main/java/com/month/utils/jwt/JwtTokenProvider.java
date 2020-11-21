@@ -4,7 +4,7 @@ import com.month.utils.jwt.dto.SignUpToken;
 
 public interface JwtTokenProvider {
 
-	String createSignUpToken(String idToken, String email);
+	String encodeSignUpToken(String idToken, String email);
 
 	SignUpToken decodeSignUpToken(String token);
 

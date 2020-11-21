@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.month.exception.type.ExceptionDescriptionType.CHALLENGE;
-import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
+import static com.month.exception.type.ExceptionDescriptionType.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -106,11 +105,12 @@ public class Challenge extends BaseTimeEntity {
 	int calculateProgressDays() {
 		final LocalDateTime now = LocalDateTime.now();
 		// 이미 끝난 챌린지의 경우에는 startDateTime ~ endDateTime
-		if (isDone()) {
+		if (isDone(now)) {
 			Period period = Period.between(getStartDate(), getEndDate());
 			return period.getDays();
 		}
-		if (isTodo()) {
+		// 아직 시작 하지 않은 챌린지의 경우 0
+		if (isTodo(now)) {
 			return 0;
 		}
 		// 현재 진행중인 챌린지의 경우에는 startDateTime ~ now
@@ -119,9 +119,16 @@ public class Challenge extends BaseTimeEntity {
 	}
 
 	public String issueInvitationKey(Long memberId) {
-		validateApprovedMember(memberId);
+		if (!isMember(memberId)) {
+			throw new NotAllowedException(String.format("회원 (%s) 는 챌린지 (%s) 초대장을 받은 적이 없습니다", memberId, uuid), MEMBER);
+		}
 		validateTodoChallenge();
 		return getInvitationKey();
+	}
+
+	private boolean isMember(Long memberId) {
+		return challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isMember(memberId));
 	}
 
 	public void addCreator(Long memberId) {
@@ -143,67 +150,64 @@ public class Challenge extends BaseTimeEntity {
 		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.PENDING));
 	}
 
-	private void validateApprovedMember(Long memberId) {
-		if (!isApprovedMemberInChallenge(memberId)) {
-			throw new NotFoundException(String.format("회원 (%s) 는 챌린지 (%s) 에 참가 하고 있지 않습니다", memberId, uuid), MEMBER_IN_CHALLENGE);
-		}
-	}
-
-	public boolean isApprovedMemberInChallenge(Long memberId) {
+	public boolean isParticipatingMember(Long memberId) {
 		return challengeMemberMappers.stream()
-				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isApprovedMember(memberId));
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isParticipating(memberId));
 	}
 
-	boolean isDone() {
-		final LocalDateTime now = LocalDateTime.now();
-		return this.getEndDateTime().isBefore(now);
+	boolean isDone(LocalDateTime localDateTime) {
+		return this.getEndDateTime().isBefore(localDateTime);
 	}
 
-	boolean isDoing() {
-		final LocalDateTime now = LocalDateTime.now();
-		return getEndDateTime().isAfter(now) && getStartDateTime().isBefore(now);
+	boolean isDoing(LocalDateTime localDateTime) {
+		return getEndDateTime().isAfter(localDateTime) && getStartDateTime().isBefore(localDateTime);
 	}
 
-	boolean isTodo() {
-		final LocalDateTime now = LocalDateTime.now();
-		return getStartDateTime().isAfter(now);
+	boolean isTodo(LocalDateTime localDateTime) {
+		return getStartDateTime().isAfter(localDateTime);
 	}
 
 	private void validateTodoChallenge() {
-		if (!isTodo()) {
+		final LocalDateTime now = LocalDateTime.now();
+		if (!isTodo(now)) {
 			throw new NotAllowedException(String.format("이미 시작한 챌린지 (%s) 입니다", uuid), CHALLENGE);
 		}
 	}
 
 	public void participate(Long memberId) {
 		validateTodoChallenge();
-		validateNotParticipatedMember(memberId);
-		if (isPendingMember(memberId)) {
-			ChallengeMemberMapper challengeMemberMapper = findMember(memberId);
-			challengeMemberMapper.approve();
-			this.membersCount++;
+		if (isParticipatingMember(memberId)) {
+			throw new ConflictException(String.format("이미 챌린지 (%s)에 참가한 멤버 (%s) 입니다", uuid, memberId), MEMBER_IN_CHALLENGE);
+		}
+		if (isInvitedMember(memberId)) {
+			approveTheInvitation(memberId);
 			return;
 		}
 		this.challengeMemberMappers.add(ChallengeMemberMapper.participator(this, memberId, ChallengeMemberStatus.APPROVED));
 		this.membersCount++;
 	}
 
-	private ChallengeMemberMapper findMember(Long memberId) {
+	private void approveTheInvitation(Long memberId) {
+		ChallengeMemberMapper challengeMemberMapper = findMemberInChallenge(memberId);
+		challengeMemberMapper.approve();
+		this.membersCount++;
+	}
+
+	private ChallengeMemberMapper findMemberInChallenge(Long memberId) {
 		return this.challengeMemberMappers.stream()
 				.filter(challengeMemberMapper -> challengeMemberMapper.isMember(memberId))
 				.findFirst()
 				.orElseThrow(() -> new NotFoundException(String.format("해당 멤버 (%s) 를 찾을 수 없습니다.", memberId), MEMBER_IN_CHALLENGE));
 	}
 
-	private boolean isPendingMember(Long memberId) {
-		return challengeMemberMappers.stream()
-				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isPendingMember(memberId));
+	private boolean isInvitedMember(Long memberId) {
+		return this.challengeMemberMappers.stream()
+				.anyMatch(challengeMemberMapper -> challengeMemberMapper.isInvitedMember(memberId));
 	}
 
-	private void validateNotParticipatedMember(Long memberId) {
-		if (isApprovedMemberInChallenge(memberId)) {
-			throw new ConflictException(String.format("이미 챌린지 (%s)에 참가한 멤버 (%s) 입니다", uuid, memberId), MEMBER_IN_CHALLENGE);
-		}
+	public void rejectParticipate(Long memberId) {
+		ChallengeMemberMapper challengeMemberMapper = findMemberInChallenge(memberId);
+		challengeMemberMapper.reject();
 	}
 
 }

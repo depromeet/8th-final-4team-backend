@@ -9,7 +9,7 @@ import com.month.domain.challenge.ChallengeRepository;
 import com.month.domain.member.Member;
 import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
-import com.month.service.member.dto.request.MemberUpdateInfoRequest;
+import com.month.service.member.dto.request.UpdateMemberInfoRequest;
 import com.month.service.member.dto.response.MemberDetailInfoResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -172,7 +172,7 @@ class MemberServiceTest {
 		String name = "승호강";
 		String photoUrl = "changed";
 
-		MemberUpdateInfoRequest request = MemberUpdateInfoRequest.testInstance(name, photoUrl);
+		UpdateMemberInfoRequest request = UpdateMemberInfoRequest.testInstance(name, photoUrl);
 
 		// when
 		memberService.updateMemberInfo(request, member.getId());
