@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.month.exception.type.ExceptionDescriptionType.CHALLENGE;
 import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
@@ -94,6 +95,12 @@ public class Challenge extends BaseTimeEntity {
 
 	private LocalDate getEndDate() {
 		return getEndDateTime().toLocalDate();
+	}
+
+	public List<Long> getMemberIds() {
+		return this.challengeMemberMappers.stream()
+				.map(ChallengeMemberMapper::getMemberId)
+				.collect(Collectors.toList());
 	}
 
 	int calculateProgressDays() {

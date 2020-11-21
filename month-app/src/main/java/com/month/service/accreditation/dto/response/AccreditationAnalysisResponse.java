@@ -13,8 +13,6 @@ public class AccreditationAnalysisResponse {
 
     private String challengeName;
 
-    private String challengeDescription;
-
     private LocalDateTime challengeStartDateTime;
 
     private LocalDateTime challengeEndDateTime;
@@ -36,7 +34,6 @@ public class AccreditationAnalysisResponse {
     public static AccreditationAnalysisResponse of(Challenge challenge, List<Participant> participantList, Participant my, int totalPeriod, int continuityDay) {
         AccreditationAnalysisResponse accreditationAnalysisResponse = new AccreditationAnalysisResponse();
         accreditationAnalysisResponse.challengeName = challenge.getName();
-        accreditationAnalysisResponse.challengeDescription = challenge.getDescription();
         accreditationAnalysisResponse.challengeStartDateTime = challenge.getStartDateTime();
         accreditationAnalysisResponse.challengeEndDateTime = challenge.getEndDateTime();
         accreditationAnalysisResponse.participants = participantList;
