@@ -35,3 +35,15 @@ out/
 
 ### querydsl ###
 generated/
+
+### firebase ###
+firebase-admin.json
+
+### AWS S3 ###
+application-aws.yml
+
+### temp file ###
+tmp/
+
+### JWT ###
+application-jwt.yml

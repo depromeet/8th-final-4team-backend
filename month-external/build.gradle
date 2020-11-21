@@ -1,0 +1,10 @@
+bootJar { enabled = false }
+jar { enabled = true }
+
+dependencies {
+    implementation project(':month-common')
+    implementation project(':month-domain')
+
+    implementation 'com.google.firebase:firebase-admin:6.8.1'
+    implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.1.RELEASE'
+}

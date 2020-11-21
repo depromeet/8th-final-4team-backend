@@ -1,0 +1,54 @@
+### Auth API
+POST {{host}}/api/v1/auth
+Content-Type: application/json
+
+{
+  "idToken": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjIzNzA1ZmNmY2NjMTg4Njg2ZjhhZjkyYWJiZjAxYzRmMjZiZDVlODMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vcHJvamVjdC03MzU1MDQ4MDkwNjEyMzk0NjkwIiwiYXVkIjoicHJvamVjdC03MzU1MDQ4MDkwNjEyMzk0NjkwIiwiYXV0aF90aW1lIjoxNjAyMzM3NjYxLCJ1c2VyX2lkIjoiR3NVb29TMnRGQmZRNkhDdmlVRExwM2Z0U0FyMiIsInN1YiI6IkdzVW9vUzJ0RkJmUTZIQ3ZpVURMcDNmdFNBcjIiLCJpYXQiOjE2MDIzMzc2NjEsImV4cCI6MTYwMjM0MTI2MSwiZW1haWwiOiJ0ZXN0MTEyMzEyMzEzMTEyM3QxMjMxMzExMjMxMjEyMzMzMjEyMzEzMjEyMzEyMzEyMzMzMjMyMTIzMTIzc3RAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbInRlc3QxMTIzMTIzMTMxMTIzdDEyMzEzMTEyMzEyMTIzMzMyMTIzMTMyMTIzMTIzMTIzMzMyMzIxMjMxMjNzdEBnbWFpbC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.G_oNtFH9aOVsYyc381NgYr_LjIZW6WCpC5MQwdWxp9xYvRHXQqT_pEzu9s0RQO2vNKUVqcXSpjBf1GzG48QccyqvtB3souqbuSAIvxVHgTQB02CpkuUuEdLFgXXVpjbOGQeYFCVYkP0RqaKTyZnylXLGQYXX3s89dQFYx4QnWLR8lSdEXa8_xL57sHnUaKV-iA418e-MZ24uFTqwg72u78hHaGn7P96ZdLMNp-Kv0x0B2q4QnRtA0D5XZos6XmFH2DVQsMCfFD72jq-4z_0ACSPUpXSdwtwOl0nuzWjzeJt9KAEQ4dVkU3yUJvB8nTjq-3WXPFiOmbMFlMN9CyV9AA"
+}
+
+> {%
+client.global.set("TOKEN", response.body["data"]["signUpToken"])
+ %}
+
+### SignUp API
+POST {{host}}/api/v1/member
+Content-Type: application/json
+
+{
+  "signUpToken": "{{TOKEN}}",
+  "name": "jello",
+  "photoUrl": "https://photo.jello.com"
+}
+
+> {%
+client.global.set("AUTHORIZATION", response.body["data"]["loginSessionId"])
+ %}
+
+### 로그아웃 API
+POST {{host}}/api/v1/logout
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+### 내 정보를 불러오는 API
+GET {{host}}/api/v1/member
+Authorization: Bearer {{AUTHORIZATION}}
+
+
+### 회원정보 수정 API
+PUT {{host}}/api/v1/member
+Content-Type: application/json
+Authorization: Bearer {{AUTHORIZATION}}
+
+{
+  "name": "호승강",
+  "photoUrl": "http://123.com"
+}
+
+### testAUth API (테스트 세션 받아오기)
+GET {{host}}/test-auth
+
+> {%
+client.global.set("AUTHORIZATION", response.body)
+ %}
+
+###

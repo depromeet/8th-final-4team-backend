@@ -1,0 +1,8 @@
+version: "3"
+services:
+  dev:
+    build: .
+    environment:
+      - "SPRING_PROFILES_ACTIVE=local"
+    ports:
+      - 8000:8000

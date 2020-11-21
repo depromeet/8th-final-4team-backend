@@ -1,0 +1,8 @@
+version: "3"
+services:
+  dev:
+    image: ${IMAGE}:${TAG}
+    environment:
+      - "SPRING_PROFILES_ACTIVE=local"
+    ports:
+      - 8001:8000

@@ -4,6 +4,10 @@ import com.month.domain.member.Member;
 
 public interface MemberRepositoryCustom {
 
-	Member findMemberById(Long memberId);
+	Member findMemberId(Long memberId);
+
+	Member findMemberByUid(String uid);
+
+	Member findMemberByEmail(String email);
 
 }
