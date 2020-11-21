@@ -122,7 +122,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.NAME, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendsSortBy.NAME, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -156,7 +156,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.NAME_REVERSE, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendsSortBy.NAME_REVERSE, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -188,7 +188,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.CREATED, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendsSortBy.CREATED, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -209,7 +209,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 		));
 
 		// when
-		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.CREATED_REVERSE, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendsSortBy.CREATED_REVERSE, memberId);
 
 		// then
 		assertThat(result).hasSize(2);
@@ -220,7 +220,7 @@ class FriendMapperServiceTest extends MemberSetupTest {
 	@Test
 	void 친구_추가_아무도_안되있을때_널이아닌_빈_리스트_반환한다() {
 		// when
-		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendListSortType.CREATED_REVERSE, memberId);
+		List<FriendSimpleInfoResponse> result = friendMapperService.retrieveMyFriendsList(FriendsSortBy.CREATED_REVERSE, memberId);
 
 		// then
 		assertThat(result).isEmpty();

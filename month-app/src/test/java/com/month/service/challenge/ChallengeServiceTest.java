@@ -6,6 +6,7 @@ import com.month.domain.member.MemberCreator;
 import com.month.domain.member.MemberRepository;
 import com.month.exception.NotAllowedException;
 import com.month.exception.NotFoundException;
+import com.month.exception.ValidationException;
 import com.month.service.MemberSetupTest;
 import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
 import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
@@ -116,6 +117,45 @@ class ChallengeServiceTest extends MemberSetupTest {
 		assertThat(challengeMemberMapper.getMemberId()).isEqualTo(memberId);
 		assertThat(challengeMemberMapper.getRole()).isEqualTo(role);
 		assertThat(challengeMemberMapper.getStatus()).isEqualTo(status);
+	}
+
+	@Test
+	void 새로운_챌린지를_생성할때_초대할_친구_리스트에_자기자신이_포함될_수_없다() {
+		// given
+		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
+				.name("운동하기")
+				.type(ChallengeType.EXERCISE)
+				.color("#000000")
+				.startDate(LocalDate.of(2020, 1, 1))
+				.endDate(LocalDate.of(2030, 1, 1))
+				.friendIds(Collections.singletonList(memberId))
+				.build();
+
+		// when & then
+		assertThatThrownBy(() -> {
+			challengeService.createNewChallenge(request, memberId);
+		}).isInstanceOf(ValidationException.class);
+	}
+
+	@Test
+	void 시작_날짜를_종료_날짜_이후로_설정할_수없다() {
+		// given
+		LocalDate startDate = LocalDate.of(2020, 1, 2);
+		LocalDate endDate = LocalDate.of(2020, 1, 1);
+
+		CreateNewChallengeRequest request = CreateNewChallengeRequest.testBuilder()
+				.name("운동하기")
+				.type(ChallengeType.EXERCISE)
+				.color("#000000")
+				.startDate(startDate)
+				.endDate(endDate)
+				.friendIds(Collections.emptyList())
+				.build();
+
+		// when & then
+		assertThatThrownBy(() -> {
+			challengeService.createNewChallenge(request, memberId);
+		}).isInstanceOf(ValidationException.class);
 	}
 
 	@Test

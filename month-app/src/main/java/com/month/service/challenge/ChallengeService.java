@@ -24,7 +24,7 @@ public class ChallengeService {
 
 	@Transactional
 	public ChallengeResponse createNewChallenge(CreateNewChallengeRequest request, Long memberId) {
-		Challenge challenge = request.toEntity();
+		Challenge challenge = request.toEntity(memberId);
 		challenge.addCreator(memberId);
 		challenge.addPendingParticipators(request.getFriendIds());
 		return ChallengeResponse.of(challengeRepository.save(challenge));
@@ -34,7 +34,7 @@ public class ChallengeService {
 	public MyChallengesResponse retrieveMyChallenges(Long memberId) {
 		List<Challenge> challengeList = challengeRepository.findChallengesByMemberId(memberId);
 		ChallengeRetrieveCollection collection = ChallengeRetrieveCollection.of(challengeList);
-		return MyChallengesResponse.of(collection.getDoneChallenges(), collection.getDoingChallenges(), collection.getTodoChallengs());
+		return MyChallengesResponse.of(collection.getDoneChallenges(), collection.getDoingChallenges(), collection.getTodoChallenges());
 	}
 
 	@Transactional(readOnly = true)

@@ -3,6 +3,7 @@ package com.month.domain.challenge;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -11,9 +12,11 @@ import java.util.stream.Collectors;
 public class ChallengeRetrieveCollection {
 
 	private final List<Challenge> challengeList = new ArrayList<>();
+	private LocalDateTime now;
 
 	private ChallengeRetrieveCollection(List<Challenge> challengeList) {
 		this.challengeList.addAll(challengeList);
+		now = LocalDateTime.now();
 	}
 
 	public static ChallengeRetrieveCollection of(List<Challenge> challenges) {
@@ -22,19 +25,19 @@ public class ChallengeRetrieveCollection {
 
 	public List<Challenge> getDoingChallenges() {
 		return this.challengeList.stream()
-				.filter(Challenge::isDoing)
+				.filter(challenge -> challenge.isDoing(now))
 				.collect(Collectors.toList());
 	}
 
 	public List<Challenge> getDoneChallenges() {
 		return this.challengeList.stream()
-				.filter(Challenge::isDone)
+				.filter(challenge -> challenge.isDone(now))
 				.collect(Collectors.toList());
 	}
 
-	public List<Challenge> getTodoChallengs() {
+	public List<Challenge> getTodoChallenges() {
 		return this.challengeList.stream()
-				.filter(Challenge::isTodo)
+				.filter(challenge -> challenge.isTodo(now))
 				.collect(Collectors.toList());
 	}
 

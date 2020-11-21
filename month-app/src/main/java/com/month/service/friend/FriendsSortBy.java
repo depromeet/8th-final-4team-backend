@@ -8,7 +8,7 @@ import java.util.Comparator;
 
 @Getter
 @RequiredArgsConstructor
-public enum FriendListSortType {
+public enum FriendsSortBy {
 
 	NAME("NAME", Comparator.comparing(FriendSimpleInfoResponse::getName)),
 	NAME_REVERSE("NAME_REVERSE", Comparator.comparing(FriendSimpleInfoResponse::getName).reversed()),
