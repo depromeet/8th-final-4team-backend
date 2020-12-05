@@ -9,5 +9,5 @@
 * month-app : 어플리케이션 계층
 * month-external: 외부 API 연동 계층
 * month-domainservice: 도메인서비스 계층
-* month-domain : 도메인 계층 (Domain, Repository, Domain Service) 
-* month-common: 공통 모듈 계
+* month-domain : 도메인 계층 (Domain, Repository) 
+* month-common: 공통 모듈 계층
