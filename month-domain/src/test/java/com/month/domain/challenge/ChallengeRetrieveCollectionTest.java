@@ -22,7 +22,7 @@ class ChallengeRetrieveCollectionTest {
 		ChallengeRetrieveCollection collection = ChallengeRetrieveCollection.of(Collections.singletonList(challenge));
 
 		// when
-		List<Challenge> challengeList = collection.getTodoChallengs();
+		List<Challenge> challengeList = collection.getTodoChallenges();
 
 		// then
 		assertThat(challengeList).hasSize(1);

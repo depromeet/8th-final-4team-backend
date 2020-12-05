@@ -3,11 +3,9 @@ package com.month.service.challenge;
 import com.month.domain.challenge.Challenge;
 import com.month.domain.challenge.ChallengeRepository;
 import com.month.domain.challenge.ChallengeRetrieveCollection;
-import com.month.service.challenge.dto.request.CreateNewChallengeRequest;
-import com.month.service.challenge.dto.request.GetChallengeInfoByInvitationKeyRequest;
-import com.month.service.challenge.dto.request.GetInvitationKeyRequest;
-import com.month.service.challenge.dto.request.ParticipateChallengeRequest;
+import com.month.service.challenge.dto.request.*;
 import com.month.service.challenge.dto.response.ChallengeResponse;
+import com.month.service.challenge.dto.response.InvitedChallengeListResponse;
 import com.month.service.challenge.dto.response.MyChallengesResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +22,7 @@ public class ChallengeService {
 
 	@Transactional
 	public ChallengeResponse createNewChallenge(CreateNewChallengeRequest request, Long memberId) {
-		Challenge challenge = request.toEntity();
+		Challenge challenge = request.toEntity(memberId);
 		challenge.addCreator(memberId);
 		challenge.addPendingParticipators(request.getFriendIds());
 		return ChallengeResponse.of(challengeRepository.save(challenge));
@@ -34,7 +32,7 @@ public class ChallengeService {
 	public MyChallengesResponse retrieveMyChallenges(Long memberId) {
 		List<Challenge> challengeList = challengeRepository.findChallengesByMemberId(memberId);
 		ChallengeRetrieveCollection collection = ChallengeRetrieveCollection.of(challengeList);
-		return MyChallengesResponse.of(collection.getDoneChallenges(), collection.getDoingChallenges(), collection.getTodoChallengs());
+		return MyChallengesResponse.of(collection.getDoneChallenges(), collection.getDoingChallenges(), collection.getTodoChallenges());
 	}
 
 	@Transactional(readOnly = true)
@@ -50,10 +48,10 @@ public class ChallengeService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<ChallengeResponse> retrieveInvitedChallengeList(Long memberId) {
+	public List<InvitedChallengeListResponse> retrieveInvitedChallengeList(Long memberId) {
 		List<Challenge> challenges = challengeRepository.findPendingChallengeByMemberId(memberId);
 		return challenges.stream()
-				.map(ChallengeResponse::of)
+				.map(challenge -> InvitedChallengeListResponse.of(challenge, memberId))
 				.collect(Collectors.toList());
 	}
 
@@ -61,6 +59,12 @@ public class ChallengeService {
 	public void participateByInvitationKey(ParticipateChallengeRequest request, Long memberId) {
 		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, request.getInvitationKey());
 		challenge.participate(memberId);
+	}
+
+	@Transactional
+	public void rejectInvitation(RejectInviteChallengeRequest request, Long memberId) {
+		Challenge challenge = ChallengeServiceUtils.findChallengeByInvitationKey(challengeRepository, request.getInvitationKey());
+		challenge.rejectParticipate(memberId);
 	}
 
 }

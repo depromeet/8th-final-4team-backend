@@ -1,6 +1,7 @@
 package com.month.domain.challenge;
 
 import com.month.domain.BaseTimeEntity;
+import com.month.exception.NotAllowedException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+
+import static com.month.exception.type.ExceptionDescriptionType.MEMBER_IN_CHALLENGE;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -53,12 +56,8 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 		return new ChallengeMemberMapper(challenge, memberId, ChallengeRole.PARTICIPATOR, status);
 	}
 
-	boolean isApprovedMember(Long memberId) {
-		return this.memberId.equals(memberId) && this.status.equals(ChallengeMemberStatus.APPROVED);
-	}
-
-	boolean isPendingMember(Long memberId) {
-		return this.memberId.equals(memberId) && this.status.equals(ChallengeMemberStatus.PENDING);
+	boolean isParticipating(Long memberId) {
+		return this.memberId.equals(memberId) && this.status.isParticipating();
 	}
 
 	boolean isMember(Long memberId) {
@@ -66,7 +65,23 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 	}
 
 	void approve() {
+		validateInvitedMember(memberId);
 		this.status = ChallengeMemberStatus.APPROVED;
+	}
+
+	void reject() {
+		validateInvitedMember(memberId);
+		this.status = ChallengeMemberStatus.REJECT;
+	}
+
+	private void validateInvitedMember(Long memberId) {
+		if (!isInvitedMember(memberId)) {
+			throw new NotAllowedException(String.format("멤버 (%s)는 초대받은 사용자가 아닙니다", memberId), MEMBER_IN_CHALLENGE);
+		}
+	}
+
+	boolean isInvitedMember(Long memberId) {
+		return this.memberId.equals(memberId) && this.status.equals(ChallengeMemberStatus.PENDING);
 	}
 
 }

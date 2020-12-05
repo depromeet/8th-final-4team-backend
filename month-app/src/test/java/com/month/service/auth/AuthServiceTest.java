@@ -58,7 +58,7 @@ class AuthServiceTest {
 
 	private static class StubJwtTokenProvider implements JwtTokenProvider {
 		@Override
-		public String createSignUpToken(String idToken, String email) {
+		public String encodeSignUpToken(String idToken, String email) {
 			return "token";
 		}
 

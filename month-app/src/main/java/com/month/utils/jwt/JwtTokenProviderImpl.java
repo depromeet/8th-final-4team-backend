@@ -24,7 +24,7 @@ public class JwtTokenProviderImpl implements JwtTokenProvider {
 
 	private final JwtTokenProviderComponent jwtTokenProviderComponent;
 
-	public String createSignUpToken(String idToken, String email) {
+	public String encodeSignUpToken(String idToken, String email) {
 		try {
 			final ZonedDateTime now = ZonedDateTime.now();
 			return JWT.create()
