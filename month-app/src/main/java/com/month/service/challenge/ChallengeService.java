@@ -7,6 +7,8 @@ import com.month.service.challenge.dto.request.*;
 import com.month.service.challenge.dto.response.ChallengeResponse;
 import com.month.service.challenge.dto.response.InvitedChallengeListResponse;
 import com.month.service.challenge.dto.response.MyChallengesResponse;
+import com.month.service.push.PushService;
+import com.month.service.push.dto.request.PushRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +22,15 @@ public class ChallengeService {
 
 	private final ChallengeRepository challengeRepository;
 
+	private final PushService pushService;
+
 	@Transactional
 	public ChallengeResponse createNewChallenge(CreateNewChallengeRequest request, Long memberId) {
 		Challenge challenge = request.toEntity(memberId);
 		challenge.addCreator(memberId);
 		challenge.addPendingParticipators(request.getFriendIds());
+
+		pushService.sendParticipators(challenge);
 		return ChallengeResponse.of(challengeRepository.save(challenge));
 	}
 
