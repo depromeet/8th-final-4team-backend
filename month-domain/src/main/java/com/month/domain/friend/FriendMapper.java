@@ -14,6 +14,9 @@ import static com.month.exception.type.ExceptionDescriptionType.REGISTER_FRIEND;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(
+		indexes = @Index(name = "idx_friend_mapper_1", columnList = "memberId")
+)
 public class FriendMapper extends BaseTimeEntity {
 
 	@Id
