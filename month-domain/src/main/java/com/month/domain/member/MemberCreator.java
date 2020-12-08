@@ -1,5 +1,7 @@
 package com.month.domain.member;
 
+import com.month.domain.common.Uuid;
+
 public final class MemberCreator {
 
 	public static Member create(String email, String name, String photoUrl, String uid) {
@@ -15,14 +17,15 @@ public final class MemberCreator {
 		return Member.builder()
 				.email(email)
 				.name(name)
-				.uid("uid")
+				.uid("test" + Uuid.newInstance().getUuid())
 				.build();
 	}
 
 	public static Member create(String email) {
 		return Member.builder()
 				.email(email)
-				.uid("uid")
+				.uid("test" + Uuid.newInstance().getUuid())
+				.name("testAccount")
 				.build();
 	}
 

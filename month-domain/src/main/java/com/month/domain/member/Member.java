@@ -11,6 +11,12 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @Entity
+@Table(
+		uniqueConstraints = {
+				@UniqueConstraint(name = "uni_member_1", columnNames = {"email"}),
+				@UniqueConstraint(name = "uni_member_2", columnNames = {"uid"})
+		}
+)
 public class Member extends BaseTimeEntity {
 
 	@Id
@@ -20,6 +26,7 @@ public class Member extends BaseTimeEntity {
 	@Embedded
 	private Email email;
 
+	@Column(nullable = false, length = 100)
 	private String name;
 
 	private String photoUrl;

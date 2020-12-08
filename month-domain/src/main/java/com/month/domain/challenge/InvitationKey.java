@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Embeddable
 public class InvitationKey {
 
+	@Column(length = 50)
 	private String invitationKey;
 
 	private InvitationKey(String invitationKey) {
