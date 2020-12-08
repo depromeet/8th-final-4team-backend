@@ -36,9 +36,11 @@ public class ChallengeMemberMapper extends BaseTimeEntity {
 	private Long memberId;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 30)
 	private ChallengeRole role;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false, length = 30)
 	private ChallengeMemberStatus status;
 
 	private ChallengeMemberMapper(Challenge challenge, Long memberId, ChallengeRole role, ChallengeMemberStatus status) {
