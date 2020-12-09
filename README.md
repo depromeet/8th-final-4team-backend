@@ -16,7 +16,6 @@
 - AWS RDS (MySQL 5.7)
 - Application Load Balancer (ALB)
 - Github Action CI/CD
-
 ### Test
 - AWS EC2
 - H2 In-memory DB
