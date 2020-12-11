@@ -34,12 +34,15 @@ public class Member extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String uid;
 
+	private String deviceToken;
+
 	@Builder
 	private Member(String email, String name, String photoUrl, String uid) {
 		this.email = Email.of(email);
 		this.name = name;
 		this.photoUrl = photoUrl;
 		this.uid = uid;
+		this.deviceToken = null;
 	}
 
 	public static Member newInstance(String email, String name, String photoUrl, String uid) {
@@ -64,4 +67,7 @@ public class Member extends BaseTimeEntity {
 		}
 	}
 
+	public void setDeviceToken(String deviceToken) {
+		this.deviceToken = deviceToken;
+	}
 }

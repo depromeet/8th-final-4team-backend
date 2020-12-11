@@ -4,6 +4,7 @@ import com.month.domain.member.Member;
 import com.month.domain.member.MemberRepository;
 import com.month.domainservice.AchievementRateDomainService;
 import com.month.domainservice.dto.response.MemberAchieveRateResponse;
+import com.month.service.member.dto.request.DeviceTokenRequest;
 import com.month.service.member.dto.request.UpdateMemberInfoRequest;
 import com.month.service.member.dto.response.MemberDetailInfoResponse;
 import com.month.service.member.dto.response.MemberInfoResponse;
@@ -15,21 +16,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MemberService {
 
-	private final MemberRepository memberRepository;
-	private final AchievementRateDomainService achievementRateDomainService;
+    private final MemberRepository memberRepository;
+    private final AchievementRateDomainService achievementRateDomainService;
 
-	@Transactional(readOnly = true)
-	public MemberDetailInfoResponse getMemberInfo(Long memberId) {
-		Member member = MemberServiceUtils.findMemberById(memberRepository, memberId);
-		MemberAchieveRateResponse achievementRate = achievementRateDomainService.getMemberAchievementRate(member.getId());
-		return MemberDetailInfoResponse.of(member, achievementRate.getTotalChallengesCount(), achievementRate.getAchieveChallengeRate());
-	}
+    @Transactional(readOnly = true)
+    public MemberDetailInfoResponse getMemberInfo(Long memberId) {
+        Member member = MemberServiceUtils.findMemberById(memberRepository, memberId);
+        MemberAchieveRateResponse achievementRate = achievementRateDomainService.getMemberAchievementRate(member.getId());
+        return MemberDetailInfoResponse.of(member, achievementRate.getTotalChallengesCount(), achievementRate.getAchieveChallengeRate());
+    }
 
-	@Transactional
-	public MemberInfoResponse updateMemberInfo(UpdateMemberInfoRequest request, Long memberId) {
-		Member member = MemberServiceUtils.findMemberById(memberRepository, memberId);
-		member.updateInfo(request.getName(), request.getPhotoUrl());
-		return MemberInfoResponse.of(member);
-	}
+    @Transactional
+    public MemberInfoResponse updateMemberInfo(UpdateMemberInfoRequest request, Long memberId) {
+        Member member = MemberServiceUtils.findMemberById(memberRepository, memberId);
+        member.updateInfo(request.getName(), request.getPhotoUrl());
+        return MemberInfoResponse.of(member);
+    }
+
+    @Transactional
+    public void deviceTokenMember(DeviceTokenRequest request, Long memberId) {
+        Member member = MemberServiceUtils.findMemberById(memberRepository, memberId);
+        member.setDeviceToken(request.getDeviceToken());
+    }
 
 }

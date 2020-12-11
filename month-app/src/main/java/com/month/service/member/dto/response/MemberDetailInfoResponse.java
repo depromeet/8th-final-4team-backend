@@ -17,12 +17,14 @@ public class MemberDetailInfoResponse {
 
 	private final String photoUrl;
 
+	private final String deviceToken;
+
 	private final int totalChallengesCount;
 
 	private final double achieveChallengeRate;
 
 	public static MemberDetailInfoResponse of(Member member, int totalChallengesCount, double achieveRate) {
-		return new MemberDetailInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getPhotoUrl(),
+		return new MemberDetailInfoResponse(member.getId(), member.getEmail(), member.getName(), member.getPhotoUrl(), member.getDeviceToken(),
 				totalChallengesCount, achieveRate);
 	}
 
