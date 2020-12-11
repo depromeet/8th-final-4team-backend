@@ -29,8 +29,7 @@ public class ChallengeService {
 		Challenge challenge = request.toEntity(memberId);
 		challenge.addCreator(memberId);
 		challenge.addPendingParticipators(request.getFriendIds());
-
-		pushService.sendParticipators(challenge);
+//		pushService.sendParticipators(challenge);
 		return ChallengeResponse.of(challengeRepository.save(challenge));
 	}
 
