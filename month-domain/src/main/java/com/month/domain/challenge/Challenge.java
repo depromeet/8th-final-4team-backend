@@ -24,6 +24,11 @@ import static com.month.exception.type.ExceptionDescriptionType.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@Table(
+		uniqueConstraints = {
+				@UniqueConstraint(name = "uni_challenge_1", columnNames = {"uuid"}),
+		}
+)
 public class Challenge extends BaseTimeEntity {
 
 	@Id
@@ -33,11 +38,14 @@ public class Challenge extends BaseTimeEntity {
 	@Embedded
 	private Uuid uuid;
 
+	@Column(length = 100)
 	private String name;
 
 	@Enumerated(EnumType.STRING)
+	@Column(length = 30, nullable = false)
 	private ChallengeType type;
 
+	@Column(length = 30)
 	private String color;
 
 	@Embedded

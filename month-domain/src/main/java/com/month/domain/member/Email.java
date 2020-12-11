@@ -19,7 +19,7 @@ public class Email {
 
 	private final static Pattern EMAIL_REGEX = Pattern.compile("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.,-]+\\.[a-zA-Z]{2,6}$");
 
-	@Column(nullable = false)
+	@Column(nullable = false, length = 100)
 	private String email;
 
 	private Email(String email) {
